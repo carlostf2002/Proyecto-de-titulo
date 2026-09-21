@@ -1,0 +1,19 @@
+{
+  "name": "habitasmart",
+  "private": true,
+  "version": "0.1.0",
+  "description": "HabitaSmart - Plataforma integral para la gestion de condominios",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "build:backend": "npm run build --workspace backend",
+    "build:frontend": "npm run build --workspace frontend",
+    "prisma:generate": "npm run prisma:generate --workspace backend",
+    "prisma:migrate": "npm run prisma:migrate --workspace backend",
+    "prisma:seed": "npm run prisma:seed --workspace backend"
+  }
+}

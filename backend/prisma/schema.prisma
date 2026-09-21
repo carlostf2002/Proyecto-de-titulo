@@ -1,0 +1,439 @@
+// HabitaSmart - Esquema de base de datos
+// Modelo relacional: Condominio -> Torres -> Departamentos -> Residentes
+// Residente -> Reservas / Multas / Incidencias / Visitas / Encomiendas
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------
+// Enums
+// ------------------------------
+
+enum Rol {
+  ADMIN
+  RESIDENTE
+  CONSERJE
+}
+
+enum EstadoReserva {
+  CONFIRMADA
+  CANCELADA
+}
+
+enum EstadoMulta {
+  PENDIENTE
+  PAGADA
+  APELADA
+  ANULADA
+}
+
+enum EstadoIncidencia {
+  REPORTADA
+  EN_REVISION
+  EN_PROCESO
+  RESUELTA
+}
+
+enum PrioridadIncidencia {
+  BAJA
+  MEDIA
+  ALTA
+}
+
+enum EstadoEncomienda {
+  RECIBIDA
+  NOTIFICADA
+  RETIRADA
+}
+
+enum TipoComunicado {
+  CORTE_AGUA
+  CORTE_ELECTRICO
+  MANTENCION
+  REUNION
+  EMERGENCIA
+  CAMBIO_HORARIO
+  GENERAL
+}
+
+enum EstadoVisita {
+  VIGENTE
+  USADA
+  EXPIRADA
+  REVOCADA
+}
+
+enum TipoQrToken {
+  RESIDENTE
+  VISITA
+}
+
+enum ResultadoAcceso {
+  AUTORIZADO
+  RECHAZADO
+}
+
+// ------------------------------
+// Estructura del condominio
+// ------------------------------
+
+model Condominio {
+  id        String   @id @default(uuid())
+  nombre    String
+  direccion String?
+  comuna    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  torres        Torre[]
+  departamentos Departamento[]
+  usuarios      Usuario[]
+  espaciosComunes EspacioComun[]
+  multas        Multa[]
+  incidencias   Incidencia[]
+  encomiendas   Encomienda[]
+  comunicados   Comunicado[]
+  visitas       Visita[]
+  documentos    Documento[]
+  accesos       AccesoLog[]
+
+  @@map("condominios")
+}
+
+model Torre {
+  id           String @id @default(uuid())
+  condominioId String
+  nombre       String
+
+  condominio    Condominio     @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  departamentos Departamento[]
+
+  createdAt DateTime @default(now())
+
+  @@map("torres")
+}
+
+model Departamento {
+  id           String  @id @default(uuid())
+  condominioId String
+  torreId      String?
+  numero       String
+
+  condominio Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  torre      Torre?     @relation(fields: [torreId], references: [id], onDelete: SetNull)
+  residentes Usuario[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([condominioId, torreId, numero])
+  @@map("departamentos")
+}
+
+// ------------------------------
+// Usuarios y autenticación (HU-01, HU-02)
+// ------------------------------
+
+model Usuario {
+  id             String  @id @default(uuid())
+  condominioId   String
+  rol            Rol
+  email          String  @unique
+  passwordHash   String
+  nombre         String
+  apellido       String
+  telefono       String?
+  departamentoId String?
+  activo         Boolean @default(true)
+
+  condominio   Condominio    @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  departamento Departamento? @relation(fields: [departamentoId], references: [id], onDelete: SetNull)
+
+  reservas             Reserva[]
+  multas               Multa[]              @relation("MultaResidente")
+  multasRegistradas    Multa[]              @relation("MultaRegistradaPor")
+  incidenciasReportadas Incidencia[]        @relation("IncidenciaReportante")
+  incidenciasAsignadas Incidencia[]         @relation("IncidenciaResponsable")
+  incidenciaHistorial  IncidenciaHistorial[]
+  encomiendasRecibidas Encomienda[]         @relation("EncomiendaResidente")
+  encomiendasRegistradas Encomienda[]       @relation("EncomiendaRegistradaPor")
+  comunicadosPublicados Comunicado[]
+  visitasRegistradas   Visita[]
+  qrTokens             QrToken[]
+  documentosSubidos    Documento[]
+  accesosValidados     AccesoLog[]
+  notificaciones       Notificacion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([condominioId, rol])
+  @@map("usuarios")
+}
+
+// ------------------------------
+// Espacios comunes y reservas (HU-03, HU-04, HU-05)
+// ------------------------------
+
+model EspacioComun {
+  id            String  @id @default(uuid())
+  condominioId  String
+  nombre        String
+  descripcion   String?
+  capacidad     Int?
+  horarioInicio String // HH:mm
+  horarioFin    String // HH:mm
+  activo        Boolean @default(true)
+
+  condominio Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  reservas   Reserva[]
+
+  createdAt DateTime @default(now())
+
+  @@map("espacios_comunes")
+}
+
+model Reserva {
+  id             String        @id @default(uuid())
+  espacioComunId String
+  usuarioId      String
+  fecha          DateTime      @db.Date
+  horaInicio     String // HH:mm
+  horaFin        String // HH:mm
+  estado         EstadoReserva @default(CONFIRMADA)
+
+  espacioComun EspacioComun @relation(fields: [espacioComunId], references: [id], onDelete: Cascade)
+  usuario      Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([espacioComunId, fecha])
+  @@map("reservas")
+}
+
+// ------------------------------
+// Multas (HU-06, HU-07)
+// ------------------------------
+
+model Multa {
+  id                String      @id @default(uuid())
+  condominioId      String
+  usuarioId         String
+  registradaPorId   String
+  motivo            String
+  fecha             DateTime    @db.Date
+  monto             Int
+  estado            EstadoMulta @default(PENDIENTE)
+  observaciones     String?
+
+  condominio    Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  usuario       Usuario    @relation("MultaResidente", fields: [usuarioId], references: [id], onDelete: Cascade)
+  registradaPor Usuario    @relation("MultaRegistradaPor", fields: [registradaPorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([condominioId, usuarioId])
+  @@map("multas")
+}
+
+// ------------------------------
+// Incidencias (HU-08 a HU-11, HU-25)
+// ------------------------------
+
+model Incidencia {
+  id             String              @id @default(uuid())
+  condominioId   String
+  usuarioId      String
+  titulo         String
+  descripcion    String
+  ubicacion      String
+  fotoUrl        String?
+  categoria      String?
+  prioridad      PrioridadIncidencia?
+  estado         EstadoIncidencia    @default(REPORTADA)
+  responsableId  String?
+  sugerenciaIA   Json?
+
+  condominio  Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  usuario     Usuario    @relation("IncidenciaReportante", fields: [usuarioId], references: [id], onDelete: Cascade)
+  responsable Usuario?   @relation("IncidenciaResponsable", fields: [responsableId], references: [id])
+
+  historial IncidenciaHistorial[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([condominioId, estado])
+  @@map("incidencias")
+}
+
+model IncidenciaHistorial {
+  id             String   @id @default(uuid())
+  incidenciaId   String
+  estadoAnterior String?
+  estadoNuevo    String
+  usuarioId      String
+  observacion    String?
+
+  incidencia Incidencia @relation(fields: [incidenciaId], references: [id], onDelete: Cascade)
+  usuario    Usuario    @relation(fields: [usuarioId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("incidencia_historial")
+}
+
+// ------------------------------
+// Encomiendas (HU-12 a HU-14)
+// ------------------------------
+
+model Encomienda {
+  id                String           @id @default(uuid())
+  condominioId      String
+  usuarioId         String
+  registradaPorId   String
+  remitente         String?
+  estado            EstadoEncomienda @default(RECIBIDA)
+  fechaRecepcion    DateTime         @default(now())
+  fechaRetiro       DateTime?
+
+  condominio    Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  usuario       Usuario    @relation("EncomiendaResidente", fields: [usuarioId], references: [id], onDelete: Cascade)
+  registradaPor Usuario    @relation("EncomiendaRegistradaPor", fields: [registradaPorId], references: [id])
+
+  @@index([condominioId, usuarioId, estado])
+  @@map("encomiendas")
+}
+
+// ------------------------------
+// Comunicados (HU-15, HU-16)
+// ------------------------------
+
+model Comunicado {
+  id           String         @id @default(uuid())
+  condominioId String
+  autorId      String
+  titulo       String
+  contenido    String
+  tipo         TipoComunicado @default(GENERAL)
+
+  condominio Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  autor      Usuario    @relation(fields: [autorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([condominioId, createdAt])
+  @@map("comunicados")
+}
+
+// ------------------------------
+// Visitas y control de acceso QR (HU-17 a HU-21)
+// ------------------------------
+
+model Visita {
+  id             String       @id @default(uuid())
+  condominioId   String
+  residenteId    String
+  nombreVisita   String
+  fecha          DateTime     @db.Date
+  periodoInicio  DateTime
+  periodoFin     DateTime
+  observaciones  String?
+  soloUnUso      Boolean      @default(false)
+  estado         EstadoVisita @default(VIGENTE)
+
+  condominio Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  residente  Usuario    @relation(fields: [residenteId], references: [id], onDelete: Cascade)
+  qrToken    QrToken?
+
+  createdAt DateTime @default(now())
+
+  @@map("visitas")
+}
+
+model QrToken {
+  id             String      @id @default(uuid())
+  tipo           TipoQrToken
+  token          String      @unique // jti del JWT firmado
+  usuarioId      String?
+  visitaId       String?     @unique
+  expiraEn       DateTime
+  usosMaximos    Int?
+  usosRealizados Int         @default(0)
+  revocado       Boolean     @default(false)
+
+  usuario Usuario? @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  visita  Visita?  @relation(fields: [visitaId], references: [id], onDelete: Cascade)
+
+  accesos AccesoLog[]
+
+  createdAt DateTime @default(now())
+
+  @@map("qr_tokens")
+}
+
+model AccesoLog {
+  id             String          @id @default(uuid())
+  condominioId   String
+  qrTokenId      String?
+  validadoPorId  String
+  resultado      ResultadoAcceso
+  motivo         String?
+
+  condominio  Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  qrToken     QrToken?   @relation(fields: [qrTokenId], references: [id])
+  validadoPor Usuario    @relation(fields: [validadoPorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([condominioId, createdAt])
+  @@map("accesos_log")
+}
+
+// ------------------------------
+// Documentos (HU-22, HU-23)
+// ------------------------------
+
+model Documento {
+  id            String  @id @default(uuid())
+  condominioId  String
+  subidoPorId   String
+  titulo        String
+  categoria     String?
+  archivoUrl    String
+
+  condominio Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  subidoPor  Usuario    @relation(fields: [subidoPorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("documentos")
+}
+
+// ------------------------------
+// Notificaciones (soporte HU-13, HU-16, dashboard)
+// ------------------------------
+
+model Notificacion {
+  id           String   @id @default(uuid())
+  usuarioId    String
+  tipo         String
+  titulo       String
+  mensaje      String
+  entidadTipo  String?
+  entidadId    String?
+  leida        Boolean  @default(false)
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([usuarioId, leida])
+  @@map("notificaciones")
+}

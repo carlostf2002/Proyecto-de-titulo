@@ -1,0 +1,113 @@
+import { FormEvent, useRef, useState } from "react";
+import { incidenciasApi } from "../../api/endpoints";
+import { useAsync } from "../../hooks/useAsync";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Spinner, Textarea } from "../../components/ui";
+import { formatFechaHora } from "../../lib/format";
+import { ESTADO_INCIDENCIA_TONO } from "../../lib/badges";
+import { mensajeError } from "../../api/client";
+
+export default function ResidenteIncidencias() {
+  const { data, cargando, error, recargar } = useAsync(() => incidenciasApi.mias(), []);
+  const [titulo, setTitulo] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [ubicacion, setUbicacion] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [exito, setExito] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setFormError(null);
+    setExito(null);
+    setEnviando(true);
+    try {
+      const formData = new FormData();
+      formData.append("titulo", titulo);
+      formData.append("descripcion", descripcion);
+      formData.append("ubicacion", ubicacion);
+      const archivo = fileRef.current?.files?.[0];
+      if (archivo) formData.append("foto", archivo);
+
+      await incidenciasApi.crear(formData);
+      setTitulo("");
+      setDescripcion("");
+      setUbicacion("");
+      if (fileRef.current) fileRef.current.value = "";
+      setExito("Incidencia reportada correctamente.");
+      recargar();
+    } catch (err) {
+      setFormError(mensajeError(err));
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl font-bold text-slate-900">Incidencias</h1>
+        <p className="text-sm text-slate-500">Reporta problemas y haz seguimiento (HU-08, HU-09).</p>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader title="Mis incidencias" />
+          {cargando ? (
+            <Spinner />
+          ) : error ? (
+            <Alert tone="red">{error}</Alert>
+          ) : !data?.length ? (
+            <EmptyState title="Aun no has reportado incidencias" />
+          ) : (
+            <div className="divide-y divide-slate-50">
+              {data.map((inc) => (
+                <div key={inc.id} className="px-5 py-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-slate-800">{inc.titulo}</p>
+                    <Badge tone={ESTADO_INCIDENCIA_TONO[inc.estado]}>{inc.estado}</Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-slate-500">{inc.ubicacion}</p>
+                  <p className="mt-1 text-sm text-slate-600">{inc.descripcion}</p>
+                  <p className="mt-1 text-xs text-slate-400">Reportada el {formatFechaHora(inc.createdAt)}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        <Card className="h-fit">
+          <CardHeader title="Reportar nueva incidencia" />
+          <form onSubmit={handleSubmit} className="space-y-3 p-5">
+            <div>
+              <Label>Titulo</Label>
+              <Input required value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ej: Filtracion" />
+            </div>
+            <div>
+              <Label>Ubicacion</Label>
+              <Input
+                required
+                value={ubicacion}
+                onChange={(e) => setUbicacion(e.target.value)}
+                placeholder="Ej: Estacionamiento subterraneo"
+              />
+            </div>
+            <div>
+              <Label>Descripcion</Label>
+              <Textarea required rows={4} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+            </div>
+            <div>
+              <Label>Fotografia (opcional)</Label>
+              <input ref={fileRef} type="file" accept="image/*" className="block w-full text-sm" />
+            </div>
+            {formError && <Alert tone="red">{formError}</Alert>}
+            {exito && <Alert tone="green">{exito}</Alert>}
+            <Button type="submit" className="w-full" loading={enviando}>
+              Reportar incidencia
+            </Button>
+          </form>
+        </Card>
+      </div>
+    </div>
+  );
+}

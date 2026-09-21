@@ -1,0 +1,241 @@
+import { FormEvent, useEffect, useState } from "react";
+import { incidenciasApi, usuariosApi } from "../../api/endpoints";
+import { useAsync } from "../../hooks/useAsync";
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Input,
+  Label,
+  Modal,
+  Select,
+  Spinner,
+  Textarea,
+} from "../../components/ui";
+import { formatFechaHora } from "../../lib/format";
+import { ESTADO_INCIDENCIA_TONO, PRIORIDAD_TONO } from "../../lib/badges";
+import { mensajeError } from "../../api/client";
+import type { EstadoIncidencia, Incidencia, PrioridadIncidencia } from "../../types";
+
+const ESTADOS: EstadoIncidencia[] = ["REPORTADA", "EN_REVISION", "EN_PROCESO", "RESUELTA"];
+const PRIORIDADES: PrioridadIncidencia[] = ["BAJA", "MEDIA", "ALTA"];
+
+export default function AdminIncidencias() {
+  const { data, cargando, error, recargar } = useAsync(() => incidenciasApi.listarTodas(), []);
+  const [seleccionadaId, setSeleccionadaId] = useState<string | null>(null);
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl font-bold text-slate-900">Incidencias</h1>
+        <p className="text-sm text-slate-500">Gestion, priorizacion e historial (HU-10, HU-11, HU-25).</p>
+      </div>
+
+      <Card>
+        {cargando ? (
+          <Spinner />
+        ) : error ? (
+          <Alert tone="red">{error}</Alert>
+        ) : !data?.length ? (
+          <EmptyState title="Aun no hay incidencias reportadas" />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-slate-100 text-xs uppercase text-slate-400">
+                <tr>
+                  <th className="px-5 py-3">Titulo</th>
+                  <th className="px-5 py-3">Residente</th>
+                  <th className="px-5 py-3">Ubicacion</th>
+                  <th className="px-5 py-3">Prioridad</th>
+                  <th className="px-5 py-3">Estado</th>
+                  <th className="px-5 py-3">Reportada</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {data.map((inc) => (
+                  <tr
+                    key={inc.id}
+                    className="cursor-pointer hover:bg-slate-50"
+                    onClick={() => setSeleccionadaId(inc.id)}
+                  >
+                    <td className="px-5 py-3 font-medium text-slate-800">{inc.titulo}</td>
+                    <td className="px-5 py-3 text-slate-500">
+                      {inc.usuario ? `${inc.usuario.nombre} ${inc.usuario.apellido}` : "—"}
+                    </td>
+                    <td className="px-5 py-3 text-slate-500">{inc.ubicacion}</td>
+                    <td className="px-5 py-3">
+                      {inc.prioridad ? <Badge tone={PRIORIDAD_TONO[inc.prioridad]}>{inc.prioridad}</Badge> : "—"}
+                    </td>
+                    <td className="px-5 py-3">
+                      <Badge tone={ESTADO_INCIDENCIA_TONO[inc.estado]}>{inc.estado}</Badge>
+                    </td>
+                    <td className="px-5 py-3 text-slate-500">{formatFechaHora(inc.createdAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      {seleccionadaId && (
+        <DetalleIncidencia
+          id={seleccionadaId}
+          onClose={() => setSeleccionadaId(null)}
+          onActualizada={() => {
+            recargar();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function DetalleIncidencia({
+  id,
+  onClose,
+  onActualizada,
+}: {
+  id: string;
+  onClose: () => void;
+  onActualizada: () => void;
+}) {
+  const { data: incidencia, cargando, recargar, setData } = useAsync(() => incidenciasApi.obtener(id), [id]);
+  const { data: admins } = useAsync(() => usuariosApi.listar({ rol: "ADMIN" }), []);
+  const [estado, setEstado] = useState<EstadoIncidencia | "">("");
+  const [prioridad, setPrioridad] = useState<PrioridadIncidencia | "">("");
+  const [categoria, setCategoria] = useState("");
+  const [responsableId, setResponsableId] = useState("");
+  const [observacion, setObservacion] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [guardando, setGuardando] = useState(false);
+
+  useEffect(() => {
+    if (!incidencia) return;
+    setEstado(incidencia.estado);
+    setPrioridad(incidencia.prioridad ?? "");
+    setCategoria(incidencia.categoria ?? "");
+    setResponsableId(incidencia.responsableId ?? "");
+  }, [incidencia?.id]);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setGuardando(true);
+    try {
+      const actualizada = await incidenciasApi.actualizar(id, {
+        estado: estado || undefined,
+        prioridad: prioridad || undefined,
+        categoria: categoria || undefined,
+        responsableId: responsableId || null,
+        observacion: observacion || undefined,
+      });
+      setObservacion("");
+      setData({ ...incidencia, ...actualizada } as Incidencia);
+      recargar();
+      onActualizada();
+    } catch (err) {
+      setError(mensajeError(err));
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  return (
+    <Modal open onClose={onClose} title={incidencia?.titulo ?? "Incidencia"}>
+      {cargando || !incidencia ? (
+        <Spinner />
+      ) : (
+        <div className="space-y-5">
+          <div>
+            <p className="text-sm text-slate-700">{incidencia.descripcion}</p>
+            <p className="mt-1 text-xs text-slate-400">Ubicacion reportada: {incidencia.ubicacion}</p>
+            {incidencia.fotoUrl && (
+              <img src={incidencia.fotoUrl} alt="Evidencia" className="mt-2 max-h-48 rounded-lg border border-slate-200" />
+            )}
+          </div>
+
+          {incidencia.sugerenciaIA && (
+            <Alert tone="amber">
+              <p className="font-semibold">Sugerencia de IA (revisa y confirma antes de aplicar)</p>
+              <p>
+                Categoria: {incidencia.sugerenciaIA.categoria} · Prioridad: {incidencia.sugerenciaIA.prioridad} · Ubicacion
+                detectada: {incidencia.sugerenciaIA.ubicacionDetectada ?? "no detectada"} · Confianza:{" "}
+                {incidencia.sugerenciaIA.confianza}
+              </p>
+            </Alert>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-3 border-t border-slate-100 pt-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Estado</Label>
+                <Select value={estado} onChange={(e) => setEstado(e.target.value as EstadoIncidencia)}>
+                  {ESTADOS.map((e2) => (
+                    <option key={e2} value={e2}>
+                      {e2}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+              <div>
+                <Label>Prioridad</Label>
+                <Select value={prioridad} onChange={(e) => setPrioridad(e.target.value as PrioridadIncidencia)}>
+                  <option value="">Sin definir</option>
+                  {PRIORIDADES.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Categoria</Label>
+                <Input value={categoria} onChange={(e) => setCategoria(e.target.value)} placeholder="Ej: Filtracion" />
+              </div>
+              <div>
+                <Label>Responsable</Label>
+                <Select value={responsableId} onChange={(e) => setResponsableId(e.target.value)}>
+                  <option value="">Sin asignar</option>
+                  {admins?.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.nombre} {a.apellido}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label>Observacion (queda en el historial)</Label>
+              <Textarea rows={2} value={observacion} onChange={(e) => setObservacion(e.target.value)} />
+            </div>
+            {error && <Alert tone="red">{error}</Alert>}
+            <Button type="submit" className="w-full" loading={guardando}>
+              Guardar cambios
+            </Button>
+          </form>
+
+          <div className="border-t border-slate-100 pt-4">
+            <p className="mb-2 text-xs font-semibold uppercase text-slate-400">Historial</p>
+            <div className="space-y-2">
+              {incidencia.historial?.map((h) => (
+                <div key={h.id} className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                  <p>
+                    <span className="font-medium">{h.estadoNuevo}</span>
+                    {h.estadoAnterior && <span className="text-slate-400"> (antes: {h.estadoAnterior})</span>} ·{" "}
+                    {h.usuario.nombre} {h.usuario.apellido} · {formatFechaHora(h.createdAt)}
+                  </p>
+                  {h.observacion && <p className="mt-0.5 text-slate-500">{h.observacion}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+}
