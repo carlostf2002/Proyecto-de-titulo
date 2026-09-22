@@ -3,11 +3,27 @@ import { motion } from "framer-motion";
 import { encomiendasApi, usuariosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import { Package } from "@phosphor-icons/react";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Select, Spinner, staggerFade } from "../../components/ui";
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  EmptyState,
+  Input,
+  Label,
+  PageHeader,
+  SearchInput,
+  Select,
+  Spinner,
+  staggerFade,
+} from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
+import { fechaEnRango } from "../../lib/filters";
 import { ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
+import type { EstadoEncomienda } from "../../types";
 
 // Empresas de courier/encomiendas mas conocidas en Chile. "OTRO" habilita un
 // campo de texto libre para remitentes que no esten en la lista.
@@ -24,6 +40,8 @@ const EMPRESAS_ENCOMIENDA = [
   "Turbus Cargo",
 ];
 
+const ESTADOS: EstadoEncomienda[] = ["RECIBIDA", "NOTIFICADA", "RETIRADA"];
+
 export default function ConserjeEncomiendas() {
   const toast = useToast();
   const { data, cargando, error, recargar } = useAsync(() => encomiendasApi.listarTodas(), []);
@@ -34,6 +52,11 @@ export default function ConserjeEncomiendas() {
   const [otroRemitente, setOtroRemitente] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState<EstadoEncomienda | "">("");
+  const [fechaDesde, setFechaDesde] = useState("");
+  const [fechaHasta, setFechaHasta] = useState("");
 
   const esOtro = empresa === "OTRO";
   const remitente = esOtro ? otroRemitente : empresa;
@@ -56,7 +79,15 @@ export default function ConserjeEncomiendas() {
     }
   }
 
-  const pendientes = data?.filter((e) => e.estado !== "RETIRADA") ?? [];
+  const filtradas = (data ?? []).filter((enc) => {
+    const texto = `${enc.usuario?.nombre ?? ""} ${enc.usuario?.apellido ?? ""} ${enc.remitente ?? ""}`.toLowerCase();
+    const coincideTexto = !busqueda || texto.includes(busqueda.toLowerCase());
+    const coincideEstado = !filtroEstado || enc.estado === filtroEstado;
+    const coincideFecha = fechaEnRango(enc.fechaRecepcion, fechaDesde, fechaHasta);
+    return coincideTexto && coincideEstado && coincideFecha;
+  });
+
+  const hayFiltrosActivos = busqueda || filtroEstado || fechaDesde || fechaHasta;
 
   return (
     <div className="space-y-6">
@@ -109,41 +140,101 @@ export default function ConserjeEncomiendas() {
         </Card>
 
         <Card className="lg:col-span-2">
-          <CardHeader title="Pendientes de retiro" />
+          <CardHeader title="Historial de encomiendas" subtitle="Busca por residente, remitente, estado o fecha" />
+
+          <div className="flex flex-wrap items-end gap-3 border-b border-slate-100 p-5">
+            <div className="w-full sm:max-w-[16rem]">
+              <SearchInput value={busqueda} onChange={setBusqueda} placeholder="Buscar por residente o remitente..." />
+            </div>
+            <div className="w-full sm:w-40">
+              <Label>Estado</Label>
+              <Select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value as EstadoEncomienda | "")}>
+                <option value="">Todos</option>
+                {ESTADOS.map((estado) => (
+                  <option key={estado} value={estado}>
+                    {estado}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className="w-full sm:w-36">
+              <Label>Desde</Label>
+              <Input type="date" value={fechaDesde} onChange={(e) => setFechaDesde(e.target.value)} />
+            </div>
+            <div className="w-full sm:w-36">
+              <Label>Hasta</Label>
+              <Input type="date" value={fechaHasta} onChange={(e) => setFechaHasta(e.target.value)} />
+            </div>
+            {hayFiltrosActivos && (
+              <button
+                type="button"
+                onClick={() => {
+                  setBusqueda("");
+                  setFiltroEstado("");
+                  setFechaDesde("");
+                  setFechaHasta("");
+                }}
+                className="text-xs text-brand-600 hover:underline"
+              >
+                Limpiar filtros
+              </button>
+            )}
+          </div>
+
           {cargando ? (
             <Spinner />
           ) : error ? (
             <Alert tone="red">{error}</Alert>
-          ) : !pendientes.length ? (
-            <EmptyState icon={Package} title="No hay encomiendas pendientes" />
+          ) : !data?.length ? (
+            <EmptyState icon={Package} title="Aun no hay encomiendas registradas" />
+          ) : !filtradas.length ? (
+            <EmptyState title="Sin resultados" description="Ninguna encomienda coincide con los filtros." />
           ) : (
-            <div className="divide-y divide-slate-50">
-              {pendientes.map((enc, i) => (
-                <motion.div key={enc.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70">
-                  <div>
-                    <p className="text-sm font-medium text-slate-800">
-                      {enc.usuario ? `${enc.usuario.nombre} ${enc.usuario.apellido}` : "—"}
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {enc.remitente ?? "Sin remitente"} · {formatFechaHora(enc.fechaRecepcion)}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge tone={ESTADO_ENCOMIENDA_TONO[enc.estado]}>{enc.estado}</Badge>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={async () => {
-                        await encomiendasApi.marcarRetirada(enc.id);
-                        toast.success("Encomienda marcada como retirada.");
-                        recargar();
-                      }}
-                    >
-                      Marcar retirada
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b border-slate-100 text-xs uppercase text-slate-400">
+                  <tr>
+                    <th className="px-5 py-3">Residente</th>
+                    <th className="px-5 py-3">Remitente</th>
+                    <th className="px-5 py-3">Recepcion</th>
+                    <th className="px-5 py-3">Retiro</th>
+                    <th className="px-5 py-3">Estado</th>
+                    <th className="px-5 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {filtradas.map((enc, i) => (
+                    <motion.tr key={enc.id} {...staggerFade(i)} className="transition-colors hover:bg-slate-50/70">
+                      <td className="px-5 py-3 font-medium text-slate-800">
+                        {enc.usuario ? `${enc.usuario.nombre} ${enc.usuario.apellido}` : "—"}
+                      </td>
+                      <td className="px-5 py-3 text-slate-500">{enc.remitente ?? "—"}</td>
+                      <td className="px-5 py-3 text-slate-500">{formatFechaHora(enc.fechaRecepcion)}</td>
+                      <td className="px-5 py-3 text-slate-500">
+                        {enc.fechaRetiro ? formatFechaHora(enc.fechaRetiro) : "—"}
+                      </td>
+                      <td className="px-5 py-3">
+                        <Badge tone={ESTADO_ENCOMIENDA_TONO[enc.estado]}>{enc.estado}</Badge>
+                      </td>
+                      <td className="px-5 py-3 text-right">
+                        {enc.estado !== "RETIRADA" && (
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={async () => {
+                              await encomiendasApi.marcarRetirada(enc.id);
+                              toast.success("Encomienda marcada como retirada.");
+                              recargar();
+                            }}
+                          >
+                            Marcar retirada
+                          </Button>
+                        )}
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </Card>
