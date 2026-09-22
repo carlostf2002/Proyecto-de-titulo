@@ -9,15 +9,34 @@ import { ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
 
+// Empresas de courier/encomiendas mas conocidas en Chile. "OTRO" habilita un
+// campo de texto libre para remitentes que no esten en la lista.
+const EMPRESAS_ENCOMIENDA = [
+  "Correos de Chile",
+  "Chilexpress",
+  "Starken",
+  "Blue Express",
+  "DHL",
+  "FedEx",
+  "UPS",
+  "TNT",
+  "Servientrega",
+  "Turbus Cargo",
+];
+
 export default function ConserjeEncomiendas() {
   const toast = useToast();
   const { data, cargando, error, recargar } = useAsync(() => encomiendasApi.listarTodas(), []);
   const { data: residentes } = useAsync(() => usuariosApi.listar({ rol: "RESIDENTE" }), []);
 
   const [usuarioId, setUsuarioId] = useState("");
-  const [remitente, setRemitente] = useState("");
+  const [empresa, setEmpresa] = useState("");
+  const [otroRemitente, setOtroRemitente] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+
+  const esOtro = empresa === "OTRO";
+  const remitente = esOtro ? otroRemitente : empresa;
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -26,7 +45,8 @@ export default function ConserjeEncomiendas() {
     try {
       await encomiendasApi.crear({ usuarioId, remitente: remitente || undefined });
       setUsuarioId("");
-      setRemitente("");
+      setEmpresa("");
+      setOtroRemitente("");
       toast.success("Encomienda registrada y residente notificado.");
       recargar();
     } catch (err) {
@@ -60,8 +80,27 @@ export default function ConserjeEncomiendas() {
             </div>
             <div>
               <Label>Remitente / empresa (opcional)</Label>
-              <Input value={remitente} onChange={(e) => setRemitente(e.target.value)} />
+              <Select value={empresa} onChange={(e) => setEmpresa(e.target.value)}>
+                <option value="">Sin especificar</option>
+                {EMPRESAS_ENCOMIENDA.map((nombre) => (
+                  <option key={nombre} value={nombre}>
+                    {nombre}
+                  </option>
+                ))}
+                <option value="OTRO">Otro...</option>
+              </Select>
             </div>
+            {esOtro && (
+              <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15 }}>
+                <Label>Especifica el remitente</Label>
+                <Input
+                  autoFocus
+                  value={otroRemitente}
+                  onChange={(e) => setOtroRemitente(e.target.value)}
+                  placeholder="Ej: Amazon, tienda local, particular..."
+                />
+              </motion.div>
+            )}
             {formError && <Alert tone="red">{formError}</Alert>}
             <Button type="submit" className="w-full" loading={enviando}>
               Registrar y notificar
