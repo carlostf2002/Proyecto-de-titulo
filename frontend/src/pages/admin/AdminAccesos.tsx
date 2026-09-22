@@ -1,7 +1,8 @@
+import { motion } from "framer-motion";
 import { QrCode } from "@phosphor-icons/react";
 import { qrApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Card, EmptyState, PageHeader, Spinner } from "../../components/ui";
+import { Alert, Badge, Card, EmptyState, PageHeader, Spinner, staggerFade } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 
 interface AccesoLog {
@@ -28,8 +29,8 @@ export default function AdminAccesos() {
           <EmptyState icon={QrCode} title="Aun no hay accesos registrados" />
         ) : (
           <div className="divide-y divide-slate-50">
-            {data.map((a) => (
-              <div key={a.id} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70">
+            {data.map((a, i) => (
+              <motion.div key={a.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70">
                 <div>
                   <p className="text-sm text-slate-700">{a.motivo}</p>
                   <p className="text-xs text-slate-400">
@@ -37,7 +38,7 @@ export default function AdminAccesos() {
                   </p>
                 </div>
                 <Badge tone={a.resultado === "AUTORIZADO" ? "green" : "red"}>{a.resultado}</Badge>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}

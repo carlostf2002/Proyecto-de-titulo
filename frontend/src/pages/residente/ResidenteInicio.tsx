@@ -1,8 +1,9 @@
+import { motion } from "framer-motion";
 import { House, Megaphone, Package, Warning, Wrench } from "@phosphor-icons/react";
 import { useAuth } from "../../context/AuthContext";
 import { comunicadosApi, encomiendasApi, incidenciasApi, multasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Card, EmptyState, PageHeader, Spinner, StatCard } from "../../components/ui";
+import { Card, EmptyState, PageHeader, Spinner, StatCard, staggerFade } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 
 export default function ResidenteInicio() {
@@ -41,11 +42,11 @@ export default function ResidenteInicio() {
               <EmptyState icon={Megaphone} title="Sin comunicados recientes" />
             ) : (
               <div className="divide-y divide-slate-50">
-                {comunicados.slice(0, 5).map((c) => (
-                  <div key={c.id} className="px-5 py-3 transition-colors hover:bg-slate-50/70">
+                {comunicados.slice(0, 5).map((c, i) => (
+                  <motion.div key={c.id} {...staggerFade(i)} className="px-5 py-3 transition-colors hover:bg-slate-50/70">
                     <p className="text-sm font-medium text-slate-800">{c.titulo}</p>
                     <p className="text-xs text-slate-500">{formatFechaHora(c.createdAt)}</p>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             )}

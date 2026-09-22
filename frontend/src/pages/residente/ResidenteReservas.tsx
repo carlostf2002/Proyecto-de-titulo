@@ -1,8 +1,9 @@
 import { FormEvent, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { condominioApi, reservasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import { CalendarBlank } from "@phosphor-icons/react";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Select, Spinner } from "../../components/ui";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Select, Spinner, staggerFade } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
 import { ESTADO_RESERVA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
@@ -121,8 +122,8 @@ export default function ResidenteReservas() {
             <EmptyState title="Aun no tienes reservas" />
           ) : (
             <div className="divide-y divide-slate-50">
-              {misReservas.map((r) => (
-                <div key={r.id} className="px-5 py-3">
+              {misReservas.map((r, i) => (
+                <motion.div key={r.id} {...staggerFade(i)} className="px-5 py-3 transition-colors hover:bg-slate-50/70">
                   <p className="text-sm font-medium text-slate-800">{r.espacioComun.nombre}</p>
                   <p className="text-xs text-slate-500">
                     {formatFecha(r.fecha)} · {r.horaInicio} - {r.horaFin}
@@ -141,7 +142,7 @@ export default function ResidenteReservas() {
                       </button>
                     )}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}

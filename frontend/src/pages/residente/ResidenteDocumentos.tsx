@@ -1,7 +1,8 @@
+import { motion } from "framer-motion";
 import { ArrowRight, FileText } from "@phosphor-icons/react";
 import { documentosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Card, EmptyState, PageHeader, Spinner } from "../../components/ui";
+import { Alert, Card, EmptyState, PageHeader, Spinner, staggerFade } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
 
 export default function ResidenteDocumentos() {
@@ -20,9 +21,10 @@ export default function ResidenteDocumentos() {
           <EmptyState icon={FileText} title="Aun no hay documentos publicados" />
         ) : (
           <div className="divide-y divide-slate-50">
-            {data.map((doc) => (
-              <a
+            {data.map((doc, i) => (
+              <motion.a
                 key={doc.id}
+                {...staggerFade(i)}
                 href={doc.archivoUrl}
                 target="_blank"
                 rel="noreferrer"
@@ -37,7 +39,7 @@ export default function ResidenteDocumentos() {
                 <span className="flex items-center gap-1 text-xs text-brand-600 transition-transform group-hover:translate-x-0.5">
                   Ver <ArrowRight size={14} />
                 </span>
-              </a>
+              </motion.a>
             ))}
           </div>
         )}

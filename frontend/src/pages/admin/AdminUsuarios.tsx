@@ -1,8 +1,9 @@
 import { FormEvent, useState } from "react";
+import { motion } from "framer-motion";
 import { UserPlus, Users } from "@phosphor-icons/react";
 import { condominioApi, usuariosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, Select, Spinner } from "../../components/ui";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, Select, Spinner, staggerFade } from "../../components/ui";
 import { mensajeError } from "../../api/client";
 import type { Rol } from "../../types";
 
@@ -47,8 +48,8 @@ export default function AdminUsuarios() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {usuarios.map((u) => (
-                  <tr key={u.id} className="transition-colors hover:bg-slate-50/70">
+                {usuarios.map((u, i) => (
+                  <motion.tr key={u.id} {...staggerFade(i)} className="transition-colors hover:bg-slate-50/70">
                     <td className="px-5 py-3 font-medium text-slate-800">
                       {u.nombre} {u.apellido}
                     </td>
@@ -74,7 +75,7 @@ export default function AdminUsuarios() {
                         {u.activo ? "Deshabilitar" : "Habilitar"}
                       </Button>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>

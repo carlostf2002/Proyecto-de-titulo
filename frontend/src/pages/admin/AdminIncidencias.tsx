@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Wrench } from "@phosphor-icons/react";
 import { incidenciasApi, usuariosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
@@ -14,6 +15,7 @@ import {
   PageHeader,
   Select,
   Spinner,
+  staggerFade,
   Textarea,
 } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
@@ -53,10 +55,11 @@ export default function AdminIncidencias() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {data.map((inc) => (
-                  <tr
+                {data.map((inc, i) => (
+                  <motion.tr
                     key={inc.id}
-                    className="cursor-pointer hover:bg-slate-50"
+                    {...staggerFade(i)}
+                    className="cursor-pointer transition-colors hover:bg-slate-50"
                     onClick={() => setSeleccionadaId(inc.id)}
                   >
                     <td className="px-5 py-3 font-medium text-slate-800">{inc.titulo}</td>
@@ -71,7 +74,7 @@ export default function AdminIncidencias() {
                       <Badge tone={ESTADO_INCIDENCIA_TONO[inc.estado]}>{inc.estado}</Badge>
                     </td>
                     <td className="px-5 py-3 text-slate-500">{formatFechaHora(inc.createdAt)}</td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>

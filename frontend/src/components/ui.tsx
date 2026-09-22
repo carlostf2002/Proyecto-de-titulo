@@ -4,6 +4,16 @@ import { AnimatePresence, animate, motion, useMotionValue, useTransform } from "
 import clsx from "clsx";
 import { CheckCircle, Icon as PhosphorIcon, Tray, Warning, WarningCircle, X } from "@phosphor-icons/react";
 
+// Animacion de entrada escalonada para filas de tabla / items de lista.
+// Uso: data.map((item, i) => <motion.tr key={item.id} {...staggerFade(i)}>...</motion.tr>)
+export function staggerFade(index: number) {
+  return {
+    initial: { opacity: 0, y: 6 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.25, delay: Math.min(index * 0.04, 0.4) },
+  };
+}
+
 type NativeButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
   "onDrag" | "onDragStart" | "onDragEnd" | "onAnimationStart" | "onAnimationEnd" | "onAnimationIteration"

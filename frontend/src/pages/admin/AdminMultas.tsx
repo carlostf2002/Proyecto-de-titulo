@@ -1,8 +1,9 @@
 import { FormEvent, useState } from "react";
+import { motion } from "framer-motion";
 import { Plus, Warning } from "@phosphor-icons/react";
 import { multasApi, usuariosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, Select, Spinner, Textarea } from "../../components/ui";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, Select, Spinner, Textarea, staggerFade } from "../../components/ui";
 import { formatFecha, formatMonto } from "../../lib/format";
 import { ESTADO_MULTA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
@@ -48,8 +49,8 @@ export default function AdminMultas() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {data.map((m) => (
-                  <tr key={m.id} className="transition-colors hover:bg-slate-50/70">
+                {data.map((m, i) => (
+                  <motion.tr key={m.id} {...staggerFade(i)} className="transition-colors hover:bg-slate-50/70">
                     <td className="px-5 py-3 font-medium text-slate-800">
                       {m.usuario ? `${m.usuario.nombre} ${m.usuario.apellido}` : "—"}
                     </td>
@@ -72,7 +73,7 @@ export default function AdminMultas() {
                         ))}
                       </Select>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>

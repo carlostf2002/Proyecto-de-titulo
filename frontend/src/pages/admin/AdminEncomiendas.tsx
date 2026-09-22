@@ -1,7 +1,8 @@
+import { motion } from "framer-motion";
 import { Package } from "@phosphor-icons/react";
 import { encomiendasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Card, EmptyState, PageHeader, Spinner } from "../../components/ui";
+import { Alert, Badge, Card, EmptyState, PageHeader, Spinner, staggerFade } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 import { ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
 
@@ -18,7 +19,7 @@ export default function AdminEncomiendas() {
         ) : error ? (
           <Alert tone="red">{error}</Alert>
         ) : !data?.length ? (
-          <EmptyState title="Aun no hay encomiendas registradas" />
+          <EmptyState icon={Package} title="Aun no hay encomiendas registradas" />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -31,8 +32,8 @@ export default function AdminEncomiendas() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {data.map((enc) => (
-                  <tr key={enc.id} className="transition-colors hover:bg-slate-50/70">
+                {data.map((enc, i) => (
+                  <motion.tr key={enc.id} {...staggerFade(i)} className="transition-colors hover:bg-slate-50/70">
                     <td className="px-5 py-3 font-medium text-slate-800">
                       {enc.usuario ? `${enc.usuario.nombre} ${enc.usuario.apellido}` : "—"}
                     </td>
@@ -41,7 +42,7 @@ export default function AdminEncomiendas() {
                     <td className="px-5 py-3">
                       <Badge tone={ESTADO_ENCOMIENDA_TONO[enc.estado]}>{enc.estado}</Badge>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>

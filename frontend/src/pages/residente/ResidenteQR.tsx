@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { motion } from "framer-motion";
 import { QrCode } from "@phosphor-icons/react";
 import { qrApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
@@ -14,6 +15,7 @@ import {
   Modal,
   PageHeader,
   Spinner,
+  staggerFade,
   Textarea,
 } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
@@ -77,11 +79,11 @@ export default function ResidenteQR() {
           ) : error ? (
             <Alert tone="red">{error}</Alert>
           ) : !visitas?.length ? (
-            <EmptyState title="Aun no has registrado visitas" />
+            <EmptyState icon={QrCode} title="Aun no has registrado visitas" />
           ) : (
             <div className="divide-y divide-slate-50">
-              {visitas.map((v) => (
-                <div key={v.id} className="flex items-center justify-between px-5 py-3">
+              {visitas.map((v, i) => (
+                <motion.div key={v.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70">
                   <div>
                     <p className="text-sm font-medium text-slate-800">{v.nombreVisita}</p>
                     <p className="text-xs text-slate-500">
@@ -117,7 +119,7 @@ export default function ResidenteQR() {
                       </Button>
                     )}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}

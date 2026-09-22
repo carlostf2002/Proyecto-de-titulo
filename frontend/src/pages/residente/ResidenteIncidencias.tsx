@@ -1,8 +1,9 @@
 import { FormEvent, useRef, useState } from "react";
 import { incidenciasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
+import { motion } from "framer-motion";
 import { Wrench } from "@phosphor-icons/react";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Spinner, Textarea } from "../../components/ui";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Spinner, staggerFade, Textarea } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 import { ESTADO_INCIDENCIA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
@@ -56,11 +57,11 @@ export default function ResidenteIncidencias() {
           ) : error ? (
             <Alert tone="red">{error}</Alert>
           ) : !data?.length ? (
-            <EmptyState title="Aun no has reportado incidencias" />
+            <EmptyState icon={Wrench} title="Aun no has reportado incidencias" />
           ) : (
             <div className="divide-y divide-slate-50">
-              {data.map((inc) => (
-                <div key={inc.id} className="px-5 py-4">
+              {data.map((inc, i) => (
+                <motion.div key={inc.id} {...staggerFade(i)} className="px-5 py-4 transition-colors hover:bg-slate-50/70">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium text-slate-800">{inc.titulo}</p>
                     <Badge tone={ESTADO_INCIDENCIA_TONO[inc.estado]}>{inc.estado}</Badge>
@@ -68,7 +69,7 @@ export default function ResidenteIncidencias() {
                   <p className="mt-1 text-xs text-slate-500">{inc.ubicacion}</p>
                   <p className="mt-1 text-sm text-slate-600">{inc.descripcion}</p>
                   <p className="mt-1 text-xs text-slate-400">Reportada el {formatFechaHora(inc.createdAt)}</p>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}

@@ -1,7 +1,8 @@
+import { motion } from "framer-motion";
 import { CalendarBlank } from "@phosphor-icons/react";
 import { reservasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, EmptyState, PageHeader, Spinner } from "../../components/ui";
+import { Alert, Badge, Button, Card, EmptyState, PageHeader, Spinner, staggerFade } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
 import { ESTADO_RESERVA_TONO } from "../../lib/badges";
 
@@ -33,8 +34,8 @@ export default function AdminReservas() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {data.map((r) => (
-                  <tr key={r.id} className="transition-colors hover:bg-slate-50/70">
+                {data.map((r, i) => (
+                  <motion.tr key={r.id} {...staggerFade(i)} className="transition-colors hover:bg-slate-50/70">
                     <td className="px-5 py-3 font-medium text-slate-800">{r.espacioComun.nombre}</td>
                     <td className="px-5 py-3 text-slate-500">
                       {r.usuario ? `${r.usuario.nombre} ${r.usuario.apellido}` : "—"}
@@ -60,7 +61,7 @@ export default function AdminReservas() {
                         </Button>
                       )}
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>

@@ -1,8 +1,9 @@
 import { FormEvent, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { ArrowRight, FileText } from "@phosphor-icons/react";
 import { documentosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Spinner } from "../../components/ui";
+import { Alert, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Spinner, staggerFade } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
 import { mensajeError } from "../../api/client";
 
@@ -55,9 +56,10 @@ export default function AdminDocumentos() {
             <EmptyState icon={FileText} title="Aun no hay documentos publicados" />
           ) : (
             <div className="divide-y divide-slate-50">
-              {data.map((doc) => (
-                <a
+              {data.map((doc, i) => (
+                <motion.a
                   key={doc.id}
+                  {...staggerFade(i)}
                   href={doc.archivoUrl}
                   target="_blank"
                   rel="noreferrer"
@@ -72,7 +74,7 @@ export default function AdminDocumentos() {
                   <span className="flex items-center gap-1 text-xs text-brand-600 transition-transform group-hover:translate-x-0.5">
                     Ver <ArrowRight size={14} />
                   </span>
-                </a>
+                </motion.a>
               ))}
             </div>
           )}

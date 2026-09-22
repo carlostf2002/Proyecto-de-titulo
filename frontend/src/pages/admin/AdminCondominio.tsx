@@ -1,8 +1,9 @@
 import { FormEvent, useState } from "react";
+import { motion } from "framer-motion";
 import { Buildings } from "@phosphor-icons/react";
 import { condominioApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Select, Spinner } from "../../components/ui";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Select, Spinner, staggerFade } from "../../components/ui";
 import { mensajeError } from "../../api/client";
 import clsx from "clsx";
 
@@ -85,11 +86,11 @@ function EspaciosComunes() {
         ) : error ? (
           <Alert tone="red">{error}</Alert>
         ) : !data?.length ? (
-          <EmptyState title="Aun no hay espacios comunes" />
+          <EmptyState icon={Buildings} title="Aun no hay espacios comunes" />
         ) : (
           <div className="divide-y divide-slate-50">
-            {data.map((esp) => (
-              <div key={esp.id} className="flex items-center justify-between px-5 py-3">
+            {data.map((esp, i) => (
+              <motion.div key={esp.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70">
                 <div>
                   <p className="text-sm font-medium text-slate-800">{esp.nombre}</p>
                   <p className="text-xs text-slate-500">
@@ -109,7 +110,7 @@ function EspaciosComunes() {
                     {esp.activo ? "Desactivar" : "Activar"}
                   </Button>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
@@ -176,13 +177,13 @@ function Torres() {
         ) : error ? (
           <Alert tone="red">{error}</Alert>
         ) : !data?.length ? (
-          <EmptyState title="Aun no hay torres registradas" />
+          <EmptyState icon={Buildings} title="Aun no hay torres registradas" />
         ) : (
           <div className="divide-y divide-slate-50">
-            {data.map((t) => (
-              <div key={t.id} className="px-5 py-3 text-sm text-slate-700">
+            {data.map((t, i) => (
+              <motion.div key={t.id} {...staggerFade(i)} className="px-5 py-3 text-sm text-slate-700 transition-colors hover:bg-slate-50/70">
                 {t.nombre}
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
@@ -235,18 +236,18 @@ function Departamentos() {
         ) : error ? (
           <Alert tone="red">{error}</Alert>
         ) : !data?.length ? (
-          <EmptyState title="Aun no hay departamentos registrados" />
+          <EmptyState icon={Buildings} title="Aun no hay departamentos registrados" />
         ) : (
           <div className="divide-y divide-slate-50">
-            {data.map((d) => (
-              <div key={d.id} className="flex items-center justify-between px-5 py-3 text-sm">
+            {data.map((d, i) => (
+              <motion.div key={d.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 text-sm transition-colors hover:bg-slate-50/70">
                 <span className="font-medium text-slate-800">
                   {d.torre?.nombre ?? "Sin torre"} - {d.numero}
                 </span>
                 <span className="text-xs text-slate-500">
                   {d.residentes.length} residente{d.residentes.length === 1 ? "" : "s"}
                 </span>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
