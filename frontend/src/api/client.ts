@@ -41,7 +41,12 @@ api.interceptors.response.use(
 
 export function mensajeError(error: unknown, fallback = "Ocurrio un error. Intenta nuevamente."): string {
   if (axios.isAxiosError(error)) {
-    const data = error.response?.data as { error?: string; detalles?: { campo: string; mensaje: string }[] };
+    // Sin respuesta del servidor (backend caido, sin conexion, etc.): nunca debe confundirse
+    // con un error de negocio como "credenciales incorrectas".
+    if (!error.response) {
+      return "No se pudo conectar con el servidor. Verifica que este en linea e intenta nuevamente.";
+    }
+    const data = error.response.data as { error?: string; detalles?: { campo: string; mensaje: string }[] };
     if (data?.detalles?.length) {
       return data.detalles.map((d) => d.mensaje).join(" ");
     }
