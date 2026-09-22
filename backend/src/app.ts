@@ -1,3 +1,4 @@
+import path from "path";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -42,6 +43,20 @@ app.use("/api/qr", qrRoutes);
 app.use("/api/documentos", documentosRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/notificaciones", notificacionesRoutes);
+
+// Sirve el frontend ya compilado desde el mismo proceso/puerto: un solo servidor que
+// levantar, sin depender de que el servidor de desarrollo de Vite siga vivo por separado.
+const frontendDist = path.join(__dirname, "..", "..", "frontend", "dist");
+app.use(express.static(frontendDist));
+
+app.get("*", (req, res, next) => {
+  if (req.path.startsWith("/api") || req.path.startsWith("/uploads")) {
+    return next();
+  }
+  res.sendFile(path.join(frontendDist, "index.html"), (err) => {
+    if (err) next(err);
+  });
+});
 
 app.use(notFoundHandler);
 app.use(errorHandler);
