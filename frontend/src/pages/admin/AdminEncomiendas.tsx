@@ -1,6 +1,7 @@
+import { Package } from "@phosphor-icons/react";
 import { encomiendasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Card, EmptyState, Spinner } from "../../components/ui";
+import { Alert, Badge, Card, EmptyState, PageHeader, Spinner } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 import { ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
 
@@ -9,10 +10,7 @@ export default function AdminEncomiendas() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Encomiendas</h1>
-        <p className="text-sm text-slate-500">Visibilidad de encomiendas registradas por conserjeria (HU-12 a HU-14).</p>
-      </div>
+      <PageHeader icon={Package} title="Encomiendas" subtitle="Visibilidad de encomiendas registradas por conserjeria (HU-12 a HU-14)." />
 
       <Card>
         {cargando ? (
@@ -34,7 +32,7 @@ export default function AdminEncomiendas() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {data.map((enc) => (
-                  <tr key={enc.id}>
+                  <tr key={enc.id} className="transition-colors hover:bg-slate-50/70">
                     <td className="px-5 py-3 font-medium text-slate-800">
                       {enc.usuario ? `${enc.usuario.nombre} ${enc.usuario.apellido}` : "—"}
                     </td>

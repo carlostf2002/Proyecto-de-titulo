@@ -1,7 +1,8 @@
 import { FormEvent, useState } from "react";
+import { Megaphone } from "@phosphor-icons/react";
 import { comunicadosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Select, Spinner, Textarea } from "../../components/ui";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Select, Spinner, Textarea } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 import { TIPO_COMUNICADO_LABEL } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
@@ -43,10 +44,7 @@ export default function AdminComunicados() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Comunicados</h1>
-        <p className="text-sm text-slate-500">Publicacion de avisos para los residentes (HU-15, HU-16).</p>
-      </div>
+      <PageHeader icon={Megaphone} title="Comunicados" subtitle="Publicacion de avisos para los residentes (HU-15, HU-16)." />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">

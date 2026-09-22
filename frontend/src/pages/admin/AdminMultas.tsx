@@ -1,7 +1,8 @@
 import { FormEvent, useState } from "react";
+import { Plus, Warning } from "@phosphor-icons/react";
 import { multasApi, usuariosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, Select, Spinner, Textarea } from "../../components/ui";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, Select, Spinner, Textarea } from "../../components/ui";
 import { formatFecha, formatMonto } from "../../lib/format";
 import { ESTADO_MULTA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
@@ -16,13 +17,16 @@ export default function AdminMultas() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Multas</h1>
-          <p className="text-sm text-slate-500">Registro y seguimiento de sanciones (HU-06, HU-07).</p>
-        </div>
-        <Button onClick={() => setModalAbierto(true)}>+ Registrar multa</Button>
-      </div>
+      <PageHeader
+        icon={Warning}
+        title="Multas"
+        subtitle="Registro y seguimiento de sanciones (HU-06, HU-07)."
+        action={
+          <Button onClick={() => setModalAbierto(true)}>
+            <Plus size={16} weight="bold" /> Registrar multa
+          </Button>
+        }
+      />
 
       <Card>
         {cargando ? (
@@ -45,7 +49,7 @@ export default function AdminMultas() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {data.map((m) => (
-                  <tr key={m.id}>
+                  <tr key={m.id} className="transition-colors hover:bg-slate-50/70">
                     <td className="px-5 py-3 font-medium text-slate-800">
                       {m.usuario ? `${m.usuario.nombre} ${m.usuario.apellido}` : "—"}
                     </td>

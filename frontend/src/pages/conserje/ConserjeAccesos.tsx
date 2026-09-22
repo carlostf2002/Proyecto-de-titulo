@@ -1,6 +1,7 @@
+import { ClockCounterClockwise } from "@phosphor-icons/react";
 import { qrApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Card, EmptyState, Spinner } from "../../components/ui";
+import { Alert, Badge, Card, EmptyState, PageHeader, Spinner } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 
 interface AccesoLog {
@@ -16,10 +17,7 @@ export default function ConserjeAccesos() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Historial de accesos</h1>
-        <p className="text-sm text-slate-500">Registros de validaciones QR realizadas.</p>
-      </div>
+      <PageHeader icon={ClockCounterClockwise} title="Historial de accesos" subtitle="Registros de validaciones QR realizadas." />
 
       <Card>
         {cargando ? (
@@ -27,11 +25,11 @@ export default function ConserjeAccesos() {
         ) : error ? (
           <Alert tone="red">{error}</Alert>
         ) : !data?.length ? (
-          <EmptyState title="Aun no hay accesos registrados" />
+          <EmptyState icon={ClockCounterClockwise} title="Aun no hay accesos registrados" />
         ) : (
           <div className="divide-y divide-slate-50">
             {data.map((a) => (
-              <div key={a.id} className="flex items-center justify-between px-5 py-3">
+              <div key={a.id} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70">
                 <div>
                   <p className="text-sm text-slate-700">{a.motivo}</p>
                   <p className="text-xs text-slate-400">{formatFechaHora(a.createdAt)}</p>

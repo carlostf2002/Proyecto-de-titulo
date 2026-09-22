@@ -1,7 +1,8 @@
 import { FormEvent, useRef, useState } from "react";
+import { ArrowRight, FileText } from "@phosphor-icons/react";
 import { documentosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Button, Card, CardHeader, EmptyState, Input, Label, Spinner } from "../../components/ui";
+import { Alert, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Spinner } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
 import { mensajeError } from "../../api/client";
 
@@ -41,10 +42,7 @@ export default function AdminDocumentos() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Repositorio de documentos</h1>
-        <p className="text-sm text-slate-500">Reglamentos y documentos informativos (HU-22, HU-23).</p>
-      </div>
+      <PageHeader icon={FileText} title="Repositorio de documentos" subtitle="Reglamentos y documentos informativos (HU-22, HU-23)." />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -54,7 +52,7 @@ export default function AdminDocumentos() {
           ) : error ? (
             <Alert tone="red">{error}</Alert>
           ) : !data?.length ? (
-            <EmptyState title="Aun no hay documentos publicados" />
+            <EmptyState icon={FileText} title="Aun no hay documentos publicados" />
           ) : (
             <div className="divide-y divide-slate-50">
               {data.map((doc) => (
@@ -63,7 +61,7 @@ export default function AdminDocumentos() {
                   href={doc.archivoUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center justify-between px-5 py-3 hover:bg-slate-50"
+                  className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50"
                 >
                   <div>
                     <p className="text-sm font-medium text-slate-800">{doc.titulo}</p>
@@ -71,7 +69,9 @@ export default function AdminDocumentos() {
                       {doc.categoria ?? "General"} · {formatFecha(doc.createdAt)}
                     </p>
                   </div>
-                  <span className="text-xs text-brand-600">Ver →</span>
+                  <span className="flex items-center gap-1 text-xs text-brand-600 transition-transform group-hover:translate-x-0.5">
+                    Ver <ArrowRight size={14} />
+                  </span>
                 </a>
               ))}
             </div>

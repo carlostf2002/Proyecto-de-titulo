@@ -1,6 +1,7 @@
+import { Megaphone } from "@phosphor-icons/react";
 import { comunicadosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Card, EmptyState, Spinner } from "../../components/ui";
+import { Alert, Badge, Card, EmptyState, PageHeader, Spinner } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 import { TIPO_COMUNICADO_LABEL } from "../../lib/badges";
 
@@ -9,10 +10,7 @@ export default function ResidenteComunicados() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Comunicados</h1>
-        <p className="text-sm text-slate-500">Avisos publicados por la administracion (HU-16).</p>
-      </div>
+      <PageHeader icon={Megaphone} title="Comunicados" subtitle="Avisos publicados por la administracion (HU-16)." />
 
       <Card>
         {cargando ? (
@@ -20,11 +18,11 @@ export default function ResidenteComunicados() {
         ) : error ? (
           <Alert tone="red">{error}</Alert>
         ) : !data?.length ? (
-          <EmptyState title="Aun no hay comunicados publicados" />
+          <EmptyState icon={Megaphone} title="Aun no hay comunicados publicados" />
         ) : (
           <div className="divide-y divide-slate-50">
             {data.map((c) => (
-              <div key={c.id} className="px-5 py-4">
+              <div key={c.id} className="px-5 py-4 transition-colors hover:bg-slate-50/70">
                 <div className="mb-1 flex items-center gap-2">
                   <p className="text-sm font-semibold text-slate-800">{c.titulo}</p>
                   <Badge tone="blue">{TIPO_COMUNICADO_LABEL[c.tipo]}</Badge>

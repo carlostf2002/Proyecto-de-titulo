@@ -1,6 +1,7 @@
+import { Package } from "@phosphor-icons/react";
 import { encomiendasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Card, EmptyState, Spinner } from "../../components/ui";
+import { Alert, Badge, Card, EmptyState, PageHeader, Spinner } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 import { ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
 
@@ -9,10 +10,7 @@ export default function ResidenteEncomiendas() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Mis encomiendas</h1>
-        <p className="text-sm text-slate-500">Notificaciones de encomiendas recibidas en conserjeria (HU-13).</p>
-      </div>
+      <PageHeader icon={Package} title="Mis encomiendas" subtitle="Notificaciones de encomiendas recibidas en conserjeria (HU-13)." />
 
       <Card>
         {cargando ? (
@@ -20,11 +18,11 @@ export default function ResidenteEncomiendas() {
         ) : error ? (
           <Alert tone="red">{error}</Alert>
         ) : !data?.length ? (
-          <EmptyState title="No tienes encomiendas registradas" />
+          <EmptyState icon={Package} title="No tienes encomiendas registradas" />
         ) : (
           <div className="divide-y divide-slate-50">
             {data.map((enc) => (
-              <div key={enc.id} className="flex items-center justify-between px-5 py-4">
+              <div key={enc.id} className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-slate-50/70">
                 <div>
                   <p className="text-sm font-medium text-slate-800">{enc.remitente ?? "Remitente no especificado"}</p>
                   <p className="text-xs text-slate-500">Recibida el {formatFechaHora(enc.fechaRecepcion)}</p>

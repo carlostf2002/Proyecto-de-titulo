@@ -1,6 +1,7 @@
+import { CalendarBlank } from "@phosphor-icons/react";
 import { reservasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, EmptyState, Spinner } from "../../components/ui";
+import { Alert, Badge, Button, Card, EmptyState, PageHeader, Spinner } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
 import { ESTADO_RESERVA_TONO } from "../../lib/badges";
 
@@ -9,10 +10,7 @@ export default function AdminReservas() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Reservas de espacios comunes</h1>
-        <p className="text-sm text-slate-500">Consulta de todas las reservas realizadas (HU-05).</p>
-      </div>
+      <PageHeader icon={CalendarBlank} title="Reservas de espacios comunes" subtitle="Consulta de todas las reservas realizadas (HU-05)." />
 
       <Card>
         {cargando ? (
@@ -36,7 +34,7 @@ export default function AdminReservas() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {data.map((r) => (
-                  <tr key={r.id}>
+                  <tr key={r.id} className="transition-colors hover:bg-slate-50/70">
                     <td className="px-5 py-3 font-medium text-slate-800">{r.espacioComun.nombre}</td>
                     <td className="px-5 py-3 text-slate-500">
                       {r.usuario ? `${r.usuario.nombre} ${r.usuario.apellido}` : "—"}

@@ -1,7 +1,8 @@
-import { ButtonHTMLAttributes, InputHTMLAttributes, LabelHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { ButtonHTMLAttributes, InputHTMLAttributes, LabelHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { AnimatePresence, animate, motion, useMotionValue, useTransform } from "framer-motion";
 import clsx from "clsx";
-import { CheckCircle, Warning, WarningCircle, X } from "@phosphor-icons/react";
+import { CheckCircle, Icon as PhosphorIcon, Tray, Warning, WarningCircle, X } from "@phosphor-icons/react";
 
 type NativeButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,
@@ -64,6 +65,113 @@ export function CardHeader({ title, subtitle, action }: { title: string; subtitl
   );
 }
 
+export function PageHeader({
+  icon: Icon,
+  title,
+  subtitle,
+  action,
+}: {
+  icon: PhosphorIcon;
+  title: string;
+  subtitle?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-wrap items-center justify-between gap-4"
+    >
+      <div className="flex items-center gap-3">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+          <Icon size={22} weight="duotone" />
+        </div>
+        <div>
+          <h1 className="font-display text-xl font-bold text-slate-900">{title}</h1>
+          {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+        </div>
+      </div>
+      {action}
+    </motion.div>
+  );
+}
+
+const STAT_TONES: Record<string, { bg: string; text: string }> = {
+  slate: { bg: "bg-slate-100", text: "text-slate-600" },
+  brand: { bg: "bg-brand-50", text: "text-brand-600" },
+  green: { bg: "bg-emerald-50", text: "text-emerald-600" },
+  amber: { bg: "bg-amber-50", text: "text-amber-600" },
+  red: { bg: "bg-red-50", text: "text-red-600" },
+  purple: { bg: "bg-purple-50", text: "text-purple-600" },
+};
+
+function AnimatedNumber({ value }: { value: number }) {
+  const motionValue = useMotionValue(0);
+  const [display, setDisplay] = useState("0");
+  const rounded = useTransform(motionValue, (v) => Math.round(v).toLocaleString("es-CL"));
+
+  useEffect(() => {
+    const controls = animate(motionValue, value, { duration: 0.7, ease: "easeOut" });
+    const unsubscribe = rounded.on("change", setDisplay);
+    return () => {
+      controls.stop();
+      unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return <>{display}</>;
+}
+
+export function StatCard({
+  icon: Icon,
+  label,
+  value,
+  tone = "brand",
+  index = 0,
+  to,
+}: {
+  icon: PhosphorIcon;
+  label: string;
+  value: number;
+  tone?: keyof typeof STAT_TONES;
+  index?: number;
+  to?: string;
+}) {
+  const colors = STAT_TONES[tone];
+  const contenido = (
+    <>
+      <div className="flex items-center gap-3">
+        <div className={clsx("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", colors.bg, colors.text)}>
+          <Icon size={20} weight="bold" />
+        </div>
+        <p className="text-xs font-medium text-slate-500">{label}</p>
+      </div>
+      <p className="mt-3 text-2xl font-bold text-slate-900">
+        <AnimatedNumber value={value} />
+      </p>
+    </>
+  );
+
+  const className = clsx(
+    "block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md",
+    to && "hover:border-brand-300"
+  );
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: index * 0.05 }}>
+      {to ? (
+        <Link to={to} className={className}>
+          {contenido}
+        </Link>
+      ) : (
+        <div className={className}>{contenido}</div>
+      )}
+    </motion.div>
+  );
+}
+
 export function Label(props: LabelHTMLAttributes<HTMLLabelElement>) {
   return <label className="mb-1 block text-xs font-medium text-slate-600" {...props} />;
 }
@@ -123,14 +231,25 @@ export function Badge({ tone = "slate", children }: { tone?: keyof typeof BADGE_
   );
 }
 
-export function EmptyState({ title, description }: { title: string; description?: string }) {
+export function EmptyState({
+  title,
+  description,
+  icon: Icon = Tray,
+}: {
+  title: string;
+  description?: string;
+  icon?: PhosphorIcon;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col items-center justify-center gap-1 py-12 text-center"
+      className="flex flex-col items-center justify-center gap-2 py-12 text-center"
     >
+      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+        <Icon size={22} />
+      </div>
       <p className="text-sm font-medium text-slate-700">{title}</p>
       {description && <p className="text-xs text-slate-500">{description}</p>}
     </motion.div>

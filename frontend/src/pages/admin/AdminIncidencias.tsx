@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { Wrench } from "@phosphor-icons/react";
 import { incidenciasApi, usuariosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import {
@@ -10,6 +11,7 @@ import {
   Input,
   Label,
   Modal,
+  PageHeader,
   Select,
   Spinner,
   Textarea,
@@ -28,10 +30,7 @@ export default function AdminIncidencias() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Incidencias</h1>
-        <p className="text-sm text-slate-500">Gestion, priorizacion e historial (HU-10, HU-11, HU-25).</p>
-      </div>
+      <PageHeader icon={Wrench} title="Incidencias" subtitle="Gestion, priorizacion e historial (HU-10, HU-11, HU-25)." />
 
       <Card>
         {cargando ? (

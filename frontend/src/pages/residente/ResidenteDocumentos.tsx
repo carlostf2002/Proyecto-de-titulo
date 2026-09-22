@@ -1,6 +1,7 @@
+import { ArrowRight, FileText } from "@phosphor-icons/react";
 import { documentosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Card, EmptyState, Spinner } from "../../components/ui";
+import { Alert, Card, EmptyState, PageHeader, Spinner } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
 
 export default function ResidenteDocumentos() {
@@ -8,10 +9,7 @@ export default function ResidenteDocumentos() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Documentos</h1>
-        <p className="text-sm text-slate-500">Reglamentos y documentos informativos del condominio (HU-23).</p>
-      </div>
+      <PageHeader icon={FileText} title="Documentos" subtitle="Reglamentos y documentos informativos del condominio (HU-23)." />
 
       <Card>
         {cargando ? (
@@ -19,7 +17,7 @@ export default function ResidenteDocumentos() {
         ) : error ? (
           <Alert tone="red">{error}</Alert>
         ) : !data?.length ? (
-          <EmptyState title="Aun no hay documentos publicados" />
+          <EmptyState icon={FileText} title="Aun no hay documentos publicados" />
         ) : (
           <div className="divide-y divide-slate-50">
             {data.map((doc) => (
@@ -28,7 +26,7 @@ export default function ResidenteDocumentos() {
                 href={doc.archivoUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center justify-between px-5 py-3 hover:bg-slate-50"
+                className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50"
               >
                 <div>
                   <p className="text-sm font-medium text-slate-800">{doc.titulo}</p>
@@ -36,7 +34,9 @@ export default function ResidenteDocumentos() {
                     {doc.categoria ?? "General"} · {formatFecha(doc.createdAt)}
                   </p>
                 </div>
-                <span className="text-xs text-brand-600">Ver →</span>
+                <span className="flex items-center gap-1 text-xs text-brand-600 transition-transform group-hover:translate-x-0.5">
+                  Ver <ArrowRight size={14} />
+                </span>
               </a>
             ))}
           </div>

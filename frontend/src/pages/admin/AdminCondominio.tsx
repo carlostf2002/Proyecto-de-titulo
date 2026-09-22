@@ -1,7 +1,8 @@
 import { FormEvent, useState } from "react";
+import { Buildings } from "@phosphor-icons/react";
 import { condominioApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Select, Spinner } from "../../components/ui";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Select, Spinner } from "../../components/ui";
 import { mensajeError } from "../../api/client";
 import clsx from "clsx";
 
@@ -12,10 +13,7 @@ export default function AdminCondominio() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Estructura del condominio</h1>
-        <p className="text-sm text-slate-500">Torres, departamentos y espacios comunes (HU-03).</p>
-      </div>
+      <PageHeader icon={Buildings} title="Estructura del condominio" subtitle="Torres, departamentos y espacios comunes (HU-03)." />
 
       <div className="flex gap-2 border-b border-slate-200">
         {(
@@ -29,7 +27,7 @@ export default function AdminCondominio() {
             key={value}
             onClick={() => setTab(value)}
             className={clsx(
-              "border-b-2 px-3 py-2 text-sm font-medium",
+              "border-b-2 px-3 py-2 text-sm font-medium transition-colors",
               tab === value ? "border-brand-600 text-brand-700" : "border-transparent text-slate-500 hover:text-slate-700"
             )}
           >

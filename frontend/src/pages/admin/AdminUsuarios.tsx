@@ -1,7 +1,8 @@
 import { FormEvent, useState } from "react";
+import { UserPlus, Users } from "@phosphor-icons/react";
 import { condominioApi, usuariosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, Select, Spinner } from "../../components/ui";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, Select, Spinner } from "../../components/ui";
 import { mensajeError } from "../../api/client";
 import type { Rol } from "../../types";
 
@@ -14,13 +15,16 @@ export default function AdminUsuarios() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Residentes y usuarios</h1>
-          <p className="text-sm text-slate-500">Registro y administracion de residentes (HU-02).</p>
-        </div>
-        <Button onClick={() => setModalAbierto(true)}>+ Nuevo usuario</Button>
-      </div>
+      <PageHeader
+        icon={Users}
+        title="Residentes y usuarios"
+        subtitle="Registro y administracion de residentes (HU-02)."
+        action={
+          <Button onClick={() => setModalAbierto(true)}>
+            <UserPlus size={16} weight="bold" /> Nuevo usuario
+          </Button>
+        }
+      />
 
       <Card>
         {cargando ? (
@@ -44,7 +48,7 @@ export default function AdminUsuarios() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {usuarios.map((u) => (
-                  <tr key={u.id}>
+                  <tr key={u.id} className="transition-colors hover:bg-slate-50/70">
                     <td className="px-5 py-3 font-medium text-slate-800">
                       {u.nombre} {u.apellido}
                     </td>

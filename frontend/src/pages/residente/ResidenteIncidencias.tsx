@@ -1,7 +1,8 @@
 import { FormEvent, useRef, useState } from "react";
 import { incidenciasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Spinner, Textarea } from "../../components/ui";
+import { Wrench } from "@phosphor-icons/react";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Spinner, Textarea } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 import { ESTADO_INCIDENCIA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
@@ -45,10 +46,7 @@ export default function ResidenteIncidencias() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Incidencias</h1>
-        <p className="text-sm text-slate-500">Reporta problemas y haz seguimiento (HU-08, HU-09).</p>
-      </div>
+      <PageHeader icon={Wrench} title="Incidencias" subtitle="Reporta problemas y haz seguimiento (HU-08, HU-09)." />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">

@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
+import { House, Megaphone, Package, Warning, Wrench } from "@phosphor-icons/react";
 import { useAuth } from "../../context/AuthContext";
 import { comunicadosApi, encomiendasApi, incidenciasApi, multasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Card, Spinner } from "../../components/ui";
+import { Card, EmptyState, PageHeader, Spinner, StatCard } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 
 export default function ResidenteInicio() {
@@ -20,31 +20,29 @@ export default function ResidenteInicio() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Hola, {usuario?.nombre}</h1>
-        <p className="text-sm text-slate-500">Resumen de tu unidad en HabitaSmart.</p>
-      </div>
+      <PageHeader icon={House} title={`Hola, ${usuario?.nombre ?? ""}`} subtitle="Resumen de tu unidad en HabitaSmart." />
 
       {cargando ? (
         <Spinner />
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            <ResumenCard to="/multas" label="Multas pendientes" value={multasPendientes} />
-            <ResumenCard to="/incidencias" label="Incidencias abiertas" value={incidenciasAbiertas} />
-            <ResumenCard to="/encomiendas" label="Encomiendas por retirar" value={encomiendasPorRetirar} />
+            <StatCard to="/multas" icon={Warning} label="Multas pendientes" value={multasPendientes} tone="amber" index={0} />
+            <StatCard to="/incidencias" icon={Wrench} label="Incidencias abiertas" value={incidenciasAbiertas} tone="brand" index={1} />
+            <StatCard to="/encomiendas" icon={Package} label="Encomiendas por retirar" value={encomiendasPorRetirar} tone="purple" index={2} />
           </div>
 
           <Card>
-            <div className="border-b border-slate-100 px-5 py-4">
+            <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-4">
+              <Megaphone size={16} className="text-slate-400" />
               <h3 className="text-sm font-semibold text-slate-900">Ultimos comunicados</h3>
             </div>
             {!comunicados?.length ? (
-              <p className="px-5 py-6 text-center text-sm text-slate-400">Sin comunicados recientes.</p>
+              <EmptyState icon={Megaphone} title="Sin comunicados recientes" />
             ) : (
               <div className="divide-y divide-slate-50">
                 {comunicados.slice(0, 5).map((c) => (
-                  <div key={c.id} className="px-5 py-3">
+                  <div key={c.id} className="px-5 py-3 transition-colors hover:bg-slate-50/70">
                     <p className="text-sm font-medium text-slate-800">{c.titulo}</p>
                     <p className="text-xs text-slate-500">{formatFechaHora(c.createdAt)}</p>
                   </div>
@@ -55,16 +53,5 @@ export default function ResidenteInicio() {
         </>
       )}
     </div>
-  );
-}
-
-function ResumenCard({ to, label, value }: { to: string; label: string; value: number }) {
-  return (
-    <Link to={to}>
-      <Card className="p-5 transition hover:border-brand-300 hover:shadow-md">
-        <p className="text-xs font-medium text-slate-500">{label}</p>
-        <p className="mt-2 text-2xl font-bold text-slate-900">{value}</p>
-      </Card>
-    </Link>
   );
 }

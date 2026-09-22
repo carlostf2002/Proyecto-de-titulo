@@ -1,7 +1,8 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { qrApi } from "../../api/endpoints";
-import { Alert, Button, Card, CardHeader, Input, Label } from "../../components/ui";
+import { QrCode } from "@phosphor-icons/react";
+import { Alert, Button, Card, CardHeader, Input, Label, PageHeader } from "../../components/ui";
 import { mensajeError } from "../../api/client";
 
 type Resultado = { resultado: "AUTORIZADO" | "RECHAZADO"; motivo: string; detalle?: Record<string, unknown> };
@@ -87,10 +88,7 @@ export default function ConserjeValidarQR() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Validar acceso QR</h1>
-        <p className="text-sm text-slate-500">Escanea el codigo de un residente o una visita (HU-18, HU-21).</p>
-      </div>
+      <PageHeader icon={QrCode} title="Validar acceso QR" subtitle="Escanea el codigo de un residente o una visita (HU-18, HU-21)." />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>

@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { QrCode } from "@phosphor-icons/react";
 import { qrApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import {
@@ -11,6 +12,7 @@ import {
   Input,
   Label,
   Modal,
+  PageHeader,
   Spinner,
   Textarea,
 } from "../../components/ui";
@@ -42,12 +44,7 @@ export default function ResidenteQR() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Mi QR y visitas</h1>
-        <p className="text-sm text-slate-500">
-          Identificacion digital y autorizacion de visitas (HU-17, HU-19, HU-20).
-        </p>
-      </div>
+      <PageHeader icon={QrCode} title="Mi QR y visitas" subtitle="Identificacion digital y autorizacion de visitas (HU-17, HU-19, HU-20)." />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="h-fit">

@@ -88,7 +88,7 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
         )}
       </AnimatePresence>
 
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:px-8">
           <button
             className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 lg:hidden"

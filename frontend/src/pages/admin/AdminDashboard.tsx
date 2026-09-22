@@ -1,16 +1,8 @@
+import { ChartBar, CheckCircle, Clock, Package, QrCode, Warning } from "@phosphor-icons/react";
 import { dashboardApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Card, CardHeader, EmptyState, Spinner, Alert, Badge } from "../../components/ui";
+import { Card, CardHeader, EmptyState, Spinner, Alert, Badge, PageHeader, StatCard } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
-
-function StatCard({ label, value, tone }: { label: string; value: number | string; tone?: string }) {
-  return (
-    <Card className="p-5">
-      <p className="text-xs font-medium text-slate-500">{label}</p>
-      <p className={`mt-2 text-2xl font-bold ${tone ?? "text-slate-900"}`}>{value}</p>
-    </Card>
-  );
-}
 
 export default function AdminDashboard() {
   const { data, cargando, error } = useAsync(() => dashboardApi.indicadores(), []);
@@ -21,17 +13,14 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Panel administrativo</h1>
-        <p className="text-sm text-slate-500">Indicadores generales del condominio (HU-24).</p>
-      </div>
+      <PageHeader icon={ChartBar} title="Panel administrativo" subtitle="Indicadores generales del condominio (HU-24)." />
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
-        <StatCard label="Incidencias pendientes" value={data.incidencias.pendientes} tone="text-amber-600" />
-        <StatCard label="Incidencias resueltas" value={data.incidencias.resueltas} tone="text-emerald-600" />
-        <StatCard label="Reservas proximas" value={data.reservas.proximas} tone="text-brand-600" />
-        <StatCard label="Encomiendas por retirar" value={data.encomiendas.pendientesDeRetiro} tone="text-purple-600" />
-        <StatCard label="Accesos autorizados (ult. 10)" value={data.accesos.autorizadosUltimos10} tone="text-emerald-600" />
+        <StatCard icon={Warning} label="Incidencias pendientes" value={data.incidencias.pendientes} tone="amber" index={0} />
+        <StatCard icon={CheckCircle} label="Incidencias resueltas" value={data.incidencias.resueltas} tone="green" index={1} />
+        <StatCard icon={Clock} label="Reservas proximas" value={data.reservas.proximas} tone="brand" index={2} />
+        <StatCard icon={Package} label="Encomiendas por retirar" value={data.encomiendas.pendientesDeRetiro} tone="purple" index={3} />
+        <StatCard icon={QrCode} label="Accesos autorizados (ult. 10)" value={data.accesos.autorizadosUltimos10} tone="green" index={4} />
       </div>
 
       <Card>
@@ -49,11 +38,11 @@ export default function AdminDashboard() {
       <Card>
         <CardHeader title="Accesos recientes" subtitle="Ultimos 10 registros de validacion QR" />
         {data.accesos.recientes.length === 0 ? (
-          <EmptyState title="Sin accesos registrados" />
+          <EmptyState icon={QrCode} title="Sin accesos registrados" />
         ) : (
           <div className="divide-y divide-slate-100">
             {data.accesos.recientes.map((a) => (
-              <div key={a.id} className="flex items-center justify-between px-5 py-3">
+              <div key={a.id} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70">
                 <div>
                   <p className="text-sm text-slate-700">{a.motivo}</p>
                   <p className="text-xs text-slate-400">

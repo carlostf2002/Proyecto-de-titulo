@@ -1,6 +1,7 @@
+import { Warning } from "@phosphor-icons/react";
 import { multasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Card, EmptyState, Spinner } from "../../components/ui";
+import { Alert, Badge, Card, EmptyState, PageHeader, Spinner } from "../../components/ui";
 import { formatFecha, formatMonto } from "../../lib/format";
 import { ESTADO_MULTA_TONO } from "../../lib/badges";
 
@@ -9,10 +10,7 @@ export default function ResidenteMultas() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Mis multas</h1>
-        <p className="text-sm text-slate-500">Motivo, monto y estado de tus sanciones (HU-07).</p>
-      </div>
+      <PageHeader icon={Warning} title="Mis multas" subtitle="Motivo, monto y estado de tus sanciones (HU-07)." />
 
       <Card>
         {cargando ? (

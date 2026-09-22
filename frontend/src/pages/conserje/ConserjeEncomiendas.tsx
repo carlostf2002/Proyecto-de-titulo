@@ -1,7 +1,8 @@
 import { FormEvent, useState } from "react";
 import { encomiendasApi, usuariosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Select, Spinner } from "../../components/ui";
+import { Package } from "@phosphor-icons/react";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Select, Spinner } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 import { ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
@@ -35,10 +36,7 @@ export default function ConserjeEncomiendas() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Encomiendas</h1>
-        <p className="text-sm text-slate-500">Registro de recepcion y retiro (HU-12, HU-14).</p>
-      </div>
+      <PageHeader icon={Package} title="Encomiendas" subtitle="Registro de recepcion y retiro (HU-12, HU-14)." />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="h-fit">

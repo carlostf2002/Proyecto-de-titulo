@@ -1,7 +1,8 @@
 import { FormEvent, useEffect, useState } from "react";
 import { condominioApi, reservasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Select, Spinner } from "../../components/ui";
+import { CalendarBlank } from "@phosphor-icons/react";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Select, Spinner } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
 import { ESTADO_RESERVA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
@@ -48,10 +49,7 @@ export default function ResidenteReservas() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900">Reservar espacios comunes</h1>
-        <p className="text-sm text-slate-500">Consulta disponibilidad y reserva (HU-04, HU-05).</p>
-      </div>
+      <PageHeader icon={CalendarBlank} title="Reservar espacios comunes" subtitle="Consulta disponibilidad y reserva (HU-04, HU-05)." />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2 h-fit">
