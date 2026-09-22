@@ -5,6 +5,7 @@ import { condominioApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Select, Spinner, staggerFade } from "../../components/ui";
 import { mensajeError } from "../../api/client";
+import { useToast } from "../../context/ToastContext";
 import clsx from "clsx";
 
 type Tab = "torres" | "departamentos" | "espacios";
@@ -45,6 +46,7 @@ export default function AdminCondominio() {
 }
 
 function EspaciosComunes() {
+  const toast = useToast();
   const { data, cargando, error, recargar } = useAsync(() => condominioApi.listarEspacios(), []);
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
@@ -69,6 +71,7 @@ function EspaciosComunes() {
       setNombre("");
       setDescripcion("");
       setCapacidad("");
+      toast.success("Espacio comun creado.");
       recargar();
     } catch (err) {
       setFormError(mensajeError(err));
@@ -104,6 +107,7 @@ function EspaciosComunes() {
                     size="sm"
                     onClick={async () => {
                       await condominioApi.actualizarEspacio(esp.id, { activo: !esp.activo });
+                      toast.success(esp.activo ? "Espacio desactivado." : "Espacio activado.");
                       recargar();
                     }}
                   >
@@ -152,6 +156,7 @@ function EspaciosComunes() {
 }
 
 function Torres() {
+  const toast = useToast();
   const { data, cargando, error, recargar } = useAsync(() => condominioApi.listarTorres(), []);
   const [nombre, setNombre] = useState("");
   const [enviando, setEnviando] = useState(false);
@@ -162,6 +167,7 @@ function Torres() {
     try {
       await condominioApi.crearTorre(nombre);
       setNombre("");
+      toast.success("Torre creada.");
       recargar();
     } finally {
       setEnviando(false);
@@ -205,6 +211,7 @@ function Torres() {
 }
 
 function Departamentos() {
+  const toast = useToast();
   const { data, cargando, error, recargar } = useAsync(() => condominioApi.listarDepartamentos(), []);
   const { data: torres } = useAsync(() => condominioApi.listarTorres(), []);
   const [numero, setNumero] = useState("");
@@ -219,6 +226,7 @@ function Departamentos() {
     try {
       await condominioApi.crearDepartamento({ numero, torreId: torreId || null });
       setNumero("");
+      toast.success("Departamento creado.");
       recargar();
     } catch (err) {
       setFormError(mensajeError(err));

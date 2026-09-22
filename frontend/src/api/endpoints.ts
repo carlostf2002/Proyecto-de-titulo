@@ -22,6 +22,9 @@ export const authApi = {
   login: (email: string, password: string) =>
     api.post<{ token: string; usuario: Usuario }>("/auth/login", { email, password }).then((r) => r.data),
   me: () => api.get<Usuario>("/auth/me").then((r) => r.data),
+  actualizarPerfil: (data: { nombre?: string; apellido?: string; telefono?: string | null }) =>
+    api.patch<Usuario>("/auth/me", data).then((r) => r.data),
+  cambiarPassword: (actual: string, nueva: string) => api.patch("/auth/me/password", { actual, nueva }),
 };
 
 // --- Usuarios (HU-02) ---

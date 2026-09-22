@@ -1,8 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
-import { Bell, Buildings, List, SignOut, X } from "@phosphor-icons/react";
+import { Bell, Buildings, List, SignOut, UserCircle, X } from "@phosphor-icons/react";
 import { useAuth } from "../context/AuthContext";
 import { notificacionesApi } from "../api/endpoints";
 import type { Notificacion } from "../types";
@@ -161,12 +161,12 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                 )}
               </AnimatePresence>
             </div>
-            <div className="hidden text-right sm:block">
+            <Link to="/perfil" className="hidden rounded-lg px-2 py-1 text-right transition-colors hover:bg-slate-50 sm:block">
               <p className="text-sm font-medium text-slate-800">
                 {usuario?.nombre} {usuario?.apellido}
               </p>
               <p className="text-xs text-slate-500">{usuario && ROL_LABEL[usuario.rol]}</p>
-            </div>
+            </Link>
             <button
               onClick={handleLogout}
               className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
@@ -240,6 +240,21 @@ function SidebarContent({
           </NavLink>
         ))}
       </nav>
+      <div className="border-t border-slate-100 px-3 py-3">
+        <NavLink
+          to="/perfil"
+          onClick={onNavigate}
+          className={({ isActive }) =>
+            clsx(
+              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              isActive ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-50"
+            )
+          }
+        >
+          <UserCircle size={20} />
+          Mi perfil
+        </NavLink>
+      </div>
     </>
   );
 }

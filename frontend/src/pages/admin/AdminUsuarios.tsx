@@ -3,16 +3,28 @@ import { motion } from "framer-motion";
 import { UserPlus, Users } from "@phosphor-icons/react";
 import { condominioApi, usuariosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, Select, Spinner, staggerFade } from "../../components/ui";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, SearchInput, Select, Spinner, staggerFade } from "../../components/ui";
 import { mensajeError } from "../../api/client";
+import { useToast } from "../../context/ToastContext";
 import type { Rol } from "../../types";
 
 const ROL_LABEL: Record<Rol, string> = { ADMIN: "Administrador", RESIDENTE: "Residente", CONSERJE: "Conserje" };
 
 export default function AdminUsuarios() {
+  const toast = useToast();
   const { data: usuarios, cargando, error, recargar } = useAsync(() => usuariosApi.listar(), []);
   const { data: departamentos } = useAsync(() => condominioApi.listarDepartamentos(), []);
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroRol, setFiltroRol] = useState<Rol | "">("");
+
+  const filtrados = (usuarios ?? []).filter((u) => {
+    const coincideTexto =
+      !busqueda ||
+      `${u.nombre} ${u.apellido} ${u.email}`.toLowerCase().includes(busqueda.toLowerCase());
+    const coincideRol = !filtroRol || u.rol === filtroRol;
+    return coincideTexto && coincideRol;
+  });
 
   return (
     <div className="space-y-6">
@@ -27,6 +39,21 @@ export default function AdminUsuarios() {
         }
       />
 
+      <div className="flex flex-wrap gap-3">
+        <SearchInput
+          value={busqueda}
+          onChange={setBusqueda}
+          placeholder="Buscar por nombre o correo..."
+          className="w-full sm:max-w-xs"
+        />
+        <Select value={filtroRol} onChange={(e) => setFiltroRol(e.target.value as Rol | "")} className="w-full sm:w-48">
+          <option value="">Todos los roles</option>
+          <option value="ADMIN">Administrador</option>
+          <option value="RESIDENTE">Residente</option>
+          <option value="CONSERJE">Conserje</option>
+        </Select>
+      </div>
+
       <Card>
         {cargando ? (
           <Spinner />
@@ -34,6 +61,8 @@ export default function AdminUsuarios() {
           <Alert tone="red">{error}</Alert>
         ) : !usuarios?.length ? (
           <EmptyState title="Aun no hay usuarios registrados" />
+        ) : !filtrados.length ? (
+          <EmptyState title="Sin resultados" description="Ningun usuario coincide con la busqueda." />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -48,7 +77,7 @@ export default function AdminUsuarios() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {usuarios.map((u, i) => (
+                {filtrados.map((u, i) => (
                   <motion.tr key={u.id} {...staggerFade(i)} className="transition-colors hover:bg-slate-50/70">
                     <td className="px-5 py-3 font-medium text-slate-800">
                       {u.nombre} {u.apellido}
@@ -69,6 +98,7 @@ export default function AdminUsuarios() {
                         size="sm"
                         onClick={async () => {
                           await usuariosApi.actualizar(u.id, { activo: !u.activo });
+                          toast.success(u.activo ? "Usuario deshabilitado." : "Usuario habilitado.");
                           recargar();
                         }}
                       >
@@ -103,6 +133,7 @@ function FormularioUsuario({
   departamentos: { id: string; numero: string; torre: { nombre: string } | null }[];
   onCreado: () => void;
 }) {
+  const toast = useToast();
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [email, setEmail] = useState("");
@@ -125,6 +156,7 @@ function FormularioUsuario({
         rol,
         departamentoId: rol === "RESIDENTE" ? departamentoId || null : null,
       });
+      toast.success("Usuario registrado correctamente.");
       onCreado();
     } catch (err) {
       setError(mensajeError(err));

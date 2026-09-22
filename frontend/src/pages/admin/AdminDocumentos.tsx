@@ -3,17 +3,24 @@ import { motion } from "framer-motion";
 import { ArrowRight, FileText } from "@phosphor-icons/react";
 import { documentosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Spinner, staggerFade } from "../../components/ui";
+import { Alert, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, SearchInput, Spinner, staggerFade } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
 import { mensajeError } from "../../api/client";
+import { useToast } from "../../context/ToastContext";
 
 export default function AdminDocumentos() {
+  const toast = useToast();
   const { data, cargando, error, recargar } = useAsync(() => documentosApi.listar(), []);
   const [titulo, setTitulo] = useState("");
   const [categoria, setCategoria] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+
+  const filtrados = (data ?? []).filter(
+    (doc) => !busqueda || `${doc.titulo} ${doc.categoria ?? ""}`.toLowerCase().includes(busqueda.toLowerCase())
+  );
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -33,6 +40,7 @@ export default function AdminDocumentos() {
       setTitulo("");
       setCategoria("");
       if (fileRef.current) fileRef.current.value = "";
+      toast.success("Documento publicado correctamente.");
       recargar();
     } catch (err) {
       setFormError(mensajeError(err));
@@ -47,16 +55,21 @@ export default function AdminDocumentos() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader title="Documentos publicados" />
+          <CardHeader
+            title="Documentos publicados"
+            action={<SearchInput value={busqueda} onChange={setBusqueda} placeholder="Buscar..." className="w-48" />}
+          />
           {cargando ? (
             <Spinner />
           ) : error ? (
             <Alert tone="red">{error}</Alert>
           ) : !data?.length ? (
             <EmptyState icon={FileText} title="Aun no hay documentos publicados" />
+          ) : !filtrados.length ? (
+            <EmptyState title="Sin resultados" description="Ningun documento coincide con la busqueda." />
           ) : (
             <div className="divide-y divide-slate-50">
-              {data.map((doc, i) => (
+              {filtrados.map((doc, i) => (
                 <motion.a
                   key={doc.id}
                   {...staggerFade(i)}

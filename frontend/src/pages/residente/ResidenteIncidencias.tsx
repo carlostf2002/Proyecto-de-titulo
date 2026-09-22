@@ -7,21 +7,21 @@ import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageH
 import { formatFechaHora } from "../../lib/format";
 import { ESTADO_INCIDENCIA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
+import { useToast } from "../../context/ToastContext";
 
 export default function ResidenteIncidencias() {
+  const toast = useToast();
   const { data, cargando, error, recargar } = useAsync(() => incidenciasApi.mias(), []);
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [ubicacion, setUbicacion] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [exito, setExito] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setFormError(null);
-    setExito(null);
     setEnviando(true);
     try {
       const formData = new FormData();
@@ -36,7 +36,7 @@ export default function ResidenteIncidencias() {
       setDescripcion("");
       setUbicacion("");
       if (fileRef.current) fileRef.current.value = "";
-      setExito("Incidencia reportada correctamente.");
+      toast.success("Incidencia reportada correctamente.");
       recargar();
     } catch (err) {
       setFormError(mensajeError(err));
@@ -100,7 +100,6 @@ export default function ResidenteIncidencias() {
               <input ref={fileRef} type="file" accept="image/*" className="block w-full text-sm" />
             </div>
             {formError && <Alert tone="red">{formError}</Alert>}
-            {exito && <Alert tone="green">{exito}</Alert>}
             <Button type="submit" className="w-full" loading={enviando}>
               Reportar incidencia
             </Button>

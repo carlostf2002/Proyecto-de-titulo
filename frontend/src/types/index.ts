@@ -169,12 +169,14 @@ export interface Notificacion {
 }
 
 export interface Indicadores {
-  incidencias: { pendientes: number; resueltas: number };
+  incidencias: { pendientes: number; resueltas: number; porEstado: Record<EstadoIncidencia, number> };
   reservas: { proximas: number };
   multas: Record<EstadoMulta, number>;
   encomiendas: { pendientesDeRetiro: number };
   accesos: {
     recientes: { id: string; resultado: "AUTORIZADO" | "RECHAZADO"; motivo: string; createdAt: string; validadoPor: { nombre: string; apellido: string } }[];
     autorizadosUltimos10: number;
+    totalAutorizados: number;
+    totalRechazados: number;
   };
 }

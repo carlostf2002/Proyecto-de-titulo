@@ -2,7 +2,7 @@ import { ButtonHTMLAttributes, InputHTMLAttributes, LabelHTMLAttributes, ReactNo
 import { Link } from "react-router-dom";
 import { AnimatePresence, animate, motion, useMotionValue, useTransform } from "framer-motion";
 import clsx from "clsx";
-import { CheckCircle, Icon as PhosphorIcon, Tray, Warning, WarningCircle, X } from "@phosphor-icons/react";
+import { CheckCircle, Icon as PhosphorIcon, MagnifyingGlass, Tray, Warning, WarningCircle, X } from "@phosphor-icons/react";
 
 // Animacion de entrada escalonada para filas de tabla / items de lista.
 // Uso: data.map((item, i) => <motion.tr key={item.id} {...staggerFade(i)}>...</motion.tr>)
@@ -71,6 +71,31 @@ export function CardHeader({ title, subtitle, action }: { title: string; subtitl
         {subtitle && <p className="mt-0.5 text-xs text-slate-500">{subtitle}</p>}
       </div>
       {action}
+    </div>
+  );
+}
+
+export function SearchInput({
+  value,
+  onChange,
+  placeholder = "Buscar...",
+  className,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+}) {
+  return (
+    <div className={clsx("relative", className)}>
+      <MagnifyingGlass size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+      <input
+        type="search"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition-shadow focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+      />
     </div>
   );
 }
@@ -179,6 +204,72 @@ export function StatCard({
         <div className={className}>{contenido}</div>
       )}
     </motion.div>
+  );
+}
+
+// --- Graficos (HU-24): barras horizontales con spec fijo (grosor <=24px, extremo
+// redondeado 4px, gap de 2px entre marcas, valor directo en la punta) y un medidor
+// para razones simples (autorizados vs rechazados), siguiendo la skill de dataviz.
+
+export interface BarChartItem {
+  label: string;
+  value: number;
+  color: string;
+}
+
+export function HorizontalBarChart({ items }: { items: BarChartItem[] }) {
+  const max = Math.max(1, ...items.map((i) => i.value));
+  return (
+    <div className="space-y-2.5 p-5">
+      {items.map((item, i) => (
+        <div key={item.label} className="flex items-center gap-3 text-sm">
+          <span className="w-28 shrink-0 truncate text-xs text-slate-500">{item.label}</span>
+          <div className="h-[10px] flex-1 overflow-hidden rounded-full bg-slate-100">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(item.value / max) * 100}%` }}
+              transition={{ duration: 0.5, ease: "easeOut", delay: i * 0.06 }}
+              className="h-full rounded-full"
+              style={{ backgroundColor: item.color }}
+            />
+          </div>
+          <span className="w-6 shrink-0 text-right text-xs font-semibold text-slate-700">{item.value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function Meter({
+  label,
+  value,
+  total,
+  color = "#0ca30c",
+}: {
+  label: string;
+  value: number;
+  total: number;
+  color?: string;
+}) {
+  const porcentaje = total > 0 ? Math.round((value / total) * 100) : 0;
+  return (
+    <div className="p-5">
+      <div className="mb-2 flex items-baseline justify-between">
+        <span className="text-xs text-slate-500">{label}</span>
+        <span className="text-sm font-semibold text-slate-800">
+          {value} / {total} · {porcentaje}%
+        </span>
+      </div>
+      <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${porcentaje}%` }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="h-full rounded-full"
+          style={{ backgroundColor: color }}
+        />
+      </div>
+    </div>
   );
 }
 

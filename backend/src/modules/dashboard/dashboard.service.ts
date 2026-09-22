@@ -6,15 +6,22 @@ export async function obtenerIndicadores(condominioId: string) {
   const [
     incidenciasPendientes,
     incidenciasResueltas,
+    incidenciasPorEstado,
     reservasProximas,
     multasPorEstado,
     encomiendasPendientes,
     accesosRecientes,
+    accesosPorResultado,
   ] = await Promise.all([
     prisma.incidencia.count({
       where: { condominioId, estado: { in: [EstadoIncidencia.REPORTADA, EstadoIncidencia.EN_REVISION, EstadoIncidencia.EN_PROCESO] } },
     }),
     prisma.incidencia.count({ where: { condominioId, estado: EstadoIncidencia.RESUELTA } }),
+    prisma.incidencia.groupBy({
+      by: ["estado"],
+      where: { condominioId },
+      _count: { _all: true },
+    }),
     prisma.reserva.count({
       where: { espacioComun: { condominioId }, fecha: { gte: new Date() }, estado: "CONFIRMADA" },
     }),
@@ -30,6 +37,11 @@ export async function obtenerIndicadores(condominioId: string) {
       take: 10,
       include: { validadoPor: { select: { nombre: true, apellido: true } } },
     }),
+    prisma.accesoLog.groupBy({
+      by: ["resultado"],
+      where: { condominioId },
+      _count: { _all: true },
+    }),
   ]);
 
   const multasPorEstadoMap = Object.fromEntries(
@@ -39,13 +51,30 @@ export async function obtenerIndicadores(condominioId: string) {
     ])
   );
 
-  const accesosAutorizados = accesosRecientes.filter((a) => a.resultado === ResultadoAcceso.AUTORIZADO).length;
+  const incidenciasPorEstadoMap = Object.fromEntries(
+    Object.values(EstadoIncidencia).map((estado) => [
+      estado,
+      incidenciasPorEstado.find((i) => i.estado === estado)?._count._all ?? 0,
+    ])
+  );
+
+  const accesosAutorizados = accesosPorResultado.find((a) => a.resultado === ResultadoAcceso.AUTORIZADO)?._count._all ?? 0;
+  const accesosRechazados = accesosPorResultado.find((a) => a.resultado === ResultadoAcceso.RECHAZADO)?._count._all ?? 0;
 
   return {
-    incidencias: { pendientes: incidenciasPendientes, resueltas: incidenciasResueltas },
+    incidencias: {
+      pendientes: incidenciasPendientes,
+      resueltas: incidenciasResueltas,
+      porEstado: incidenciasPorEstadoMap,
+    },
     reservas: { proximas: reservasProximas },
     multas: multasPorEstadoMap,
     encomiendas: { pendientesDeRetiro: encomiendasPendientes },
-    accesos: { recientes: accesosRecientes, autorizadosUltimos10: accesosAutorizados },
+    accesos: {
+      recientes: accesosRecientes,
+      autorizadosUltimos10: accesosRecientes.filter((a) => a.resultado === ResultadoAcceso.AUTORIZADO).length,
+      totalAutorizados: accesosAutorizados,
+      totalRechazados: accesosRechazados,
+    },
   };
 }

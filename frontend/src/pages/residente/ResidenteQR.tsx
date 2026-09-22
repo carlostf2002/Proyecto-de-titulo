@@ -21,8 +21,10 @@ import {
 import { formatFechaHora } from "../../lib/format";
 import { ESTADO_VISITA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
+import { useToast } from "../../context/ToastContext";
 
 export default function ResidenteQR() {
+  const toast = useToast();
   const [qrResidente, setQrResidente] = useState<{ qrDataUrl: string; expiraEn: string } | null>(null);
   const [generando, setGenerando] = useState(false);
   const [errorQr, setErrorQr] = useState<string | null>(null);
@@ -112,6 +114,7 @@ export default function ResidenteQR() {
                         variant="ghost"
                         onClick={async () => {
                           await qrApi.revocarVisita(v.id);
+                          toast.info("Autorizacion de visita revocada.");
                           recargar();
                         }}
                       >
@@ -151,6 +154,7 @@ export default function ResidenteQR() {
 }
 
 function FormularioVisita({ onCreado }: { onCreado: () => void }) {
+  const toast = useToast();
   const [nombreVisita, setNombreVisita] = useState("");
   const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
   const [horaInicio, setHoraInicio] = useState("09:00");
@@ -168,6 +172,7 @@ function FormularioVisita({ onCreado }: { onCreado: () => void }) {
       const periodoInicio = new Date(`${fecha}T${horaInicio}:00`).toISOString();
       const periodoFin = new Date(`${fecha}T${horaFin}:00`).toISOString();
       await qrApi.crearVisita({ nombreVisita, fecha, periodoInicio, periodoFin, observaciones: observaciones || undefined, soloUnUso });
+      toast.success("Visita registrada.");
       onCreado();
     } catch (err) {
       setError(mensajeError(err));

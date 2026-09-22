@@ -3,10 +3,11 @@ import { motion } from "framer-motion";
 import { Megaphone } from "@phosphor-icons/react";
 import { comunicadosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Select, Spinner, staggerFade, Textarea } from "../../components/ui";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, SearchInput, Select, Spinner, staggerFade, Textarea } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 import { TIPO_COMUNICADO_LABEL } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
+import { useToast } from "../../context/ToastContext";
 import type { TipoComunicado } from "../../types";
 
 const TIPOS: TipoComunicado[] = [
@@ -20,12 +21,18 @@ const TIPOS: TipoComunicado[] = [
 ];
 
 export default function AdminComunicados() {
+  const toast = useToast();
   const { data, cargando, error, recargar } = useAsync(() => comunicadosApi.listar(), []);
   const [titulo, setTitulo] = useState("");
   const [contenido, setContenido] = useState("");
   const [tipo, setTipo] = useState<TipoComunicado>("GENERAL");
   const [formError, setFormError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+
+  const filtrados = (data ?? []).filter(
+    (c) => !busqueda || `${c.titulo} ${c.contenido}`.toLowerCase().includes(busqueda.toLowerCase())
+  );
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -35,6 +42,7 @@ export default function AdminComunicados() {
       await comunicadosApi.crear({ titulo, contenido, tipo });
       setTitulo("");
       setContenido("");
+      toast.success("Comunicado publicado y notificado a los residentes.");
       recargar();
     } catch (err) {
       setFormError(mensajeError(err));
@@ -49,16 +57,21 @@ export default function AdminComunicados() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader title="Comunicados publicados" />
+          <CardHeader
+            title="Comunicados publicados"
+            action={<SearchInput value={busqueda} onChange={setBusqueda} placeholder="Buscar..." className="w-48" />}
+          />
           {cargando ? (
             <Spinner />
           ) : error ? (
             <Alert tone="red">{error}</Alert>
           ) : !data?.length ? (
             <EmptyState icon={Megaphone} title="Aun no hay comunicados publicados" />
+          ) : !filtrados.length ? (
+            <EmptyState title="Sin resultados" description="Ningun comunicado coincide con la busqueda." />
           ) : (
             <div className="divide-y divide-slate-50">
-              {data.map((c, i) => (
+              {filtrados.map((c, i) => (
                 <motion.div key={c.id} {...staggerFade(i)} className="px-5 py-4 transition-colors hover:bg-slate-50/70">
                   <div className="mb-1 flex items-center gap-2">
                     <p className="text-sm font-semibold text-slate-800">{c.titulo}</p>

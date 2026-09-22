@@ -7,8 +7,10 @@ import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageH
 import { formatFecha } from "../../lib/format";
 import { ESTADO_RESERVA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
+import { useToast } from "../../context/ToastContext";
 
 export default function ResidenteReservas() {
+  const toast = useToast();
   const { data: espacios } = useAsync(() => condominioApi.listarEspacios(true), []);
   const { data: misReservas, cargando: cargandoReservas, recargar: recargarReservas } = useAsync(
     () => reservasApi.mias(),
@@ -21,7 +23,6 @@ export default function ResidenteReservas() {
   const [horaFin, setHoraFin] = useState("12:00");
   const [ocupados, setOcupados] = useState<{ horaInicio: string; horaFin: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [exito, setExito] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
   useEffect(() => {
@@ -34,11 +35,10 @@ export default function ResidenteReservas() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    setExito(null);
     setEnviando(true);
     try {
       await reservasApi.crear({ espacioComunId, fecha, horaInicio, horaFin });
-      setExito("Reserva confirmada.");
+      toast.success("Reserva confirmada.");
       recargarReservas();
       reservasApi.disponibilidad(espacioComunId, fecha).then((res) => setOcupados(res.horariosOcupados));
     } catch (err) {
@@ -106,7 +106,6 @@ export default function ResidenteReservas() {
             )}
 
             {error && <Alert tone="red">{error}</Alert>}
-            {exito && <Alert tone="green">{exito}</Alert>}
 
             <Button type="submit" className="w-full" loading={enviando}>
               Confirmar reserva
@@ -135,6 +134,7 @@ export default function ResidenteReservas() {
                         className="text-xs text-red-600 hover:underline"
                         onClick={async () => {
                           await reservasApi.cancelar(r.id);
+                          toast.info("Reserva cancelada.");
                           recargarReservas();
                         }}
                       >

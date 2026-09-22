@@ -7,8 +7,10 @@ import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageH
 import { formatFechaHora } from "../../lib/format";
 import { ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
+import { useToast } from "../../context/ToastContext";
 
 export default function ConserjeEncomiendas() {
+  const toast = useToast();
   const { data, cargando, error, recargar } = useAsync(() => encomiendasApi.listarTodas(), []);
   const { data: residentes } = useAsync(() => usuariosApi.listar({ rol: "RESIDENTE" }), []);
 
@@ -25,6 +27,7 @@ export default function ConserjeEncomiendas() {
       await encomiendasApi.crear({ usuarioId, remitente: remitente || undefined });
       setUsuarioId("");
       setRemitente("");
+      toast.success("Encomienda registrada y residente notificado.");
       recargar();
     } catch (err) {
       setFormError(mensajeError(err));
@@ -93,6 +96,7 @@ export default function ConserjeEncomiendas() {
                       variant="secondary"
                       onClick={async () => {
                         await encomiendasApi.marcarRetirada(enc.id);
+                        toast.success("Encomienda marcada como retirada.");
                         recargar();
                       }}
                     >

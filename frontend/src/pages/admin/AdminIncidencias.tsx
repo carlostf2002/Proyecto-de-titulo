@@ -13,6 +13,7 @@ import {
   Label,
   Modal,
   PageHeader,
+  SearchInput,
   Select,
   Spinner,
   staggerFade,
@@ -21,6 +22,7 @@ import {
 import { formatFechaHora } from "../../lib/format";
 import { ESTADO_INCIDENCIA_TONO, PRIORIDAD_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
+import { useToast } from "../../context/ToastContext";
 import type { EstadoIncidencia, Incidencia, PrioridadIncidencia } from "../../types";
 
 const ESTADOS: EstadoIncidencia[] = ["REPORTADA", "EN_REVISION", "EN_PROCESO", "RESUELTA"];
@@ -29,10 +31,40 @@ const PRIORIDADES: PrioridadIncidencia[] = ["BAJA", "MEDIA", "ALTA"];
 export default function AdminIncidencias() {
   const { data, cargando, error, recargar } = useAsync(() => incidenciasApi.listarTodas(), []);
   const [seleccionadaId, setSeleccionadaId] = useState<string | null>(null);
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState<EstadoIncidencia | "">("");
+
+  const filtradas = (data ?? []).filter((inc) => {
+    const texto = `${inc.titulo} ${inc.ubicacion} ${inc.usuario?.nombre ?? ""} ${inc.usuario?.apellido ?? ""}`.toLowerCase();
+    const coincideTexto = !busqueda || texto.includes(busqueda.toLowerCase());
+    const coincideEstado = !filtroEstado || inc.estado === filtroEstado;
+    return coincideTexto && coincideEstado;
+  });
 
   return (
     <div className="space-y-6">
       <PageHeader icon={Wrench} title="Incidencias" subtitle="Gestion, priorizacion e historial (HU-10, HU-11, HU-25)." />
+
+      <div className="flex flex-wrap gap-3">
+        <SearchInput
+          value={busqueda}
+          onChange={setBusqueda}
+          placeholder="Buscar por titulo, ubicacion o residente..."
+          className="w-full sm:max-w-xs"
+        />
+        <Select
+          value={filtroEstado}
+          onChange={(e) => setFiltroEstado(e.target.value as EstadoIncidencia | "")}
+          className="w-full sm:w-48"
+        >
+          <option value="">Todos los estados</option>
+          {ESTADOS.map((estado) => (
+            <option key={estado} value={estado}>
+              {estado}
+            </option>
+          ))}
+        </Select>
+      </div>
 
       <Card>
         {cargando ? (
@@ -41,6 +73,8 @@ export default function AdminIncidencias() {
           <Alert tone="red">{error}</Alert>
         ) : !data?.length ? (
           <EmptyState title="Aun no hay incidencias reportadas" />
+        ) : !filtradas.length ? (
+          <EmptyState title="Sin resultados" description="Ninguna incidencia coincide con la busqueda." />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -55,7 +89,7 @@ export default function AdminIncidencias() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {data.map((inc, i) => (
+                {filtradas.map((inc, i) => (
                   <motion.tr
                     key={inc.id}
                     {...staggerFade(i)}
@@ -104,6 +138,7 @@ function DetalleIncidencia({
   onClose: () => void;
   onActualizada: () => void;
 }) {
+  const toast = useToast();
   const { data: incidencia, cargando, recargar, setData } = useAsync(() => incidenciasApi.obtener(id), [id]);
   const { data: admins } = useAsync(() => usuariosApi.listar({ rol: "ADMIN" }), []);
   const [estado, setEstado] = useState<EstadoIncidencia | "">("");
@@ -136,6 +171,7 @@ function DetalleIncidencia({
       });
       setObservacion("");
       setData({ ...incidencia, ...actualizada } as Incidencia);
+      toast.success("Incidencia actualizada.");
       recargar();
       onActualizada();
     } catch (err) {

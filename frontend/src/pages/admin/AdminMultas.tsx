@@ -3,18 +3,29 @@ import { motion } from "framer-motion";
 import { Plus, Warning } from "@phosphor-icons/react";
 import { multasApi, usuariosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, Select, Spinner, Textarea, staggerFade } from "../../components/ui";
+import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, SearchInput, Select, Spinner, Textarea, staggerFade } from "../../components/ui";
 import { formatFecha, formatMonto } from "../../lib/format";
 import { ESTADO_MULTA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
+import { useToast } from "../../context/ToastContext";
 import type { EstadoMulta } from "../../types";
 
 const ESTADOS: EstadoMulta[] = ["PENDIENTE", "PAGADA", "APELADA", "ANULADA"];
 
 export default function AdminMultas() {
+  const toast = useToast();
   const { data, cargando, error, recargar } = useAsync(() => multasApi.listarTodas(), []);
   const { data: residentes } = useAsync(() => usuariosApi.listar({ rol: "RESIDENTE" }), []);
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState<EstadoMulta | "">("");
+
+  const filtradas = (data ?? []).filter((m) => {
+    const texto = `${m.motivo} ${m.usuario?.nombre ?? ""} ${m.usuario?.apellido ?? ""}`.toLowerCase();
+    const coincideTexto = !busqueda || texto.includes(busqueda.toLowerCase());
+    const coincideEstado = !filtroEstado || m.estado === filtroEstado;
+    return coincideTexto && coincideEstado;
+  });
 
   return (
     <div className="space-y-6">
@@ -29,6 +40,23 @@ export default function AdminMultas() {
         }
       />
 
+      <div className="flex flex-wrap gap-3">
+        <SearchInput
+          value={busqueda}
+          onChange={setBusqueda}
+          placeholder="Buscar por motivo o residente..."
+          className="w-full sm:max-w-xs"
+        />
+        <Select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value as EstadoMulta | "")} className="w-full sm:w-48">
+          <option value="">Todos los estados</option>
+          {ESTADOS.map((estado) => (
+            <option key={estado} value={estado}>
+              {estado}
+            </option>
+          ))}
+        </Select>
+      </div>
+
       <Card>
         {cargando ? (
           <Spinner />
@@ -36,6 +64,8 @@ export default function AdminMultas() {
           <Alert tone="red">{error}</Alert>
         ) : !data?.length ? (
           <EmptyState title="Aun no hay multas registradas" />
+        ) : !filtradas.length ? (
+          <EmptyState title="Sin resultados" description="Ninguna multa coincide con la busqueda." />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -49,7 +79,7 @@ export default function AdminMultas() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {data.map((m, i) => (
+                {filtradas.map((m, i) => (
                   <motion.tr key={m.id} {...staggerFade(i)} className="transition-colors hover:bg-slate-50/70">
                     <td className="px-5 py-3 font-medium text-slate-800">
                       {m.usuario ? `${m.usuario.nombre} ${m.usuario.apellido}` : "—"}
@@ -63,6 +93,7 @@ export default function AdminMultas() {
                         value={m.estado}
                         onChange={async (e) => {
                           await multasApi.actualizar(m.id, { estado: e.target.value });
+                          toast.success(`Multa actualizada a ${e.target.value}.`);
                           recargar();
                         }}
                       >
@@ -101,6 +132,7 @@ function FormularioMulta({
   residentes: { id: string; nombre: string; apellido: string }[];
   onCreado: () => void;
 }) {
+  const toast = useToast();
   const [usuarioId, setUsuarioId] = useState("");
   const [motivo, setMotivo] = useState("");
   const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
@@ -115,6 +147,7 @@ function FormularioMulta({
     setCargando(true);
     try {
       await multasApi.crear({ usuarioId, motivo, fecha, monto: Number(monto), observaciones: observaciones || undefined });
+      toast.success("Multa registrada correctamente.");
       onCreado();
     } catch (err) {
       setError(mensajeError(err));

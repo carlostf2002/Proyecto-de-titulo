@@ -1,17 +1,33 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { CalendarBlank } from "@phosphor-icons/react";
 import { reservasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Alert, Badge, Button, Card, EmptyState, PageHeader, Spinner, staggerFade } from "../../components/ui";
+import { Alert, Badge, Button, Card, EmptyState, PageHeader, SearchInput, Spinner, staggerFade } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
 import { ESTADO_RESERVA_TONO } from "../../lib/badges";
+import { useToast } from "../../context/ToastContext";
 
 export default function AdminReservas() {
+  const toast = useToast();
   const { data, cargando, error, recargar } = useAsync(() => reservasApi.listarTodas(), []);
+  const [busqueda, setBusqueda] = useState("");
+
+  const filtradas = (data ?? []).filter((r) => {
+    const texto = `${r.espacioComun.nombre} ${r.usuario?.nombre ?? ""} ${r.usuario?.apellido ?? ""}`.toLowerCase();
+    return !busqueda || texto.includes(busqueda.toLowerCase());
+  });
 
   return (
     <div className="space-y-6">
       <PageHeader icon={CalendarBlank} title="Reservas de espacios comunes" subtitle="Consulta de todas las reservas realizadas (HU-05)." />
+
+      <SearchInput
+        value={busqueda}
+        onChange={setBusqueda}
+        placeholder="Buscar por espacio o residente..."
+        className="w-full sm:max-w-xs"
+      />
 
       <Card>
         {cargando ? (
@@ -20,6 +36,8 @@ export default function AdminReservas() {
           <Alert tone="red">{error}</Alert>
         ) : !data?.length ? (
           <EmptyState title="Aun no hay reservas registradas" />
+        ) : !filtradas.length ? (
+          <EmptyState title="Sin resultados" description="Ninguna reserva coincide con la busqueda." />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -34,7 +52,7 @@ export default function AdminReservas() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {data.map((r, i) => (
+                {filtradas.map((r, i) => (
                   <motion.tr key={r.id} {...staggerFade(i)} className="transition-colors hover:bg-slate-50/70">
                     <td className="px-5 py-3 font-medium text-slate-800">{r.espacioComun.nombre}</td>
                     <td className="px-5 py-3 text-slate-500">
@@ -54,6 +72,7 @@ export default function AdminReservas() {
                           size="sm"
                           onClick={async () => {
                             await reservasApi.cancelar(r.id);
+                            toast.success("Reserva cancelada.");
                             recargar();
                           }}
                         >

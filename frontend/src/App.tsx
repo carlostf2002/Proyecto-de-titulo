@@ -42,6 +42,8 @@ import ConserjeEncomiendas from "./pages/conserje/ConserjeEncomiendas";
 import ConserjeValidarQR from "./pages/conserje/ConserjeValidarQR";
 import ConserjeAccesos from "./pages/conserje/ConserjeAccesos";
 
+import Perfil from "./pages/Perfil";
+
 const ICON_SIZE = 20;
 
 const ADMIN_NAV: NavItem[] = [
@@ -88,6 +90,7 @@ function AdminApp() {
         <Route path="comunicados" element={<AdminComunicados />} />
         <Route path="documentos" element={<AdminDocumentos />} />
         <Route path="accesos" element={<AdminAccesos />} />
+        <Route path="perfil" element={<Perfil />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppLayout>
@@ -106,6 +109,7 @@ function ResidenteApp() {
         <Route path="comunicados" element={<ResidenteComunicados />} />
         <Route path="qr" element={<ResidenteQR />} />
         <Route path="documentos" element={<ResidenteDocumentos />} />
+        <Route path="perfil" element={<Perfil />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppLayout>
@@ -119,6 +123,7 @@ function ConserjeApp() {
         <Route index element={<ConserjeEncomiendas />} />
         <Route path="validar" element={<ConserjeValidarQR />} />
         <Route path="accesos" element={<ConserjeAccesos />} />
+        <Route path="perfil" element={<Perfil />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppLayout>

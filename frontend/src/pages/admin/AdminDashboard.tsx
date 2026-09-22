@@ -2,8 +2,52 @@ import { motion } from "framer-motion";
 import { ChartBar, CheckCircle, Clock, Package, QrCode, Warning } from "@phosphor-icons/react";
 import { dashboardApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Card, CardHeader, EmptyState, Spinner, Alert, Badge, PageHeader, StatCard, staggerFade } from "../../components/ui";
+import {
+  Card,
+  CardHeader,
+  EmptyState,
+  Spinner,
+  Alert,
+  Badge,
+  PageHeader,
+  StatCard,
+  staggerFade,
+  HorizontalBarChart,
+  Meter,
+} from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
+
+// Paleta de estado (dataviz skill): good/warning/serious reservados para semantica
+// de sanciones; nunca reutilizados como color de serie generico.
+const COLOR_MULTA: Record<string, string> = {
+  PENDIENTE: "#fab219", // warning
+  PAGADA: "#0ca30c", // good
+  APELADA: "#ec835a", // serious
+  ANULADA: "#898781", // muted (estado inactivo)
+};
+
+// Incidencias es una progresion ordinal (reportada -> resuelta): un solo hue,
+// mas oscuro = mas avanzado, tomado del ramp secuencial azul documentado.
+const COLOR_INCIDENCIA: Record<string, string> = {
+  REPORTADA: "#86b6ef",
+  EN_REVISION: "#5598e7",
+  EN_PROCESO: "#2a78d6",
+  RESUELTA: "#1c5cab",
+};
+
+const LABEL_MULTA: Record<string, string> = {
+  PENDIENTE: "Pendiente",
+  PAGADA: "Pagada",
+  APELADA: "Apelada",
+  ANULADA: "Anulada",
+};
+
+const LABEL_INCIDENCIA: Record<string, string> = {
+  REPORTADA: "Reportada",
+  EN_REVISION: "En revision",
+  EN_PROCESO: "En proceso",
+  RESUELTA: "Resuelta",
+};
 
 export default function AdminDashboard() {
   const { data, cargando, error } = useAsync(() => dashboardApi.indicadores(), []);
@@ -11,6 +55,8 @@ export default function AdminDashboard() {
   if (cargando) return <Spinner />;
   if (error) return <Alert tone="red">{error}</Alert>;
   if (!data) return null;
+
+  const totalAccesos = data.accesos.totalAutorizados + data.accesos.totalRechazados;
 
   return (
     <div className="space-y-6">
@@ -24,16 +70,37 @@ export default function AdminDashboard() {
         <StatCard icon={QrCode} label="Accesos autorizados (ult. 10)" value={data.accesos.autorizadosUltimos10} tone="green" index={4} />
       </div>
 
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader title="Multas por estado" />
+          <HorizontalBarChart
+            items={Object.entries(data.multas).map(([estado, cantidad]) => ({
+              label: LABEL_MULTA[estado] ?? estado,
+              value: cantidad,
+              color: COLOR_MULTA[estado] ?? "#898781",
+            }))}
+          />
+        </Card>
+
+        <Card>
+          <CardHeader title="Incidencias por estado" subtitle="Progreso de reportada a resuelta" />
+          <HorizontalBarChart
+            items={Object.entries(data.incidencias.porEstado).map(([estado, cantidad]) => ({
+              label: LABEL_INCIDENCIA[estado] ?? estado,
+              value: cantidad,
+              color: COLOR_INCIDENCIA[estado] ?? "#2a78d6",
+            }))}
+          />
+        </Card>
+      </div>
+
       <Card>
-        <CardHeader title="Multas por estado" />
-        <div className="grid grid-cols-2 gap-4 p-5 sm:grid-cols-4">
-          {Object.entries(data.multas).map(([estado, cantidad]) => (
-            <div key={estado} className="rounded-lg bg-slate-50 p-3 text-center">
-              <p className="text-lg font-bold text-slate-900">{cantidad}</p>
-              <p className="text-xs text-slate-500">{estado}</p>
-            </div>
-          ))}
-        </div>
+        <CardHeader title="Accesos por resultado" subtitle="Historico completo de validaciones QR" />
+        {totalAccesos === 0 ? (
+          <EmptyState icon={QrCode} title="Aun no hay accesos registrados" />
+        ) : (
+          <Meter label="Accesos autorizados" value={data.accesos.totalAutorizados} total={totalAccesos} color="#0ca30c" />
+        )}
       </Card>
 
       <Card>

@@ -4,3 +4,14 @@ export const loginSchema = z.object({
   email: z.string().email("Ingresa un correo valido."),
   password: z.string().min(1, "La contrasena es obligatoria."),
 });
+
+export const actualizarPerfilSchema = z.object({
+  nombre: z.string().min(1, "El nombre es obligatorio.").optional(),
+  apellido: z.string().min(1, "El apellido es obligatorio.").optional(),
+  telefono: z.string().optional().nullable(),
+});
+
+export const cambiarPasswordSchema = z.object({
+  actual: z.string().min(1, "Ingresa tu contrasena actual."),
+  nueva: z.string().min(8, "La nueva contrasena debe tener al menos 8 caracteres."),
+});
