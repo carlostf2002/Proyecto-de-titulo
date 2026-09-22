@@ -107,7 +107,7 @@ export interface Incidencia {
   createdAt: string;
 }
 
-export type EstadoEncomienda = "RECIBIDA" | "NOTIFICADA" | "RETIRADA";
+export type EstadoEncomienda = "NOTIFICADA" | "RETIRADA";
 
 export interface Encomienda {
   id: string;

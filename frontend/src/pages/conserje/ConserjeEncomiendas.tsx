@@ -40,7 +40,7 @@ const EMPRESAS_ENCOMIENDA = [
   "Turbus Cargo",
 ];
 
-const ESTADOS: EstadoEncomienda[] = ["RECIBIDA", "NOTIFICADA", "RETIRADA"];
+const ESTADOS: EstadoEncomienda[] = ["NOTIFICADA", "RETIRADA"];
 
 export default function ConserjeEncomiendas() {
   const toast = useToast();

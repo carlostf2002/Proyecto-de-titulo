@@ -47,7 +47,6 @@ enum PrioridadIncidencia {
 }
 
 enum EstadoEncomienda {
-  RECIBIDA
   NOTIFICADA
   RETIRADA
 }
@@ -299,7 +298,7 @@ model Encomienda {
   usuarioId         String
   registradaPorId   String
   remitente         String?
-  estado            EstadoEncomienda @default(RECIBIDA)
+  estado            EstadoEncomienda @default(NOTIFICADA)
   fechaRecepcion    DateTime         @default(now())
   fechaRetiro       DateTime?
 

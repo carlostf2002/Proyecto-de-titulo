@@ -21,7 +21,6 @@ export const PRIORIDAD_TONO: Record<string, Tono> = {
 };
 
 export const ESTADO_ENCOMIENDA_TONO: Record<string, Tono> = {
-  RECIBIDA: "slate",
   NOTIFICADA: "amber",
   RETIRADA: "green",
 };

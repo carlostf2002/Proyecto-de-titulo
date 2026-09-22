@@ -9,7 +9,7 @@ import { fechaEnRango } from "../../lib/filters";
 import { ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
 import type { EstadoEncomienda } from "../../types";
 
-const ESTADOS: EstadoEncomienda[] = ["RECIBIDA", "NOTIFICADA", "RETIRADA"];
+const ESTADOS: EstadoEncomienda[] = ["NOTIFICADA", "RETIRADA"];
 
 export default function AdminEncomiendas() {
   const { data, cargando, error } = useAsync(() => encomiendasApi.listarTodas(), []);
