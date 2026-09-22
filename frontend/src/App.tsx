@@ -1,4 +1,18 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import {
+  Buildings,
+  CalendarBlank,
+  ChartBar,
+  ClockCounterClockwise,
+  FileText,
+  House,
+  Megaphone,
+  Package,
+  QrCode,
+  Users,
+  Warning,
+  Wrench,
+} from "@phosphor-icons/react";
 import { useAuth } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout, NavItem } from "./layouts/AppLayout";
@@ -28,34 +42,36 @@ import ConserjeEncomiendas from "./pages/conserje/ConserjeEncomiendas";
 import ConserjeValidarQR from "./pages/conserje/ConserjeValidarQR";
 import ConserjeAccesos from "./pages/conserje/ConserjeAccesos";
 
+const ICON_SIZE = 20;
+
 const ADMIN_NAV: NavItem[] = [
-  { to: "/", label: "Dashboard", icon: "📊" },
-  { to: "/residentes", label: "Residentes", icon: "👥" },
-  { to: "/condominio", label: "Condominio", icon: "🏢" },
-  { to: "/reservas", label: "Reservas", icon: "📅" },
-  { to: "/multas", label: "Multas", icon: "⚠️" },
-  { to: "/incidencias", label: "Incidencias", icon: "🛠️" },
-  { to: "/encomiendas", label: "Encomiendas", icon: "📦" },
-  { to: "/comunicados", label: "Comunicados", icon: "📣" },
-  { to: "/documentos", label: "Documentos", icon: "📄" },
-  { to: "/accesos", label: "Accesos QR", icon: "🔐" },
+  { to: "/", label: "Dashboard", icon: <ChartBar size={ICON_SIZE} /> },
+  { to: "/residentes", label: "Residentes", icon: <Users size={ICON_SIZE} /> },
+  { to: "/condominio", label: "Condominio", icon: <Buildings size={ICON_SIZE} /> },
+  { to: "/reservas", label: "Reservas", icon: <CalendarBlank size={ICON_SIZE} /> },
+  { to: "/multas", label: "Multas", icon: <Warning size={ICON_SIZE} /> },
+  { to: "/incidencias", label: "Incidencias", icon: <Wrench size={ICON_SIZE} /> },
+  { to: "/encomiendas", label: "Encomiendas", icon: <Package size={ICON_SIZE} /> },
+  { to: "/comunicados", label: "Comunicados", icon: <Megaphone size={ICON_SIZE} /> },
+  { to: "/documentos", label: "Documentos", icon: <FileText size={ICON_SIZE} /> },
+  { to: "/accesos", label: "Accesos QR", icon: <QrCode size={ICON_SIZE} /> },
 ];
 
 const RESIDENTE_NAV: NavItem[] = [
-  { to: "/", label: "Inicio", icon: "🏠" },
-  { to: "/reservas", label: "Reservas", icon: "📅" },
-  { to: "/multas", label: "Mis multas", icon: "⚠️" },
-  { to: "/incidencias", label: "Incidencias", icon: "🛠️" },
-  { to: "/encomiendas", label: "Encomiendas", icon: "📦" },
-  { to: "/comunicados", label: "Comunicados", icon: "📣" },
-  { to: "/qr", label: "Mi QR y visitas", icon: "🔐" },
-  { to: "/documentos", label: "Documentos", icon: "📄" },
+  { to: "/", label: "Inicio", icon: <House size={ICON_SIZE} /> },
+  { to: "/reservas", label: "Reservas", icon: <CalendarBlank size={ICON_SIZE} /> },
+  { to: "/multas", label: "Mis multas", icon: <Warning size={ICON_SIZE} /> },
+  { to: "/incidencias", label: "Incidencias", icon: <Wrench size={ICON_SIZE} /> },
+  { to: "/encomiendas", label: "Encomiendas", icon: <Package size={ICON_SIZE} /> },
+  { to: "/comunicados", label: "Comunicados", icon: <Megaphone size={ICON_SIZE} /> },
+  { to: "/qr", label: "Mi QR y visitas", icon: <QrCode size={ICON_SIZE} /> },
+  { to: "/documentos", label: "Documentos", icon: <FileText size={ICON_SIZE} /> },
 ];
 
 const CONSERJE_NAV: NavItem[] = [
-  { to: "/", label: "Encomiendas", icon: "📦" },
-  { to: "/validar", label: "Validar QR", icon: "🔐" },
-  { to: "/accesos", label: "Historial de accesos", icon: "🕒" },
+  { to: "/", label: "Encomiendas", icon: <Package size={ICON_SIZE} /> },
+  { to: "/validar", label: "Validar QR", icon: <QrCode size={ICON_SIZE} /> },
+  { to: "/accesos", label: "Historial de accesos", icon: <ClockCounterClockwise size={ICON_SIZE} /> },
 ];
 
 function AdminApp() {
