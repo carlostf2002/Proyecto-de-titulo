@@ -22,7 +22,7 @@ const ROL_LABEL: Record<string, string> = {
 
 export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNode }) {
   const { usuario, logout } = useAuth();
-  const { tema, toggleTema } = useTheme();
+  const { tema, setTema } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
@@ -101,14 +101,38 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
           </button>
           <div className="hidden lg:block" />
           <div className="flex items-center gap-4">
-            <button
-              className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-              onClick={toggleTema}
-              aria-label={tema === "claro" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
-              title={tema === "claro" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
-            >
-              {tema === "claro" ? <Moon size={20} /> : <Sun size={20} />}
-            </button>
+            <div className="flex items-center gap-0.5 rounded-full border border-slate-200 bg-slate-100 p-1 dark:border-slate-700 dark:bg-slate-800">
+              <button
+                type="button"
+                onClick={() => setTema("claro")}
+                aria-label="Modo claro"
+                aria-pressed={tema === "claro"}
+                title="Modo claro"
+                className={clsx(
+                  "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
+                  tema === "claro"
+                    ? "bg-white text-amber-500 shadow-sm dark:bg-slate-700"
+                    : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+                )}
+              >
+                <Sun size={19} weight={tema === "claro" ? "fill" : "regular"} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setTema("oscuro")}
+                aria-label="Modo oscuro"
+                aria-pressed={tema === "oscuro"}
+                title="Modo oscuro"
+                className={clsx(
+                  "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
+                  tema === "oscuro"
+                    ? "bg-white text-brand-600 shadow-sm dark:bg-slate-700 dark:text-brand-300"
+                    : "text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+                )}
+              >
+                <Moon size={19} weight={tema === "oscuro" ? "fill" : "regular"} />
+              </button>
+            </div>
             <div className="relative">
               <button
                 className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
