@@ -5,7 +5,7 @@ import { Buildings, Envelope, LockKey, ShieldCheck, WarningCircle } from "@phosp
 import { useAuth } from "../context/AuthContext";
 import { mensajeError } from "../api/client";
 import { Button } from "../components/ui";
-import { AnimatedSkyline } from "../components/AnimatedSkyline";
+import { AuroraBackground } from "../components/AuroraBackground";
 
 export default function Login() {
   const { usuario, login } = useAuth();
@@ -35,7 +35,7 @@ export default function Login() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
-      <AnimatedSkyline />
+      <AuroraBackground />
 
       <div className="relative z-10 grid w-full max-w-5xl items-center gap-10 lg:grid-cols-2">
         {/* Columna de marca (desktop) */}

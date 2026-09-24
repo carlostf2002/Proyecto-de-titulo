@@ -34,38 +34,28 @@ export default {
         display: ["Poppins", "system-ui", "sans-serif"],
       },
       keyframes: {
-        "fade-in": {
-          "0%": { opacity: 0 },
-          "100%": { opacity: 1 },
+        "aurora-a": {
+          "0%, 100%": { transform: "translate(0, 0) scale(1)" },
+          "50%": { transform: "translate(6%, 8%) scale(1.15)" },
         },
-        "fade-in-up": {
-          "0%": { opacity: 0, transform: "translateY(8px)" },
-          "100%": { opacity: 1, transform: "translateY(0)" },
+        "aurora-b": {
+          "0%, 100%": { transform: "translate(0, 0) scale(1)" },
+          "50%": { transform: "translate(-8%, 4%) scale(1.1)" },
         },
-        float: {
-          "0%, 100%": { transform: "translateY(0) translateX(0)" },
-          "50%": { transform: "translateY(-18px) translateX(10px)" },
-        },
-        "float-slow": {
-          "0%, 100%": { transform: "translateY(0) translateX(0)" },
-          "50%": { transform: "translateY(14px) translateX(-14px)" },
-        },
-        "window-glow": {
-          "0%, 100%": { opacity: 0.15 },
-          "50%": { opacity: 0.9 },
+        "aurora-c": {
+          "0%, 100%": { transform: "translate(0, 0) scale(1)" },
+          "50%": { transform: "translate(4%, -10%) scale(1.2)" },
         },
         "grid-drift": {
           "0%": { backgroundPosition: "0 0" },
-          "100%": { backgroundPosition: "60px 60px" },
+          "100%": { backgroundPosition: "64px 64px" },
         },
       },
       animation: {
-        "fade-in": "fade-in 0.4s ease-out both",
-        "fade-in-up": "fade-in-up 0.5s ease-out both",
-        float: "float 9s ease-in-out infinite",
-        "float-slow": "float-slow 13s ease-in-out infinite",
-        "window-glow": "window-glow 4s ease-in-out infinite",
-        "grid-drift": "grid-drift 20s linear infinite",
+        "aurora-a": "aurora-a 16s ease-in-out infinite",
+        "aurora-b": "aurora-b 20s ease-in-out infinite",
+        "aurora-c": "aurora-c 24s ease-in-out infinite",
+        "grid-drift": "grid-drift 30s linear infinite",
       },
     },
   },
