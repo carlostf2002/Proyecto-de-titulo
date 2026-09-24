@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">HabitaSmart</string>
+    <string name="title_activity_main">HabitaSmart</string>
+    <string name="package_name">cl.habitasmart.app</string>
+    <string name="custom_url_scheme">cl.habitasmart.app</string>
+</resources>
