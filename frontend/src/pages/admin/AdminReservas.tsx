@@ -71,6 +71,7 @@ export default function AdminReservas() {
                           variant="ghost"
                           size="sm"
                           onClick={async () => {
+                            if (!window.confirm(`¿Cancelar la reserva de ${r.espacioComun.nombre}?`)) return;
                             await reservasApi.cancelar(r.id);
                             toast.success("Reserva cancelada.");
                             recargar();

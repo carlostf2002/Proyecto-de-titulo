@@ -113,6 +113,7 @@ export default function ResidenteQR() {
                         size="sm"
                         variant="ghost"
                         onClick={async () => {
+                          if (!window.confirm(`¿Revocar la autorizacion de ${v.nombreVisita}? Ya no podra ingresar con ese QR.`)) return;
                           await qrApi.revocarVisita(v.id);
                           toast.info("Autorizacion de visita revocada.");
                           recargar();

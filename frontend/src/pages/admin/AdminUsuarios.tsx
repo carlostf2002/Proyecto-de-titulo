@@ -97,6 +97,7 @@ export default function AdminUsuarios() {
                         variant="ghost"
                         size="sm"
                         onClick={async () => {
+                          if (u.activo && !window.confirm(`¿Deshabilitar a ${u.nombre} ${u.apellido}? No podra iniciar sesion hasta que lo vuelvas a habilitar.`)) return;
                           await usuariosApi.actualizar(u.id, { activo: !u.activo });
                           toast.success(u.activo ? "Usuario deshabilitado." : "Usuario habilitado.");
                           recargar();

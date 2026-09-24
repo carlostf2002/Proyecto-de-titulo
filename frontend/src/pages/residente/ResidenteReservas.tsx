@@ -133,6 +133,7 @@ export default function ResidenteReservas() {
                       <button
                         className="text-xs text-red-600 dark:text-red-400 hover:underline"
                         onClick={async () => {
+                          if (!window.confirm(`¿Cancelar tu reserva de ${r.espacioComun.nombre}?`)) return;
                           await reservasApi.cancelar(r.id);
                           toast.info("Reserva cancelada.");
                           recargarReservas();
