@@ -41,7 +41,7 @@ export default function AdminReservas() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-100 text-xs uppercase text-slate-400">
+              <thead className="border-b border-slate-100 dark:border-slate-700/60 text-xs uppercase text-slate-400 dark:text-slate-500">
                 <tr>
                   <th className="px-5 py-3">Espacio</th>
                   <th className="px-5 py-3">Residente</th>
@@ -51,15 +51,15 @@ export default function AdminReservas() {
                   <th className="px-5 py-3"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
                 {filtradas.map((r, i) => (
-                  <motion.tr key={r.id} {...staggerFade(i)} className="transition-colors hover:bg-slate-50/70">
-                    <td className="px-5 py-3 font-medium text-slate-800">{r.espacioComun.nombre}</td>
-                    <td className="px-5 py-3 text-slate-500">
+                  <motion.tr key={r.id} {...staggerFade(i)} className="transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
+                    <td className="px-5 py-3 font-medium text-slate-800 dark:text-slate-100">{r.espacioComun.nombre}</td>
+                    <td className="px-5 py-3 text-slate-500 dark:text-slate-400">
                       {r.usuario ? `${r.usuario.nombre} ${r.usuario.apellido}` : "—"}
                     </td>
-                    <td className="px-5 py-3 text-slate-500">{formatFecha(r.fecha)}</td>
-                    <td className="px-5 py-3 text-slate-500">
+                    <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{formatFecha(r.fecha)}</td>
+                    <td className="px-5 py-3 text-slate-500 dark:text-slate-400">
                       {r.horaInicio} - {r.horaFin}
                     </td>
                     <td className="px-5 py-3">

@@ -28,12 +28,12 @@ export default function ConserjeAccesos() {
         ) : !data?.length ? (
           <EmptyState icon={ClockCounterClockwise} title="Aun no hay accesos registrados" />
         ) : (
-          <div className="divide-y divide-slate-50">
+          <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
             {data.map((a, i) => (
-              <motion.div key={a.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70">
+              <motion.div key={a.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
                 <div>
-                  <p className="text-sm text-slate-700">{a.motivo}</p>
-                  <p className="text-xs text-slate-400">{formatFechaHora(a.createdAt)}</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-300">{a.motivo}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">{formatFechaHora(a.createdAt)}</p>
                 </div>
                 <Badge tone={a.resultado === "AUTORIZADO" ? "green" : "red"}>{a.resultado}</Badge>
               </motion.div>

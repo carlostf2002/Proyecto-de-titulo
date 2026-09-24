@@ -78,7 +78,7 @@ export default function AdminIncidencias() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-slate-100 text-xs uppercase text-slate-400">
+              <thead className="border-b border-slate-100 dark:border-slate-700/60 text-xs uppercase text-slate-400 dark:text-slate-500">
                 <tr>
                   <th className="px-5 py-3">Titulo</th>
                   <th className="px-5 py-3">Residente</th>
@@ -88,26 +88,26 @@ export default function AdminIncidencias() {
                   <th className="px-5 py-3">Reportada</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
                 {filtradas.map((inc, i) => (
                   <motion.tr
                     key={inc.id}
                     {...staggerFade(i)}
-                    className="cursor-pointer transition-colors hover:bg-slate-50"
+                    className="cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/60"
                     onClick={() => setSeleccionadaId(inc.id)}
                   >
-                    <td className="px-5 py-3 font-medium text-slate-800">{inc.titulo}</td>
-                    <td className="px-5 py-3 text-slate-500">
+                    <td className="px-5 py-3 font-medium text-slate-800 dark:text-slate-100">{inc.titulo}</td>
+                    <td className="px-5 py-3 text-slate-500 dark:text-slate-400">
                       {inc.usuario ? `${inc.usuario.nombre} ${inc.usuario.apellido}` : "—"}
                     </td>
-                    <td className="px-5 py-3 text-slate-500">{inc.ubicacion}</td>
+                    <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{inc.ubicacion}</td>
                     <td className="px-5 py-3">
                       {inc.prioridad ? <Badge tone={PRIORIDAD_TONO[inc.prioridad]}>{inc.prioridad}</Badge> : "—"}
                     </td>
                     <td className="px-5 py-3">
                       <Badge tone={ESTADO_INCIDENCIA_TONO[inc.estado]}>{inc.estado}</Badge>
                     </td>
-                    <td className="px-5 py-3 text-slate-500">{formatFechaHora(inc.createdAt)}</td>
+                    <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{formatFechaHora(inc.createdAt)}</td>
                   </motion.tr>
                 ))}
               </tbody>
@@ -188,10 +188,10 @@ function DetalleIncidencia({
       ) : (
         <div className="space-y-5">
           <div>
-            <p className="text-sm text-slate-700">{incidencia.descripcion}</p>
-            <p className="mt-1 text-xs text-slate-400">Ubicacion reportada: {incidencia.ubicacion}</p>
+            <p className="text-sm text-slate-700 dark:text-slate-300">{incidencia.descripcion}</p>
+            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">Ubicacion reportada: {incidencia.ubicacion}</p>
             {incidencia.fotoUrl && (
-              <img src={incidencia.fotoUrl} alt="Evidencia" className="mt-2 max-h-48 rounded-lg border border-slate-200" />
+              <img src={incidencia.fotoUrl} alt="Evidencia" className="mt-2 max-h-48 rounded-lg border border-slate-200 dark:border-slate-700" />
             )}
           </div>
 
@@ -206,7 +206,7 @@ function DetalleIncidencia({
             </Alert>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3 border-t border-slate-100 pt-4">
+          <form onSubmit={handleSubmit} className="space-y-3 border-t border-slate-100 dark:border-slate-700/60 pt-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Estado</Label>
@@ -257,17 +257,17 @@ function DetalleIncidencia({
             </Button>
           </form>
 
-          <div className="border-t border-slate-100 pt-4">
-            <p className="mb-2 text-xs font-semibold uppercase text-slate-400">Historial</p>
+          <div className="border-t border-slate-100 dark:border-slate-700/60 pt-4">
+            <p className="mb-2 text-xs font-semibold uppercase text-slate-400 dark:text-slate-500">Historial</p>
             <div className="space-y-2">
               {incidencia.historial?.map((h) => (
-                <div key={h.id} className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                <div key={h.id} className="rounded-lg bg-slate-50 dark:bg-slate-900/40 px-3 py-2 text-xs text-slate-600 dark:text-slate-300">
                   <p>
                     <span className="font-medium">{h.estadoNuevo}</span>
-                    {h.estadoAnterior && <span className="text-slate-400"> (antes: {h.estadoAnterior})</span>} ·{" "}
+                    {h.estadoAnterior && <span className="text-slate-400 dark:text-slate-500"> (antes: {h.estadoAnterior})</span>} ·{" "}
                     {h.usuario.nombre} {h.usuario.apellido} · {formatFechaHora(h.createdAt)}
                   </p>
-                  {h.observacion && <p className="mt-0.5 text-slate-500">{h.observacion}</p>}
+                  {h.observacion && <p className="mt-0.5 text-slate-500 dark:text-slate-400">{h.observacion}</p>}
                 </div>
               ))}
             </div>

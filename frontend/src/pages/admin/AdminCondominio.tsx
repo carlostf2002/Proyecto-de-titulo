@@ -17,7 +17,7 @@ export default function AdminCondominio() {
     <div className="space-y-6">
       <PageHeader icon={Buildings} title="Estructura del condominio" subtitle="Torres, departamentos y espacios comunes (HU-03)." />
 
-      <div className="flex gap-2 border-b border-slate-200">
+      <div className="flex gap-2 border-b border-slate-200 dark:border-slate-700">
         {(
           [
             ["espacios", "Espacios comunes"],
@@ -30,7 +30,9 @@ export default function AdminCondominio() {
             onClick={() => setTab(value)}
             className={clsx(
               "border-b-2 px-3 py-2 text-sm font-medium transition-colors",
-              tab === value ? "border-brand-600 text-brand-700" : "border-transparent text-slate-500 hover:text-slate-700"
+              tab === value
+                ? "border-brand-600 text-brand-700 dark:text-brand-300"
+                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             )}
           >
             {label}
@@ -91,12 +93,12 @@ function EspaciosComunes() {
         ) : !data?.length ? (
           <EmptyState icon={Buildings} title="Aun no hay espacios comunes" />
         ) : (
-          <div className="divide-y divide-slate-50">
+          <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
             {data.map((esp, i) => (
-              <motion.div key={esp.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70">
+              <motion.div key={esp.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
                 <div>
-                  <p className="text-sm font-medium text-slate-800">{esp.nombre}</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{esp.nombre}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {esp.horarioInicio} - {esp.horarioFin} {esp.capacidad ? `· Capacidad ${esp.capacidad}` : ""}
                   </p>
                 </div>
@@ -185,9 +187,9 @@ function Torres() {
         ) : !data?.length ? (
           <EmptyState icon={Buildings} title="Aun no hay torres registradas" />
         ) : (
-          <div className="divide-y divide-slate-50">
+          <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
             {data.map((t, i) => (
-              <motion.div key={t.id} {...staggerFade(i)} className="px-5 py-3 text-sm text-slate-700 transition-colors hover:bg-slate-50/70">
+              <motion.div key={t.id} {...staggerFade(i)} className="px-5 py-3 text-sm text-slate-700 dark:text-slate-300 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
                 {t.nombre}
               </motion.div>
             ))}
@@ -246,13 +248,13 @@ function Departamentos() {
         ) : !data?.length ? (
           <EmptyState icon={Buildings} title="Aun no hay departamentos registrados" />
         ) : (
-          <div className="divide-y divide-slate-50">
+          <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
             {data.map((d, i) => (
-              <motion.div key={d.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 text-sm transition-colors hover:bg-slate-50/70">
-                <span className="font-medium text-slate-800">
+              <motion.div key={d.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 text-sm transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
+                <span className="font-medium text-slate-800 dark:text-slate-100">
                   {d.torre?.nombre ?? "Sin torre"} - {d.numero}
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-500 dark:text-slate-400">
                   {d.residentes.length} residente{d.residentes.length === 1 ? "" : "s"}
                 </span>
               </motion.div>

@@ -89,7 +89,7 @@ export default function ResidenteReservas() {
             </div>
 
             {espacioSeleccionado && (
-              <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+              <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-3 text-xs text-slate-600 dark:text-slate-300">
                 <p className="mb-1 font-medium">Horarios ya reservados para esa fecha:</p>
                 {ocupados.length === 0 ? (
                   <p>Sin reservas para este dia.</p>
@@ -120,18 +120,18 @@ export default function ResidenteReservas() {
           ) : !misReservas?.length ? (
             <EmptyState title="Aun no tienes reservas" />
           ) : (
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
               {misReservas.map((r, i) => (
-                <motion.div key={r.id} {...staggerFade(i)} className="px-5 py-3 transition-colors hover:bg-slate-50/70">
-                  <p className="text-sm font-medium text-slate-800">{r.espacioComun.nombre}</p>
-                  <p className="text-xs text-slate-500">
+                <motion.div key={r.id} {...staggerFade(i)} className="px-5 py-3 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{r.espacioComun.nombre}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {formatFecha(r.fecha)} · {r.horaInicio} - {r.horaFin}
                   </p>
                   <div className="mt-1 flex items-center justify-between">
                     <Badge tone={ESTADO_RESERVA_TONO[r.estado]}>{r.estado}</Badge>
                     {r.estado === "CONFIRMADA" && (
                       <button
-                        className="text-xs text-red-600 hover:underline"
+                        className="text-xs text-red-600 dark:text-red-400 hover:underline"
                         onClick={async () => {
                           await reservasApi.cancelar(r.id);
                           toast.info("Reserva cancelada.");

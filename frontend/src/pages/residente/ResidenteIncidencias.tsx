@@ -59,16 +59,16 @@ export default function ResidenteIncidencias() {
           ) : !data?.length ? (
             <EmptyState icon={Wrench} title="Aun no has reportado incidencias" />
           ) : (
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
               {data.map((inc, i) => (
-                <motion.div key={inc.id} {...staggerFade(i)} className="px-5 py-4 transition-colors hover:bg-slate-50/70">
+                <motion.div key={inc.id} {...staggerFade(i)} className="px-5 py-4 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium text-slate-800">{inc.titulo}</p>
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{inc.titulo}</p>
                     <Badge tone={ESTADO_INCIDENCIA_TONO[inc.estado]}>{inc.estado}</Badge>
                   </div>
-                  <p className="mt-1 text-xs text-slate-500">{inc.ubicacion}</p>
-                  <p className="mt-1 text-sm text-slate-600">{inc.descripcion}</p>
-                  <p className="mt-1 text-xs text-slate-400">Reportada el {formatFechaHora(inc.createdAt)}</p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{inc.ubicacion}</p>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{inc.descripcion}</p>
+                  <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">Reportada el {formatFechaHora(inc.createdAt)}</p>
                 </motion.div>
               ))}
             </div>

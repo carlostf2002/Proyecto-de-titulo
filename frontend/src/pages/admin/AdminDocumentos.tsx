@@ -68,7 +68,7 @@ export default function AdminDocumentos() {
           ) : !filtrados.length ? (
             <EmptyState title="Sin resultados" description="Ningun documento coincide con la busqueda." />
           ) : (
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
               {filtrados.map((doc, i) => (
                 <motion.a
                   key={doc.id}
@@ -76,11 +76,11 @@ export default function AdminDocumentos() {
                   href={doc.archivoUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50"
+                  className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/60"
                 >
                   <div>
-                    <p className="text-sm font-medium text-slate-800">{doc.titulo}</p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{doc.titulo}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">
                       {doc.categoria ?? "General"} · {formatFecha(doc.createdAt)}
                     </p>
                   </div>

@@ -142,7 +142,7 @@ export default function ConserjeEncomiendas() {
         <Card className="lg:col-span-2">
           <CardHeader title="Historial de encomiendas" subtitle="Busca por residente, remitente, estado o fecha" />
 
-          <div className="flex flex-wrap items-end gap-3 border-b border-slate-100 p-5">
+          <div className="flex flex-wrap items-end gap-3 border-b border-slate-100 dark:border-slate-700/60 p-5">
             <div className="w-full sm:max-w-[16rem]">
               <SearchInput value={busqueda} onChange={setBusqueda} placeholder="Buscar por residente o remitente..." />
             </div>
@@ -192,7 +192,7 @@ export default function ConserjeEncomiendas() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-slate-100 text-xs uppercase text-slate-400">
+                <thead className="border-b border-slate-100 dark:border-slate-700/60 text-xs uppercase text-slate-400 dark:text-slate-500">
                   <tr>
                     <th className="px-5 py-3">Residente</th>
                     <th className="px-5 py-3">Remitente</th>
@@ -202,15 +202,15 @@ export default function ConserjeEncomiendas() {
                     <th className="px-5 py-3"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
                   {filtradas.map((enc, i) => (
-                    <motion.tr key={enc.id} {...staggerFade(i)} className="transition-colors hover:bg-slate-50/70">
-                      <td className="px-5 py-3 font-medium text-slate-800">
+                    <motion.tr key={enc.id} {...staggerFade(i)} className="transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
+                      <td className="px-5 py-3 font-medium text-slate-800 dark:text-slate-100">
                         {enc.usuario ? `${enc.usuario.nombre} ${enc.usuario.apellido}` : "—"}
                       </td>
-                      <td className="px-5 py-3 text-slate-500">{enc.remitente ?? "—"}</td>
-                      <td className="px-5 py-3 text-slate-500">{formatFechaHora(enc.fechaRecepcion)}</td>
-                      <td className="px-5 py-3 text-slate-500">
+                      <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{enc.remitente ?? "—"}</td>
+                      <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{formatFechaHora(enc.fechaRecepcion)}</td>
+                      <td className="px-5 py-3 text-slate-500 dark:text-slate-400">
                         {enc.fechaRetiro ? formatFechaHora(enc.fechaRetiro) : "—"}
                       </td>
                       <td className="px-5 py-3">

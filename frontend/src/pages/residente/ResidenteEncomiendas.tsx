@@ -21,12 +21,12 @@ export default function ResidenteEncomiendas() {
         ) : !data?.length ? (
           <EmptyState icon={Package} title="No tienes encomiendas registradas" />
         ) : (
-          <div className="divide-y divide-slate-50">
+          <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
             {data.map((enc, i) => (
-              <motion.div key={enc.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-slate-50/70">
+              <motion.div key={enc.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-4 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
                 <div>
-                  <p className="text-sm font-medium text-slate-800">{enc.remitente ?? "Remitente no especificado"}</p>
-                  <p className="text-xs text-slate-500">Recibida el {formatFechaHora(enc.fechaRecepcion)}</p>
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{enc.remitente ?? "Remitente no especificado"}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Recibida el {formatFechaHora(enc.fechaRecepcion)}</p>
                 </div>
                 <Badge tone={ESTADO_ENCOMIENDA_TONO[enc.estado]}>{enc.estado}</Badge>
               </motion.div>

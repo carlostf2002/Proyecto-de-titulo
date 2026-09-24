@@ -2,8 +2,9 @@ import { ReactNode, useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
-import { Bell, Buildings, List, SignOut, UserCircle, X } from "@phosphor-icons/react";
+import { Bell, Buildings, List, Moon, SignOut, Sun, UserCircle, X } from "@phosphor-icons/react";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { notificacionesApi } from "../api/endpoints";
 import type { Notificacion } from "../types";
 
@@ -21,6 +22,7 @@ const ROL_LABEL: Record<string, string> = {
 
 export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNode }) {
   const { usuario, logout } = useAuth();
+  const { tema, toggleTema } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
@@ -50,9 +52,9 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
       {/* Sidebar desktop */}
-      <aside className="hidden w-64 flex-col border-r border-slate-200 bg-white lg:flex">
+      <aside className="hidden w-64 flex-col border-r border-slate-200 bg-white lg:flex dark:border-slate-800 dark:bg-slate-900">
         <SidebarContent nav={nav} usuario={usuario} />
       </aside>
 
@@ -65,7 +67,7 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 bg-slate-900/50"
+              className="absolute inset-0 bg-slate-900/50 dark:bg-black/60"
               onClick={() => setMenuMovilAbierto(false)}
             />
             <motion.aside
@@ -73,10 +75,10 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "tween", duration: 0.25, ease: "easeOut" }}
-              className="relative flex h-full w-64 flex-col bg-white shadow-xl"
+              className="relative flex h-full w-64 flex-col bg-white shadow-xl dark:bg-slate-900"
             >
               <button
-                className="absolute right-3 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100"
+                className="absolute right-3 top-4 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:text-slate-500 dark:hover:bg-slate-800"
                 onClick={() => setMenuMovilAbierto(false)}
                 aria-label="Cerrar menu"
               >
@@ -89,9 +91,9 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
       </AnimatePresence>
 
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:px-8">
+        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:px-8 dark:border-slate-800 dark:bg-slate-900">
           <button
-            className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 lg:hidden"
+            className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 lg:hidden dark:text-slate-400 dark:hover:bg-slate-800"
             onClick={() => setMenuMovilAbierto(true)}
             aria-label="Abrir menu"
           >
@@ -99,9 +101,17 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
           </button>
           <div className="hidden lg:block" />
           <div className="flex items-center gap-4">
+            <button
+              className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+              onClick={toggleTema}
+              aria-label={tema === "claro" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
+              title={tema === "claro" ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
+            >
+              {tema === "claro" ? <Moon size={20} /> : <Sun size={20} />}
+            </button>
             <div className="relative">
               <button
-                className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100"
+                className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                 onClick={() => setPanelAbierto((v) => !v)}
                 aria-label="Notificaciones"
               >
@@ -113,7 +123,7 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                   <Bell size={20} weight={noLeidas > 0 ? "fill" : "regular"} className={noLeidas > 0 ? "text-accent-500" : undefined} />
                 </motion.span>
                 {noLeidas > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white dark:ring-slate-900">
                     {noLeidas > 9 ? "9+" : noLeidas}
                   </span>
                 )}
@@ -125,13 +135,13 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -6, scale: 0.98 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 z-30 mt-2 w-80 rounded-xl border border-slate-200 bg-white shadow-lg"
+                    className="absolute right-0 z-30 mt-2 w-80 rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800"
                   >
-                    <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-                      <span className="text-sm font-semibold">Notificaciones</span>
+                    <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-slate-700/60">
+                      <span className="text-sm font-semibold dark:text-white">Notificaciones</span>
                       {noLeidas > 0 && (
                         <button
-                          className="text-xs text-brand-600 hover:underline"
+                          className="text-xs text-brand-600 hover:underline dark:text-brand-400"
                           onClick={() => {
                             notificacionesApi.leerTodas().then(() =>
                               setNotificaciones((prev) => prev.map((n) => ({ ...n, leida: true })))
@@ -144,15 +154,18 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                     </div>
                     <div className="max-h-80 overflow-y-auto">
                       {notificaciones.length === 0 ? (
-                        <p className="px-4 py-6 text-center text-xs text-slate-400">Sin notificaciones.</p>
+                        <p className="px-4 py-6 text-center text-xs text-slate-400 dark:text-slate-500">Sin notificaciones.</p>
                       ) : (
                         notificaciones.map((n) => (
                           <div
                             key={n.id}
-                            className={clsx("border-b border-slate-50 px-4 py-3 text-sm", !n.leida && "bg-brand-50/60")}
+                            className={clsx(
+                              "border-b border-slate-50 px-4 py-3 text-sm dark:border-slate-700/40",
+                              !n.leida && "bg-brand-50/60 dark:bg-brand-500/10"
+                            )}
                           >
-                            <p className="font-medium text-slate-800">{n.titulo}</p>
-                            <p className="mt-0.5 text-xs text-slate-500">{n.mensaje}</p>
+                            <p className="font-medium text-slate-800 dark:text-slate-100">{n.titulo}</p>
+                            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{n.mensaje}</p>
                           </div>
                         ))
                       )}
@@ -161,15 +174,15 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                 )}
               </AnimatePresence>
             </div>
-            <Link to="/perfil" className="hidden rounded-lg px-2 py-1 text-right transition-colors hover:bg-slate-50 sm:block">
-              <p className="text-sm font-medium text-slate-800">
+            <Link to="/perfil" className="hidden rounded-lg px-2 py-1 text-right transition-colors hover:bg-slate-50 sm:block dark:hover:bg-slate-800">
+              <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
                 {usuario?.nombre} {usuario?.apellido}
               </p>
-              <p className="text-xs text-slate-500">{usuario && ROL_LABEL[usuario.rol]}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{usuario && ROL_LABEL[usuario.rol]}</p>
             </Link>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+              className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:border-slate-600 dark:text-slate-300 dark:hover:border-red-500/40 dark:hover:bg-red-500/10 dark:hover:text-red-400"
             >
               <SignOut size={14} />
               Salir
@@ -201,13 +214,13 @@ function SidebarContent({
 }) {
   return (
     <>
-      <div className="flex items-center gap-2.5 border-b border-slate-100 px-5 py-5">
+      <div className="flex items-center gap-2.5 border-b border-slate-100 px-5 py-5 dark:border-slate-800">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white shadow-sm shadow-brand-600/30">
           <Buildings size={18} weight="duotone" />
         </div>
         <div>
-          <p className="font-display text-sm font-bold leading-none text-slate-900">HabitaSmart</p>
-          <p className="text-[11px] text-slate-400">{usuario?.condominioId ? "Gestion de condominios" : ""}</p>
+          <p className="font-display text-sm font-bold leading-none text-slate-900 dark:text-white">HabitaSmart</p>
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">{usuario?.condominioId ? "Gestion de condominios" : ""}</p>
         </div>
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
@@ -220,7 +233,7 @@ function SidebarContent({
             className={({ isActive }) =>
               clsx(
                 "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                isActive ? "text-brand-700" : "text-slate-600 hover:bg-slate-50"
+                isActive ? "text-brand-700 dark:text-brand-300" : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
               )
             }
           >
@@ -229,7 +242,7 @@ function SidebarContent({
                 {isActive && (
                   <motion.div
                     layoutId="nav-active-pill"
-                    className="absolute inset-0 rounded-lg bg-brand-50"
+                    className="absolute inset-0 rounded-lg bg-brand-50 dark:bg-brand-500/15"
                     transition={{ type: "spring", stiffness: 380, damping: 32 }}
                   />
                 )}
@@ -240,14 +253,16 @@ function SidebarContent({
           </NavLink>
         ))}
       </nav>
-      <div className="border-t border-slate-100 px-3 py-3">
+      <div className="border-t border-slate-100 px-3 py-3 dark:border-slate-800">
         <NavLink
           to="/perfil"
           onClick={onNavigate}
           className={({ isActive }) =>
             clsx(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              isActive ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-50"
+              isActive
+                ? "bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300"
+                : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
             )
           }
         >

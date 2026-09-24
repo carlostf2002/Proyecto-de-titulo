@@ -21,17 +21,17 @@ export default function ResidenteMultas() {
         ) : !data?.length ? (
           <EmptyState icon={Warning} title="No tienes multas registradas" />
         ) : (
-          <div className="divide-y divide-slate-50">
+          <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
             {data.map((m, i) => (
-              <motion.div key={m.id} {...staggerFade(i)} className="px-5 py-4 transition-colors hover:bg-slate-50/70">
+              <motion.div key={m.id} {...staggerFade(i)} className="px-5 py-4 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-slate-800">{m.motivo}</p>
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{m.motivo}</p>
                   <Badge tone={ESTADO_MULTA_TONO[m.estado]}>{m.estado}</Badge>
                 </div>
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                   {formatFecha(m.fecha)} · {formatMonto(m.monto)}
                 </p>
-                {m.observaciones && <p className="mt-1 text-xs text-slate-400">{m.observaciones}</p>}
+                {m.observaciones && <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">{m.observaciones}</p>}
               </motion.div>
             ))}
           </div>

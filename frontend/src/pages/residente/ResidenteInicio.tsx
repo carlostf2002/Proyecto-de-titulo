@@ -34,18 +34,18 @@ export default function ResidenteInicio() {
           </div>
 
           <Card>
-            <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-4">
-              <Megaphone size={16} className="text-slate-400" />
-              <h3 className="text-sm font-semibold text-slate-900">Ultimos comunicados</h3>
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700/60 px-5 py-4">
+              <Megaphone size={16} className="text-slate-400 dark:text-slate-500" />
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Ultimos comunicados</h3>
             </div>
             {!comunicados?.length ? (
               <EmptyState icon={Megaphone} title="Sin comunicados recientes" />
             ) : (
-              <div className="divide-y divide-slate-50">
+              <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
                 {comunicados.slice(0, 5).map((c, i) => (
-                  <motion.div key={c.id} {...staggerFade(i)} className="px-5 py-3 transition-colors hover:bg-slate-50/70">
-                    <p className="text-sm font-medium text-slate-800">{c.titulo}</p>
-                    <p className="text-xs text-slate-500">{formatFechaHora(c.createdAt)}</p>
+                  <motion.div key={c.id} {...staggerFade(i)} className="px-5 py-3 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{c.titulo}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{formatFechaHora(c.createdAt)}</p>
                   </motion.div>
                 ))}
               </div>

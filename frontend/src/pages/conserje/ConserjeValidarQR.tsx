@@ -115,18 +115,18 @@ export default function ConserjeValidarQR() {
           </form>
 
           {resultado && (
-            <div className="border-t border-slate-100 p-5">
+            <div className="border-t border-slate-100 dark:border-slate-700/60 p-5">
               <div
                 className={
                   resultado.resultado === "AUTORIZADO"
-                    ? "rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center"
-                    : "rounded-lg border border-red-200 bg-red-50 p-4 text-center"
+                    ? "rounded-lg border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10 p-4 text-center"
+                    : "rounded-lg border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 p-4 text-center"
                 }
               >
-                <p className={resultado.resultado === "AUTORIZADO" ? "text-lg font-bold text-emerald-700" : "text-lg font-bold text-red-700"}>
+                <p className={resultado.resultado === "AUTORIZADO" ? "text-lg font-bold text-emerald-700 dark:text-emerald-300" : "text-lg font-bold text-red-700 dark:text-red-300"}>
                   {resultado.resultado === "AUTORIZADO" ? "✓ Acceso autorizado" : "✗ Acceso rechazado"}
                 </p>
-                <p className="mt-1 text-sm text-slate-600">{resultado.motivo}</p>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{resultado.motivo}</p>
               </div>
             </div>
           )}

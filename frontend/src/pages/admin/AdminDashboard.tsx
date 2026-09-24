@@ -108,12 +108,12 @@ export default function AdminDashboard() {
         {data.accesos.recientes.length === 0 ? (
           <EmptyState icon={QrCode} title="Sin accesos registrados" />
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {data.accesos.recientes.map((a, i) => (
-              <motion.div key={a.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70">
+              <motion.div key={a.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
                 <div>
-                  <p className="text-sm text-slate-700">{a.motivo}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-sm text-slate-700 dark:text-slate-300">{a.motivo}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">
                     Validado por {a.validadoPor.nombre} {a.validadoPor.apellido} · {formatFechaHora(a.createdAt)}
                   </p>
                 </div>

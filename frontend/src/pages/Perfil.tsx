@@ -75,12 +75,12 @@ export default function Perfil() {
           <CardHeader title="Datos personales" />
           <form onSubmit={handleGuardarPerfil} className="space-y-4 p-5">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500">Rol</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">Rol</span>
               <Badge tone="blue">{ROL_LABEL[usuario.rol]}</Badge>
             </div>
             <div>
               <Label>Correo electronico</Label>
-              <Input value={usuario.email} disabled className="bg-slate-50 text-slate-500" />
+              <Input value={usuario.email} disabled className="bg-slate-50 dark:bg-slate-900/40 text-slate-500 dark:text-slate-400" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>

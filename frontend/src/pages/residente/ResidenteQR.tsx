@@ -57,10 +57,10 @@ export default function ResidenteQR() {
             {qrResidente ? (
               <>
                 <img src={qrResidente.qrDataUrl} alt="QR de residente" className="h-48 w-48" />
-                <p className="text-xs text-slate-500">Vigente hasta {formatFechaHora(qrResidente.expiraEn)}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Vigente hasta {formatFechaHora(qrResidente.expiraEn)}</p>
               </>
             ) : (
-              <p className="text-center text-xs text-slate-400">
+              <p className="text-center text-xs text-slate-400 dark:text-slate-500">
                 Genera tu codigo QR personal. Se renueva periodicamente por seguridad (RNF-08).
               </p>
             )}
@@ -83,12 +83,12 @@ export default function ResidenteQR() {
           ) : !visitas?.length ? (
             <EmptyState icon={QrCode} title="Aun no has registrado visitas" />
           ) : (
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
               {visitas.map((v, i) => (
-                <motion.div key={v.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70">
+                <motion.div key={v.id} {...staggerFade(i)} className="flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
                   <div>
-                    <p className="text-sm font-medium text-slate-800">{v.nombreVisita}</p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{v.nombreVisita}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       {formatFechaHora(v.periodoInicio)} — {formatFechaHora(v.periodoFin)}
                       {v.soloUnUso ? " · Uso unico" : ""}
                     </p>
@@ -142,8 +142,8 @@ export default function ResidenteQR() {
         {visitaQr && (
           <div className="flex flex-col items-center gap-3">
             <img src={visitaQr.qrDataUrl} alt="QR de visita" className="h-56 w-56" />
-            <p className="text-xs text-slate-500">Vigente hasta {formatFechaHora(visitaQr.expiraEn)}</p>
-            <p className="text-center text-xs text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">Vigente hasta {formatFechaHora(visitaQr.expiraEn)}</p>
+            <p className="text-center text-xs text-slate-400 dark:text-slate-500">
               Comparte este codigo con tu visita. El conserje lo validara al ingreso.
             </p>
           </div>
@@ -211,7 +211,7 @@ function FormularioVisita({ onCreado }: { onCreado: () => void }) {
         <Label>Observaciones</Label>
         <Textarea rows={2} value={observaciones} onChange={(e) => setObservaciones(e.target.value)} />
       </div>
-      <label className="flex items-center gap-2 text-sm text-slate-600">
+      <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
         <input type="checkbox" checked={soloUnUso} onChange={(e) => setSoloUnUso(e.target.checked)} />
         Autorizacion de un solo uso
       </label>
