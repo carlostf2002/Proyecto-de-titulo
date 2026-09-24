@@ -34,28 +34,28 @@ export default {
         display: ["Poppins", "system-ui", "sans-serif"],
       },
       keyframes: {
-        "aurora-a": {
-          "0%, 100%": { transform: "translate(0, 0) scale(1)" },
-          "50%": { transform: "translate(6%, 8%) scale(1.15)" },
-        },
-        "aurora-b": {
-          "0%, 100%": { transform: "translate(0, 0) scale(1)" },
-          "50%": { transform: "translate(-8%, 4%) scale(1.1)" },
-        },
-        "aurora-c": {
-          "0%, 100%": { transform: "translate(0, 0) scale(1)" },
-          "50%": { transform: "translate(4%, -10%) scale(1.2)" },
-        },
         "grid-drift": {
           "0%": { backgroundPosition: "0 0" },
           "100%": { backgroundPosition: "64px 64px" },
         },
+        "window-glow": {
+          "0%, 100%": { opacity: 0.3 },
+          "50%": { opacity: 1 },
+        },
+        "horizon-glow": {
+          "0%, 100%": { opacity: 0.5, transform: "scale(1)" },
+          "50%": { opacity: 0.85, transform: "scale(1.06)" },
+        },
+        "beacon-blink": {
+          "0%, 20%, 100%": { opacity: 0.15 },
+          "10%": { opacity: 1 },
+        },
       },
       animation: {
-        "aurora-a": "aurora-a 16s ease-in-out infinite",
-        "aurora-b": "aurora-b 20s ease-in-out infinite",
-        "aurora-c": "aurora-c 24s ease-in-out infinite",
         "grid-drift": "grid-drift 30s linear infinite",
+        "window-glow": "window-glow 5s ease-in-out infinite",
+        "horizon-glow": "horizon-glow 12s ease-in-out infinite",
+        "beacon-blink": "beacon-blink 4s ease-in-out infinite",
       },
     },
   },
