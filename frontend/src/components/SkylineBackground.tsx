@@ -134,7 +134,7 @@ function techo(edificio: Edificio, altoSvg: number) {
 
 export function SkylineBackground() {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden bg-[#070b18]" aria-hidden="true">
+    <div className="skyline-ambient pointer-events-none absolute inset-0 overflow-hidden bg-[#070b18]" aria-hidden="true">
       {/* Cielo con profundidad sutil */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0b1330] via-[#0a1024] to-[#05070f]" />
 
@@ -202,6 +202,9 @@ export function SkylineBackground() {
 
       {/* Vineta: asegura contraste legible alrededor de la tarjeta de login */}
       <div className="absolute inset-0 bg-gradient-to-t from-[#05070f]/75 via-transparent to-[#05070f]/35" />
+      {/* Oscurece la mitad izquierda, donde va el texto de marca en desktop,
+          para que las ventanas iluminadas no le quiten legibilidad. */}
+      <div className="absolute inset-0 hidden bg-gradient-to-r from-[#05070f]/65 via-[#05070f]/15 to-transparent lg:block" />
     </div>
   );
 }

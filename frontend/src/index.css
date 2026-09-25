@@ -48,4 +48,13 @@ h3,
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* El fondo del login es puro ambiente decorativo (fundidos de opacidad
+     suaves, sin parallax ni movimiento brusco) -- no interfiere con el uso
+     de la pagina, asi que se excluye del apagado global de animaciones. */
+  .skyline-ambient,
+  .skyline-ambient * {
+    animation-duration: revert !important;
+    animation-iteration-count: infinite !important;
+  }
 }

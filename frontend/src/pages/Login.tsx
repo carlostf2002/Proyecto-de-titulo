@@ -43,7 +43,7 @@ export default function Login() {
           initial={{ opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="hidden text-white lg:block"
+          className="hidden text-white lg:block [text-shadow:0_2px_18px_rgba(0,0,0,0.7),0_1px_3px_rgba(0,0,0,0.9)]"
         >
           <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm ring-1 ring-white/20">
             <Buildings size={30} weight="duotone" className="text-accent-300" />
