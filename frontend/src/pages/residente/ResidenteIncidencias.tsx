@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { Wrench } from "@phosphor-icons/react";
 import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Spinner, staggerFade, Textarea } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
-import { ESTADO_INCIDENCIA_TONO } from "../../lib/badges";
+import { ESTADO_INCIDENCIA_LABEL, ESTADO_INCIDENCIA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
 
@@ -64,7 +64,7 @@ export default function ResidenteIncidencias() {
                 <motion.div key={inc.id} {...staggerFade(i)} className="px-5 py-4 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{inc.titulo}</p>
-                    <Badge tone={ESTADO_INCIDENCIA_TONO[inc.estado]}>{inc.estado}</Badge>
+                    <Badge tone={ESTADO_INCIDENCIA_TONO[inc.estado]}>{ESTADO_INCIDENCIA_LABEL[inc.estado]}</Badge>
                   </div>
                   <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{inc.ubicacion}</p>
                   <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{inc.descripcion}</p>

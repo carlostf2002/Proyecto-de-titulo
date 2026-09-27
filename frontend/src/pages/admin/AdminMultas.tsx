@@ -5,7 +5,7 @@ import { multasApi, usuariosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, SearchInput, Select, Spinner, Textarea, staggerFade } from "../../components/ui";
 import { formatFecha, formatMonto } from "../../lib/format";
-import { ESTADO_MULTA_TONO } from "../../lib/badges";
+import { ESTADO_MULTA_LABEL, ESTADO_MULTA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
 import type { EstadoMulta } from "../../types";
@@ -51,7 +51,7 @@ export default function AdminMultas() {
           <option value="">Todos los estados</option>
           {ESTADOS.map((estado) => (
             <option key={estado} value={estado}>
-              {estado}
+              {ESTADO_MULTA_LABEL[estado]}
             </option>
           ))}
         </Select>
@@ -93,13 +93,13 @@ export default function AdminMultas() {
                         value={m.estado}
                         onChange={async (e) => {
                           await multasApi.actualizar(m.id, { estado: e.target.value });
-                          toast.success(`Multa actualizada a ${e.target.value}.`);
+                          toast.success(`Multa actualizada a ${ESTADO_MULTA_LABEL[e.target.value] ?? e.target.value}.`);
                           recargar();
                         }}
                       >
                         {ESTADOS.map((estado) => (
                           <option key={estado} value={estado}>
-                            {estado}
+                            {ESTADO_MULTA_LABEL[estado]}
                           </option>
                         ))}
                       </Select>

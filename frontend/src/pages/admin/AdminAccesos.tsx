@@ -4,6 +4,7 @@ import { qrApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import { Alert, Badge, Card, EmptyState, PageHeader, Spinner, staggerFade } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
+import { RESULTADO_ACCESO_LABEL } from "../../lib/badges";
 
 interface AccesoLog {
   id: string;
@@ -37,7 +38,7 @@ export default function AdminAccesos() {
                     Validado por {a.validadoPor.nombre} {a.validadoPor.apellido} · {formatFechaHora(a.createdAt)}
                   </p>
                 </div>
-                <Badge tone={a.resultado === "AUTORIZADO" ? "green" : "red"}>{a.resultado}</Badge>
+                <Badge tone={a.resultado === "AUTORIZADO" ? "green" : "red"}>{RESULTADO_ACCESO_LABEL[a.resultado]}</Badge>
               </motion.div>
             ))}
           </div>

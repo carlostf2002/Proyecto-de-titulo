@@ -6,7 +6,7 @@ import { useAsync } from "../../hooks/useAsync";
 import { Alert, Badge, Card, EmptyState, Input, Label, PageHeader, SearchInput, Select, Spinner, staggerFade } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 import { fechaEnRango } from "../../lib/filters";
-import { ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
+import { ESTADO_ENCOMIENDA_LABEL, ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
 import type { EstadoEncomienda } from "../../types";
 
 const ESTADOS: EstadoEncomienda[] = ["NOTIFICADA", "RETIRADA"];
@@ -41,7 +41,7 @@ export default function AdminEncomiendas() {
               <option value="">Todos los estados</option>
               {ESTADOS.map((estado) => (
                 <option key={estado} value={estado}>
-                  {estado}
+                  {ESTADO_ENCOMIENDA_LABEL[estado]}
                 </option>
               ))}
             </Select>
@@ -102,7 +102,7 @@ export default function AdminEncomiendas() {
                       {enc.fechaRetiro ? formatFechaHora(enc.fechaRetiro) : "—"}
                     </td>
                     <td className="px-5 py-3">
-                      <Badge tone={ESTADO_ENCOMIENDA_TONO[enc.estado]}>{enc.estado}</Badge>
+                      <Badge tone={ESTADO_ENCOMIENDA_TONO[enc.estado]}>{ESTADO_ENCOMIENDA_LABEL[enc.estado]}</Badge>
                     </td>
                   </motion.tr>
                 ))}

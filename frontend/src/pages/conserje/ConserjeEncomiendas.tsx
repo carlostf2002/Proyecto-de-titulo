@@ -20,7 +20,7 @@ import {
 } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
 import { fechaEnRango } from "../../lib/filters";
-import { ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
+import { ESTADO_ENCOMIENDA_LABEL, ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
 import type { EstadoEncomienda } from "../../types";
@@ -152,7 +152,7 @@ export default function ConserjeEncomiendas() {
                 <option value="">Todos</option>
                 {ESTADOS.map((estado) => (
                   <option key={estado} value={estado}>
-                    {estado}
+                    {ESTADO_ENCOMIENDA_LABEL[estado]}
                   </option>
                 ))}
               </Select>
@@ -214,7 +214,7 @@ export default function ConserjeEncomiendas() {
                         {enc.fechaRetiro ? formatFechaHora(enc.fechaRetiro) : "—"}
                       </td>
                       <td className="px-5 py-3">
-                        <Badge tone={ESTADO_ENCOMIENDA_TONO[enc.estado]}>{enc.estado}</Badge>
+                        <Badge tone={ESTADO_ENCOMIENDA_TONO[enc.estado]}>{ESTADO_ENCOMIENDA_LABEL[enc.estado]}</Badge>
                       </td>
                       <td className="px-5 py-3 text-right">
                         {enc.estado !== "RETIRADA" && (

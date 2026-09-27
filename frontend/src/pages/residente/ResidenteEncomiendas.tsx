@@ -4,7 +4,7 @@ import { encomiendasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import { Alert, Badge, Card, EmptyState, PageHeader, Spinner, staggerFade } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
-import { ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
+import { ESTADO_ENCOMIENDA_LABEL, ESTADO_ENCOMIENDA_TONO } from "../../lib/badges";
 
 export default function ResidenteEncomiendas() {
   const { data, cargando, error } = useAsync(() => encomiendasApi.mias(), []);
@@ -28,7 +28,7 @@ export default function ResidenteEncomiendas() {
                   <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{enc.remitente ?? "Remitente no especificado"}</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">Recibida el {formatFechaHora(enc.fechaRecepcion)}</p>
                 </div>
-                <Badge tone={ESTADO_ENCOMIENDA_TONO[enc.estado]}>{enc.estado}</Badge>
+                <Badge tone={ESTADO_ENCOMIENDA_TONO[enc.estado]}>{ESTADO_ENCOMIENDA_LABEL[enc.estado]}</Badge>
               </motion.div>
             ))}
           </div>

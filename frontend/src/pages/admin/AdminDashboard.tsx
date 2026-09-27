@@ -16,6 +16,7 @@ import {
   Meter,
 } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
+import { RESULTADO_ACCESO_LABEL } from "../../lib/badges";
 
 // Paleta de estado (dataviz skill): good/warning/serious reservados para semantica
 // de sanciones; nunca reutilizados como color de serie generico.
@@ -117,7 +118,7 @@ export default function AdminDashboard() {
                     Validado por {a.validadoPor.nombre} {a.validadoPor.apellido} · {formatFechaHora(a.createdAt)}
                   </p>
                 </div>
-                <Badge tone={a.resultado === "AUTORIZADO" ? "green" : "red"}>{a.resultado}</Badge>
+                <Badge tone={a.resultado === "AUTORIZADO" ? "green" : "red"}>{RESULTADO_ACCESO_LABEL[a.resultado]}</Badge>
               </motion.div>
             ))}
           </div>

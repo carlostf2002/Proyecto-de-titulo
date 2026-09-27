@@ -4,7 +4,7 @@ import { multasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import { Alert, Badge, Card, EmptyState, PageHeader, Spinner, staggerFade } from "../../components/ui";
 import { formatFecha, formatMonto } from "../../lib/format";
-import { ESTADO_MULTA_TONO } from "../../lib/badges";
+import { ESTADO_MULTA_LABEL, ESTADO_MULTA_TONO } from "../../lib/badges";
 
 export default function ResidenteMultas() {
   const { data, cargando, error } = useAsync(() => multasApi.mias(), []);
@@ -26,7 +26,7 @@ export default function ResidenteMultas() {
               <motion.div key={m.id} {...staggerFade(i)} className="px-5 py-4 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{m.motivo}</p>
-                  <Badge tone={ESTADO_MULTA_TONO[m.estado]}>{m.estado}</Badge>
+                  <Badge tone={ESTADO_MULTA_TONO[m.estado]}>{ESTADO_MULTA_LABEL[m.estado]}</Badge>
                 </div>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                   {formatFecha(m.fecha)} · {formatMonto(m.monto)}

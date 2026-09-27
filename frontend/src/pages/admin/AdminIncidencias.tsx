@@ -20,7 +20,7 @@ import {
   Textarea,
 } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
-import { ESTADO_INCIDENCIA_TONO, PRIORIDAD_TONO } from "../../lib/badges";
+import { ESTADO_INCIDENCIA_LABEL, ESTADO_INCIDENCIA_TONO, PRIORIDAD_LABEL, PRIORIDAD_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
 import type { EstadoIncidencia, Incidencia, PrioridadIncidencia } from "../../types";
@@ -60,7 +60,7 @@ export default function AdminIncidencias() {
           <option value="">Todos los estados</option>
           {ESTADOS.map((estado) => (
             <option key={estado} value={estado}>
-              {estado}
+              {ESTADO_INCIDENCIA_LABEL[estado]}
             </option>
           ))}
         </Select>
@@ -102,10 +102,10 @@ export default function AdminIncidencias() {
                     </td>
                     <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{inc.ubicacion}</td>
                     <td className="px-5 py-3">
-                      {inc.prioridad ? <Badge tone={PRIORIDAD_TONO[inc.prioridad]}>{inc.prioridad}</Badge> : "—"}
+                      {inc.prioridad ? <Badge tone={PRIORIDAD_TONO[inc.prioridad]}>{PRIORIDAD_LABEL[inc.prioridad]}</Badge> : "—"}
                     </td>
                     <td className="px-5 py-3">
-                      <Badge tone={ESTADO_INCIDENCIA_TONO[inc.estado]}>{inc.estado}</Badge>
+                      <Badge tone={ESTADO_INCIDENCIA_TONO[inc.estado]}>{ESTADO_INCIDENCIA_LABEL[inc.estado]}</Badge>
                     </td>
                     <td className="px-5 py-3 text-slate-500 dark:text-slate-400">{formatFechaHora(inc.createdAt)}</td>
                   </motion.tr>
@@ -199,7 +199,7 @@ function DetalleIncidencia({
             <Alert tone="amber">
               <p className="font-semibold">Sugerencia de IA (revisa y confirma antes de aplicar)</p>
               <p>
-                Categoria: {incidencia.sugerenciaIA.categoria} · Prioridad: {incidencia.sugerenciaIA.prioridad} · Ubicacion
+                Categoria: {incidencia.sugerenciaIA.categoria} · Prioridad: {PRIORIDAD_LABEL[incidencia.sugerenciaIA.prioridad] ?? incidencia.sugerenciaIA.prioridad} · Ubicacion
                 detectada: {incidencia.sugerenciaIA.ubicacionDetectada ?? "no detectada"} · Confianza:{" "}
                 {incidencia.sugerenciaIA.confianza}
               </p>
@@ -213,7 +213,7 @@ function DetalleIncidencia({
                 <Select value={estado} onChange={(e) => setEstado(e.target.value as EstadoIncidencia)}>
                   {ESTADOS.map((e2) => (
                     <option key={e2} value={e2}>
-                      {e2}
+                      {ESTADO_INCIDENCIA_LABEL[e2]}
                     </option>
                   ))}
                 </Select>
@@ -224,7 +224,7 @@ function DetalleIncidencia({
                   <option value="">Sin definir</option>
                   {PRIORIDADES.map((p) => (
                     <option key={p} value={p}>
-                      {p}
+                      {PRIORIDAD_LABEL[p]}
                     </option>
                   ))}
                 </Select>
@@ -263,8 +263,14 @@ function DetalleIncidencia({
               {incidencia.historial?.map((h) => (
                 <div key={h.id} className="rounded-lg bg-slate-50 dark:bg-slate-900/40 px-3 py-2 text-xs text-slate-600 dark:text-slate-300">
                   <p>
-                    <span className="font-medium">{h.estadoNuevo}</span>
-                    {h.estadoAnterior && <span className="text-slate-400 dark:text-slate-500"> (antes: {h.estadoAnterior})</span>} ·{" "}
+                    <span className="font-medium">{ESTADO_INCIDENCIA_LABEL[h.estadoNuevo] ?? h.estadoNuevo}</span>
+                    {h.estadoAnterior && (
+                      <span className="text-slate-400 dark:text-slate-500">
+                        {" "}
+                        (antes: {ESTADO_INCIDENCIA_LABEL[h.estadoAnterior] ?? h.estadoAnterior})
+                      </span>
+                    )}{" "}
+                    ·{" "}
                     {h.usuario.nombre} {h.usuario.apellido} · {formatFechaHora(h.createdAt)}
                   </p>
                   {h.observacion && <p className="mt-0.5 text-slate-500 dark:text-slate-400">{h.observacion}</p>}

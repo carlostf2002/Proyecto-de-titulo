@@ -5,7 +5,7 @@ import { useAsync } from "../../hooks/useAsync";
 import { CalendarBlank } from "@phosphor-icons/react";
 import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, Select, Spinner, staggerFade } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
-import { ESTADO_RESERVA_TONO } from "../../lib/badges";
+import { ESTADO_RESERVA_LABEL, ESTADO_RESERVA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
 
@@ -128,7 +128,7 @@ export default function ResidenteReservas() {
                     {formatFecha(r.fecha)} · {r.horaInicio} - {r.horaFin}
                   </p>
                   <div className="mt-1 flex items-center justify-between">
-                    <Badge tone={ESTADO_RESERVA_TONO[r.estado]}>{r.estado}</Badge>
+                    <Badge tone={ESTADO_RESERVA_TONO[r.estado]}>{ESTADO_RESERVA_LABEL[r.estado]}</Badge>
                     {r.estado === "CONFIRMADA" && (
                       <button
                         className="text-xs text-red-600 dark:text-red-400 hover:underline"

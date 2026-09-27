@@ -19,7 +19,7 @@ import {
   Textarea,
 } from "../../components/ui";
 import { formatFechaHora } from "../../lib/format";
-import { ESTADO_VISITA_TONO } from "../../lib/badges";
+import { ESTADO_VISITA_LABEL, ESTADO_VISITA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
 
@@ -94,7 +94,7 @@ export default function ResidenteQR() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge tone={ESTADO_VISITA_TONO[v.estado]}>{v.estado}</Badge>
+                    <Badge tone={ESTADO_VISITA_TONO[v.estado]}>{ESTADO_VISITA_LABEL[v.estado]}</Badge>
                     {v.estado === "VIGENTE" && !v.qrToken && (
                       <Button
                         size="sm"

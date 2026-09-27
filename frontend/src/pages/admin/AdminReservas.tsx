@@ -5,7 +5,7 @@ import { reservasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import { Alert, Badge, Button, Card, EmptyState, PageHeader, SearchInput, Spinner, staggerFade } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
-import { ESTADO_RESERVA_TONO } from "../../lib/badges";
+import { ESTADO_RESERVA_LABEL, ESTADO_RESERVA_TONO } from "../../lib/badges";
 import { useToast } from "../../context/ToastContext";
 
 export default function AdminReservas() {
@@ -63,7 +63,7 @@ export default function AdminReservas() {
                       {r.horaInicio} - {r.horaFin}
                     </td>
                     <td className="px-5 py-3">
-                      <Badge tone={ESTADO_RESERVA_TONO[r.estado]}>{r.estado}</Badge>
+                      <Badge tone={ESTADO_RESERVA_TONO[r.estado]}>{ESTADO_RESERVA_LABEL[r.estado]}</Badge>
                     </td>
                     <td className="px-5 py-3 text-right">
                       {r.estado === "CONFIRMADA" && (
