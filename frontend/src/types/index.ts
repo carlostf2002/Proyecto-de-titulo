@@ -166,6 +166,8 @@ export interface Notificacion {
   mensaje: string;
   leida: boolean;
   createdAt: string;
+  entidadTipo?: string | null;
+  entidadId?: string | null;
 }
 
 export interface Indicadores {

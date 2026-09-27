@@ -20,6 +20,17 @@ const ROL_LABEL: Record<string, string> = {
   CONSERJE: "Conserje",
 };
 
+// A donde redirigir segun el tipo de entidad de la notificacion. Las rutas
+// son las mismas para admin y residente (cada uno tiene su propia pagina
+// montada en ese path dentro de su AppLayout); si el rol actual no tiene esa
+// seccion (ej. conserje), el catch-all "*" del router lo manda a su inicio.
+const RUTA_POR_ENTIDAD: Record<string, string> = {
+  Incidencia: "/incidencias",
+  Multa: "/multas",
+  Encomienda: "/encomiendas",
+  Comunicado: "/comunicados",
+};
+
 export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNode }) {
   const { usuario, logout } = useAuth();
   const { tema, setTema } = useTheme();
@@ -49,6 +60,16 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
   function handleLogout() {
     logout();
     navigate("/login");
+  }
+
+  function abrirNotificacion(n: Notificacion) {
+    if (!n.leida) {
+      notificacionesApi.leer(n.id).catch(() => {});
+      setNotificaciones((prev) => prev.map((item) => (item.id === n.id ? { ...item, leida: true } : item)));
+    }
+    setPanelAbierto(false);
+    const ruta = n.entidadTipo ? RUTA_POR_ENTIDAD[n.entidadTipo] : undefined;
+    if (ruta) navigate(ruta);
   }
 
   return (
@@ -180,18 +201,25 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                       {notificaciones.length === 0 ? (
                         <p className="px-4 py-6 text-center text-xs text-slate-400 dark:text-slate-500">Sin notificaciones.</p>
                       ) : (
-                        notificaciones.map((n) => (
-                          <div
-                            key={n.id}
-                            className={clsx(
-                              "border-b border-slate-50 px-4 py-3 text-sm dark:border-slate-700/40",
-                              !n.leida && "bg-brand-50/60 dark:bg-brand-500/10"
-                            )}
-                          >
-                            <p className="font-medium text-slate-800 dark:text-slate-100">{n.titulo}</p>
-                            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{n.mensaje}</p>
-                          </div>
-                        ))
+                        notificaciones.map((n) => {
+                          const clicable = Boolean(n.entidadTipo && RUTA_POR_ENTIDAD[n.entidadTipo]);
+                          return (
+                            <button
+                              key={n.id}
+                              type="button"
+                              onClick={() => abrirNotificacion(n)}
+                              disabled={!clicable}
+                              className={clsx(
+                                "block w-full border-b border-slate-50 px-4 py-3 text-left text-sm transition-colors dark:border-slate-700/40",
+                                !n.leida && "bg-brand-50/60 dark:bg-brand-500/10",
+                                clicable && "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40"
+                              )}
+                            >
+                              <p className="font-medium text-slate-800 dark:text-slate-100">{n.titulo}</p>
+                              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{n.mensaje}</p>
+                            </button>
+                          );
+                        })
                       )}
                     </div>
                   </motion.div>
