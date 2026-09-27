@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
@@ -39,6 +39,18 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
   const [panelAbierto, setPanelAbierto] = useState(false);
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!panelAbierto) return;
+    function alClickearFuera(e: MouseEvent) {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setPanelAbierto(false);
+      }
+    }
+    document.addEventListener("mousedown", alClickearFuera);
+    return () => document.removeEventListener("mousedown", alClickearFuera);
+  }, [panelAbierto]);
 
   useEffect(() => {
     let activo = true;
@@ -154,7 +166,7 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                 <Moon size={19} weight={tema === "oscuro" ? "fill" : "regular"} />
               </button>
             </div>
-            <div className="relative">
+            <div className="relative" ref={panelRef}>
               <button
                 className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                 onClick={() => setPanelAbierto((v) => !v)}
