@@ -196,18 +196,27 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                   >
                     <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 dark:border-slate-700/60">
                       <span className="text-sm font-semibold dark:text-white">Notificaciones</span>
-                      {noLeidas > 0 && (
+                      <div className="flex items-center gap-3">
+                        {noLeidas > 0 && (
+                          <button
+                            className="text-xs text-brand-600 hover:underline dark:text-brand-400"
+                            onClick={() => {
+                              notificacionesApi.leerTodas().then(() =>
+                                setNotificaciones((prev) => prev.map((n) => ({ ...n, leida: true })))
+                              );
+                            }}
+                          >
+                            Marcar todas como leidas
+                          </button>
+                        )}
                         <button
-                          className="text-xs text-brand-600 hover:underline dark:text-brand-400"
-                          onClick={() => {
-                            notificacionesApi.leerTodas().then(() =>
-                              setNotificaciones((prev) => prev.map((n) => ({ ...n, leida: true })))
-                            );
-                          }}
+                          onClick={() => setPanelAbierto(false)}
+                          className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                          aria-label="Cerrar notificaciones"
                         >
-                          Marcar todas como leidas
+                          <X size={16} />
                         </button>
-                      )}
+                      </div>
                     </div>
                     <div className="max-h-80 overflow-y-auto">
                       {notificaciones.length === 0 ? (
