@@ -16,12 +16,17 @@ export function formatFecha(fecha: string | Date): string {
 
 export function formatFechaHora(fecha: string | Date): string {
   const d = typeof fecha === "string" ? new Date(fecha) : fecha;
+  // hour12: false fuerza formato 24 horas (ej. 18:00) sin importar la
+  // configuracion regional del dispositivo -- algunos celulares, segun su
+  // ajuste de sistema, mostraban 12 horas sin AM/PM (ej. "06:00" para las
+  // 18:00), lo que se prestaba para confusion.
   return d.toLocaleString("es-CL", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false,
   });
 }
 
