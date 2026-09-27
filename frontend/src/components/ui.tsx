@@ -57,9 +57,19 @@ export function Button({
 
 export function Card({ className, children }: { className?: string; children: ReactNode }) {
   return (
-    <div className={clsx("rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow dark:border-slate-700 dark:bg-slate-800", className)}>
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false, amount: 0.2 }}
+      whileHover={{ y: -3 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className={clsx(
+        "rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-lg dark:border-slate-700 dark:bg-slate-800",
+        className
+      )}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
@@ -190,12 +200,18 @@ export function StatCard({
   );
 
   const className = clsx(
-    "block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800",
+    "block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg dark:border-slate-700 dark:bg-slate-800",
     to && "hover:border-brand-300 dark:hover:border-brand-500/50"
   );
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: index * 0.05 }}>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false, amount: 0.3 }}
+      whileHover={{ y: -3 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+    >
       {to ? (
         <Link to={to} className={className}>
           {contenido}
