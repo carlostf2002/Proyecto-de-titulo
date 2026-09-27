@@ -22,6 +22,8 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         sync: false
+      - key: APP_URL
+        value: https://habitasmart.onrender.com
 
 databases:
   - name: habitasmart-db

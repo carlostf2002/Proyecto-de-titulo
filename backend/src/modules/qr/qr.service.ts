@@ -3,11 +3,21 @@ import { EstadoVisita, ResultadoAcceso, TipoQrToken } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 import { signQrToken, verifyQrToken } from "../../lib/qrToken";
 import { ConflictError, NotFoundError } from "../../lib/errors";
+import { env } from "../../config/env";
 
 const VIGENCIA_QR_RESIDENTE_HORAS = 24;
 
+// El QR codifica un link real (no solo el token en texto plano) para que
+// cualquier camara de celular lo reconozca como algo abrible, en vez de
+// mostrar "texto raro" sin accion. La pagina /acceso/:token valida solo si
+// quien la abre esta autenticado como conserje; para cualquier otra persona
+// (el propio residente viendo su QR, o la visita) muestra un mensaje simple.
+function urlAcceso(token: string): string {
+  return `${env.appUrl}/acceso/${encodeURIComponent(token)}`;
+}
+
 async function generarImagenQr(token: string): Promise<string> {
-  return QRCode.toDataURL(token, { errorCorrectionLevel: "M", margin: 1, width: 320 });
+  return QRCode.toDataURL(urlAcceso(token), { errorCorrectionLevel: "M", margin: 1, width: 320 });
 }
 
 // HU-17: generar QR de residente. El token es un JWT sin datos personales, con expiracion (RNF-08, RNF-09).

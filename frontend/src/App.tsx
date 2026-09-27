@@ -17,6 +17,7 @@ import { useAuth } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout, NavItem } from "./layouts/AppLayout";
 import Login from "./pages/Login";
+import AccesoQR from "./pages/AccesoQR";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsuarios from "./pages/admin/AdminUsuarios";
@@ -142,6 +143,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/acceso/:token" element={<AccesoQR />} />
       <Route
         path="/*"
         element={

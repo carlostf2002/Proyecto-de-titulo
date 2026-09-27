@@ -9,6 +9,24 @@ type Resultado = { resultado: "AUTORIZADO" | "RECHAZADO"; motivo: string; detall
 
 const READER_ID = "qr-reader";
 
+// El QR ahora codifica un link (https://.../acceso/<token>) en vez de solo
+// el token en texto plano, para que cualquier camara de celular lo reconozca
+// como algo abrible. Si lo que se escaneo o pego es ese link, se extrae el
+// token de la URL; si ya es el token crudo (compatibilidad con QRs viejos
+// generados antes de este cambio), se usa tal cual.
+function extraerToken(texto: string): string {
+  const limpio = texto.trim();
+  try {
+    const url = new URL(limpio);
+    const partes = url.pathname.split("/").filter(Boolean);
+    const idx = partes.indexOf("acceso");
+    if (idx !== -1 && partes[idx + 1]) return decodeURIComponent(partes[idx + 1]);
+  } catch {
+    // No es una URL valida -> se asume que ya es el token.
+  }
+  return limpio;
+}
+
 export default function ConserjeValidarQR() {
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const procesandoRef = useRef(false);
@@ -22,7 +40,7 @@ export default function ConserjeValidarQR() {
     if (procesandoRef.current) return;
     procesandoRef.current = true;
     try {
-      const res = await qrApi.validar(token);
+      const res = await qrApi.validar(extraerToken(token));
       setResultado(res);
     } catch (err) {
       setResultado({ resultado: "RECHAZADO", motivo: mensajeError(err, "No se pudo validar el codigo.") });
