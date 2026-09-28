@@ -89,10 +89,10 @@ export const TIPO_EMERGENCIA_TONO: Record<string, Tono> = {
 // tipo de emergencia (mismo criterio de colores: Carabineros verde, Bomberos
 // rojo, Ambulancia amarillo) -- para que admin/conserje distingan la
 // urgencia de un vistazo, sin tener que leer el texto primero.
-export const NOTIFICACION_SOS_CLASE: Record<string, string> = {
-  SOS_CARABINEROS: "border-l-4 border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10",
-  SOS_BOMBEROS: "border-l-4 border-red-500 bg-red-50 dark:bg-red-500/10",
-  SOS_AMBULANCIA: "border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-500/10",
+export const NOTIFICACION_SOS_CLASE: Record<string, { caja: string; titulo: string; mensaje: string }> = {
+  SOS_CARABINEROS: { caja: "bg-emerald-600 hover:bg-emerald-700", titulo: "text-white", mensaje: "text-emerald-50" },
+  SOS_BOMBEROS: { caja: "bg-red-600 hover:bg-red-700", titulo: "text-white", mensaje: "text-red-50" },
+  SOS_AMBULANCIA: { caja: "bg-amber-400 hover:bg-amber-500", titulo: "text-slate-900", mensaje: "text-slate-800" },
 };
 
 export const TIPO_EMERGENCIA_LABEL: Record<string, string> = {

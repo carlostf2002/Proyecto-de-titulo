@@ -227,6 +227,7 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                       ) : (
                         notificaciones.map((n) => {
                           const clicable = Boolean(n.entidadTipo && RUTA_POR_ENTIDAD[n.entidadTipo]);
+                          const sos = NOTIFICACION_SOS_CLASE[n.tipo];
                           return (
                             <button
                               key={n.id}
@@ -235,12 +236,12 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                               disabled={!clicable}
                               className={clsx(
                                 "block w-full border-b border-slate-50 px-4 py-3 text-left text-sm transition-colors dark:border-slate-700/40",
-                                NOTIFICACION_SOS_CLASE[n.tipo] ?? (!n.leida && "bg-brand-50/60 dark:bg-brand-500/10"),
-                                clicable && "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40"
+                                sos ? sos.caja : !n.leida && "bg-brand-50/60 dark:bg-brand-500/10",
+                                clicable && (sos ? "cursor-pointer" : "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40")
                               )}
                             >
-                              <p className="font-medium text-slate-800 dark:text-slate-100">{n.titulo}</p>
-                              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{n.mensaje}</p>
+                              <p className={clsx("font-medium", sos ? sos.titulo : "text-slate-800 dark:text-slate-100")}>{n.titulo}</p>
+                              <p className={clsx("mt-0.5 text-xs", sos ? sos.mensaje : "text-slate-500 dark:text-slate-400")}>{n.mensaje}</p>
                             </button>
                           );
                         })
