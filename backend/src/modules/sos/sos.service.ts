@@ -35,7 +35,7 @@ export async function crearAlerta(condominioId: string, usuarioId: string, tipo:
   await crearNotificacionesMasivas(
     destinatarios.map((d) => d.id),
     {
-      tipo: "SOS",
+      tipo: `SOS_${tipo}`,
       titulo: `🚨 Alerta SOS: ${EMERGENCIA_LABEL[tipo]}`,
       mensaje: usuario
         ? `${usuario.nombre} ${usuario.apellido}${unidad} activo una alerta de ${EMERGENCIA_LABEL[tipo]}.`

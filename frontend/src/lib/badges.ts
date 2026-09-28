@@ -80,9 +80,19 @@ export const RESULTADO_ACCESO_LABEL: Record<string, string> = {
 };
 
 export const TIPO_EMERGENCIA_TONO: Record<string, Tono> = {
-  CARABINEROS: "blue",
-  BOMBEROS: "amber",
-  AMBULANCIA: "green",
+  CARABINEROS: "green",
+  BOMBEROS: "red",
+  AMBULANCIA: "amber",
+};
+
+// Acento de color para la notificacion SOS en el panel del header, segun el
+// tipo de emergencia (mismo criterio de colores: Carabineros verde, Bomberos
+// rojo, Ambulancia amarillo) -- para que admin/conserje distingan la
+// urgencia de un vistazo, sin tener que leer el texto primero.
+export const NOTIFICACION_SOS_CLASE: Record<string, string> = {
+  SOS_CARABINEROS: "border-l-4 border-emerald-500 bg-emerald-50 dark:bg-emerald-500/10",
+  SOS_BOMBEROS: "border-l-4 border-red-500 bg-red-50 dark:bg-red-500/10",
+  SOS_AMBULANCIA: "border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-500/10",
 };
 
 export const TIPO_EMERGENCIA_LABEL: Record<string, string> = {

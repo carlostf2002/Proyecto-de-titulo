@@ -6,6 +6,7 @@ import { Bell, Buildings, List, Moon, SignOut, Sun, UserCircle, X } from "@phosp
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { notificacionesApi } from "../api/endpoints";
+import { NOTIFICACION_SOS_CLASE } from "../lib/badges";
 import { BotonSOS } from "../components/BotonSOS";
 import type { Notificacion } from "../types";
 
@@ -234,7 +235,7 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                               disabled={!clicable}
                               className={clsx(
                                 "block w-full border-b border-slate-50 px-4 py-3 text-left text-sm transition-colors dark:border-slate-700/40",
-                                !n.leida && "bg-brand-50/60 dark:bg-brand-500/10",
+                                NOTIFICACION_SOS_CLASE[n.tipo] ?? (!n.leida && "bg-brand-50/60 dark:bg-brand-500/10"),
                                 clicable && "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40"
                               )}
                             >

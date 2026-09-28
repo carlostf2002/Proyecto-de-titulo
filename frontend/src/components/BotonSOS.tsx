@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Fire, FirstAidKit, ShieldCheck, Siren, X } from "@phosphor-icons/react";
+import { Siren, X } from "@phosphor-icons/react";
 import { Modal } from "./ui";
 import { sosApi } from "../api/endpoints";
 import { useToast } from "../context/ToastContext";
@@ -12,37 +12,43 @@ import type { TipoEmergenciaSos } from "../types";
 // conserjeria/administracion para que puedan asistir (abrir reja, guiar a
 // la ambulancia, etc.) -- ese aviso interno es un plus, jamas un
 // reemplazo de la llamada real, por eso nunca bloquea ni demora el tel:.
+// Los colores siguen el codigo ya usado en las notificaciones de admin/
+// conserje: Carabineros verde, Bomberos rojo, Ambulancia amarillo.
 const OPCIONES: {
   tipo: TipoEmergenciaSos;
   numero: string;
   titulo: string;
   descripcion: string;
-  icon: typeof ShieldCheck;
+  logo: string;
   clases: string;
+  textoClases: string;
 }[] = [
   {
     tipo: "CARABINEROS",
     numero: "133",
     titulo: "Carabineros",
     descripcion: "Robo, violencia o emergencia policial",
-    icon: ShieldCheck,
-    clases: "bg-blue-600 hover:bg-blue-700",
+    logo: "/emergencias/carabineros.webp",
+    clases: "bg-emerald-600 hover:bg-emerald-700",
+    textoClases: "text-white",
   },
   {
     tipo: "BOMBEROS",
     numero: "132",
     titulo: "Bomberos",
     descripcion: "Incendio, fuga de gas u otro riesgo",
-    icon: Fire,
-    clases: "bg-orange-600 hover:bg-orange-700",
+    logo: "/emergencias/bomberos.png",
+    clases: "bg-red-600 hover:bg-red-700",
+    textoClases: "text-white",
   },
   {
     tipo: "AMBULANCIA",
     numero: "131",
     titulo: "Ambulancia (SAMU)",
     descripcion: "Emergencia medica",
-    icon: FirstAidKit,
-    clases: "bg-emerald-600 hover:bg-emerald-700",
+    logo: "/emergencias/samu.gif",
+    clases: "bg-amber-400 hover:bg-amber-500",
+    textoClases: "text-slate-900",
   },
 ];
 
@@ -85,12 +91,16 @@ export function BotonSOS() {
                 key={op.tipo}
                 type="button"
                 onClick={() => activar(op.tipo, op.numero)}
-                className={`flex w-full items-center gap-4 rounded-xl px-4 py-3 text-left text-white shadow-sm transition-colors ${op.clases}`}
+                className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left shadow-sm transition-colors ${op.clases} ${op.textoClases}`}
               >
-                <op.icon size={28} weight="fill" className="shrink-0" />
+                <span className="flex h-12 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white p-1">
+                  <img src={op.logo} alt="" className="h-full w-full object-contain" />
+                </span>
                 <span className="flex-1">
                   <span className="block text-base font-bold">{op.titulo}</span>
-                  <span className="block text-xs text-white/85">{op.descripcion}</span>
+                  <span className={`block text-xs ${op.textoClases === "text-white" ? "text-white/85" : "text-slate-700"}`}>
+                    {op.descripcion}
+                  </span>
                 </span>
                 <span className="text-2xl font-bold">{op.numero}</span>
               </button>
