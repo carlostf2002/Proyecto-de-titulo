@@ -1,5 +1,6 @@
 import { api } from "./client";
 import type {
+  AlertaSos,
   Comunicado,
   Condominio,
   Departamento,
@@ -12,6 +13,7 @@ import type {
   Notificacion,
   Reserva,
   Rol,
+  TipoEmergenciaSos,
   Torre,
   Usuario,
   Visita,
@@ -173,4 +175,10 @@ export const notificacionesApi = {
   listar: () => api.get<Notificacion[]>("/notificaciones").then((r) => r.data),
   leerTodas: () => api.patch("/notificaciones/leer-todas"),
   leer: (id: string) => api.patch(`/notificaciones/${id}/leer`),
+};
+
+// --- SOS ---
+export const sosApi = {
+  crear: (tipo: TipoEmergenciaSos) => api.post<AlertaSos>("/sos", { tipo }).then((r) => r.data),
+  listar: () => api.get<AlertaSos[]>("/sos").then((r) => r.data),
 };

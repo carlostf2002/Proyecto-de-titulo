@@ -159,6 +159,20 @@ export interface Documento {
   createdAt: string;
 }
 
+export type TipoEmergenciaSos = "CARABINEROS" | "BOMBEROS" | "AMBULANCIA";
+
+export interface AlertaSos {
+  id: string;
+  tipo: TipoEmergenciaSos;
+  createdAt: string;
+  usuario: {
+    id: string;
+    nombre: string;
+    apellido: string;
+    departamento: { numero: string; torre: Torre | null } | null;
+  };
+}
+
 export interface Notificacion {
   id: string;
   tipo: string;

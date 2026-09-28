@@ -9,6 +9,7 @@ import {
   Megaphone,
   Package,
   QrCode,
+  Siren,
   Users,
   Warning,
   Wrench,
@@ -18,6 +19,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout, NavItem } from "./layouts/AppLayout";
 import Login from "./pages/Login";
 import AccesoQR from "./pages/AccesoQR";
+import AlertasSos from "./pages/AlertasSos";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsuarios from "./pages/admin/AdminUsuarios";
@@ -49,6 +51,7 @@ const ICON_SIZE = 20;
 
 const ADMIN_NAV: NavItem[] = [
   { to: "/", label: "Dashboard", icon: <ChartBar size={ICON_SIZE} /> },
+  { to: "/alertas-sos", label: "Alertas SOS", icon: <Siren size={ICON_SIZE} /> },
   { to: "/residentes", label: "Residentes", icon: <Users size={ICON_SIZE} /> },
   { to: "/condominio", label: "Condominio", icon: <Buildings size={ICON_SIZE} /> },
   { to: "/reservas", label: "Reservas", icon: <CalendarBlank size={ICON_SIZE} /> },
@@ -73,6 +76,7 @@ const RESIDENTE_NAV: NavItem[] = [
 
 const CONSERJE_NAV: NavItem[] = [
   { to: "/", label: "Encomiendas", icon: <Package size={ICON_SIZE} /> },
+  { to: "/alertas-sos", label: "Alertas SOS", icon: <Siren size={ICON_SIZE} /> },
   { to: "/validar", label: "Validar QR", icon: <QrCode size={ICON_SIZE} /> },
   { to: "/accesos", label: "Historial de accesos", icon: <ClockCounterClockwise size={ICON_SIZE} /> },
 ];
@@ -82,6 +86,7 @@ function AdminApp() {
     <AppLayout nav={ADMIN_NAV}>
       <Routes>
         <Route index element={<AdminDashboard />} />
+        <Route path="alertas-sos" element={<AlertasSos />} />
         <Route path="residentes" element={<AdminUsuarios />} />
         <Route path="condominio" element={<AdminCondominio />} />
         <Route path="reservas" element={<AdminReservas />} />
@@ -122,6 +127,7 @@ function ConserjeApp() {
     <AppLayout nav={CONSERJE_NAV}>
       <Routes>
         <Route index element={<ConserjeEncomiendas />} />
+        <Route path="alertas-sos" element={<AlertasSos />} />
         <Route path="validar" element={<ConserjeValidarQR />} />
         <Route path="accesos" element={<ConserjeAccesos />} />
         <Route path="perfil" element={<Perfil />} />

@@ -6,6 +6,7 @@ import { Bell, Buildings, List, Moon, SignOut, Sun, UserCircle, X } from "@phosp
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { notificacionesApi } from "../api/endpoints";
+import { BotonSOS } from "../components/BotonSOS";
 import type { Notificacion } from "../types";
 
 export interface NavItem {
@@ -29,6 +30,7 @@ const RUTA_POR_ENTIDAD: Record<string, string> = {
   Multa: "/multas",
   Encomienda: "/encomiendas",
   Comunicado: "/comunicados",
+  AlertaSos: "/alertas-sos",
 };
 
 export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNode }) {
@@ -272,6 +274,8 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
           {children}
         </motion.main>
       </div>
+
+      {usuario?.rol === "RESIDENTE" && <BotonSOS />}
     </div>
   );
 }

@@ -19,6 +19,7 @@ import qrRoutes from "./modules/qr/qr.routes";
 import documentosRoutes from "./modules/documentos/documentos.routes";
 import dashboardRoutes from "./modules/dashboard/dashboard.routes";
 import notificacionesRoutes from "./modules/notificaciones/notificaciones.routes";
+import sosRoutes from "./modules/sos/sos.routes";
 
 export const app = express();
 
@@ -43,6 +44,7 @@ app.use("/api/qr", qrRoutes);
 app.use("/api/documentos", documentosRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/notificaciones", notificacionesRoutes);
+app.use("/api/sos", sosRoutes);
 
 // Sirve el frontend ya compilado desde el mismo proceso/puerto: un solo servidor que
 // levantar, sin depender de que el servidor de desarrollo de Vite siga vivo por separado.

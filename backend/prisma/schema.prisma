@@ -78,6 +78,12 @@ enum ResultadoAcceso {
   RECHAZADO
 }
 
+enum TipoEmergenciaSos {
+  CARABINEROS
+  BOMBEROS
+  AMBULANCIA
+}
+
 // ------------------------------
 // Estructura del condominio
 // ------------------------------
@@ -101,6 +107,7 @@ model Condominio {
   visitas       Visita[]
   documentos    Documento[]
   accesos       AccesoLog[]
+  alertasSos    AlertaSos[]
 
   @@map("condominios")
 }
@@ -167,6 +174,7 @@ model Usuario {
   documentosSubidos    Documento[]
   accesosValidados     AccesoLog[]
   notificaciones       Notificacion[]
+  alertasSos           AlertaSos[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -435,4 +443,23 @@ model Notificacion {
 
   @@index([usuarioId, leida])
   @@map("notificaciones")
+}
+
+// ------------------------------
+// Boton SOS de emergencia (residentes)
+// ------------------------------
+
+model AlertaSos {
+  id           String            @id @default(uuid())
+  condominioId String
+  usuarioId    String
+  tipo         TipoEmergenciaSos
+
+  condominio Condominio @relation(fields: [condominioId], references: [id], onDelete: Cascade)
+  usuario    Usuario    @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([condominioId, createdAt])
+  @@map("alertas_sos")
 }

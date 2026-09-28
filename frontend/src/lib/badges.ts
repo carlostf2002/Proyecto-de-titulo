@@ -79,6 +79,18 @@ export const RESULTADO_ACCESO_LABEL: Record<string, string> = {
   RECHAZADO: "Rechazado",
 };
 
+export const TIPO_EMERGENCIA_TONO: Record<string, Tono> = {
+  CARABINEROS: "blue",
+  BOMBEROS: "amber",
+  AMBULANCIA: "green",
+};
+
+export const TIPO_EMERGENCIA_LABEL: Record<string, string> = {
+  CARABINEROS: "Carabineros",
+  BOMBEROS: "Bomberos",
+  AMBULANCIA: "Ambulancia",
+};
+
 export const TIPO_COMUNICADO_LABEL: Record<string, string> = {
   CORTE_AGUA: "Corte de agua",
   CORTE_ELECTRICO: "Corte electrico",
