@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { QrCode } from "@phosphor-icons/react";
+import { QrCode, UserPlus } from "@phosphor-icons/react";
 import { qrApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import {
@@ -42,6 +42,10 @@ export default function ResidenteQR() {
   const { data: visitas, cargando, error, recargar } = useAsync(() => qrApi.misVisitas(), []);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [visitaQr, setVisitaQr] = useState<{ nombre: string; qrDataUrl: string; expiraEn: string } | null>(null);
+  const [modalInvitadoAbierto, setModalInvitadoAbierto] = useState(false);
+  const [nombreInvitado, setNombreInvitado] = useState("");
+  const [generandoInvitado, setGenerandoInvitado] = useState(false);
+  const [errorInvitado, setErrorInvitado] = useState<string | null>(null);
 
   async function generarQrResidente() {
     setErrorQr(null);
@@ -51,6 +55,22 @@ export default function ResidenteQR() {
       setSegundosRestantes(ROTACION_SEGUNDOS);
     } catch (err) {
       setErrorQr(mensajeError(err));
+    }
+  }
+
+  async function generarQrInvitado() {
+    setErrorInvitado(null);
+    setGenerandoInvitado(true);
+    try {
+      const res = await qrApi.crearVisitaRapida(nombreInvitado || undefined);
+      setVisitaQr({ nombre: res.nombreVisita, qrDataUrl: res.qrDataUrl, expiraEn: res.expiraEn });
+      setModalInvitadoAbierto(false);
+      setNombreInvitado("");
+      recargar();
+    } catch (err) {
+      setErrorInvitado(mensajeError(err));
+    } finally {
+      setGenerandoInvitado(false);
     }
   }
 
@@ -86,6 +106,16 @@ export default function ResidenteQR() {
             ) : (
               !errorQr && <Spinner />
             )}
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={() => setModalInvitadoAbierto(true)}
+            >
+              <UserPlus size={16} /> QR para un invitado
+            </Button>
+            <p className="text-center text-xs text-slate-400 dark:text-slate-500">
+              Genera un codigo para que alguien te visite, sin registrar la visita a mano.
+            </p>
           </div>
         </Card>
 
@@ -155,6 +185,35 @@ export default function ResidenteQR() {
             recargar();
           }}
         />
+      </Modal>
+
+      <Modal
+        open={modalInvitadoAbierto}
+        onClose={() => {
+          setModalInvitadoAbierto(false);
+          setErrorInvitado(null);
+        }}
+        title="QR para un invitado"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Se genera una autorizacion de 4 horas, de un solo uso. Comparte el codigo con tu visita y el conserje lo
+            validara al ingreso; quedara en tu lista de visitas autorizadas automaticamente.
+          </p>
+          <div>
+            <Label>Nombre del invitado (opcional)</Label>
+            <Input
+              value={nombreInvitado}
+              onChange={(e) => setNombreInvitado(e.target.value)}
+              placeholder="Invitado"
+              maxLength={120}
+            />
+          </div>
+          {errorInvitado && <Alert tone="red">{errorInvitado}</Alert>}
+          <Button className="w-full" loading={generandoInvitado} onClick={generarQrInvitado}>
+            Generar QR
+          </Button>
+        </div>
       </Modal>
 
       <Modal open={!!visitaQr} onClose={() => setVisitaQr(null)} title={`QR de ${visitaQr?.nombre ?? ""}`}>

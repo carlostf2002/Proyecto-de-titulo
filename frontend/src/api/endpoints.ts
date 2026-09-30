@@ -152,6 +152,12 @@ export const qrApi = {
   misVisitas: () => api.get<Visita[]>("/qr/visitas/mias").then((r) => r.data),
   generarQrVisita: (visitaId: string) =>
     api.post<{ qrDataUrl: string; expiraEn: string }>(`/qr/visitas/${visitaId}/qr`).then((r) => r.data),
+  crearVisitaRapida: (nombreVisita?: string) =>
+    api
+      .post<{ visitaId: string; nombreVisita: string; qrDataUrl: string; expiraEn: string }>("/qr/visitas/rapida", {
+        nombreVisita,
+      })
+      .then((r) => r.data),
   revocarVisita: (visitaId: string) => api.patch(`/qr/visitas/${visitaId}/revocar`).then((r) => r.data),
   validar: (token: string) =>
     api

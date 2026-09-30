@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { crearVisitaSchema, validarQrSchema } from "./qr.schema";
+import { crearVisitaRapidaSchema, crearVisitaSchema, validarQrSchema } from "./qr.schema";
 import * as service from "./qr.service";
 
 export async function generarQrResidenteController(req: Request, res: Response) {
@@ -19,6 +19,12 @@ export async function misVisitasController(req: Request, res: Response) {
 export async function generarQrVisitaController(req: Request, res: Response) {
   const qr = await service.generarQrVisita(req.auth!.condominioId, req.auth!.sub, req.params.id);
   res.json(qr);
+}
+
+export async function crearVisitaRapidaController(req: Request, res: Response) {
+  const { nombreVisita } = crearVisitaRapidaSchema.parse(req.body ?? {});
+  const visita = await service.crearVisitaRapida(req.auth!.condominioId, req.auth!.sub, nombreVisita);
+  res.status(201).json(visita);
 }
 
 export async function revocarVisitaController(req: Request, res: Response) {

@@ -127,6 +127,35 @@ export async function generarQrVisita(condominioId: string, residenteId: string,
   return { qrDataUrl: await generarImagenQr(token), expiraEn: visita.periodoFin };
 }
 
+// Vigencia por defecto de una visita "rapida": pensada para alguien que ya
+// viene en camino (delivery, invitado puntual), no para agendar con dias de
+// anticipacion -- si necesitan mas control (fecha futura, horario extenso)
+// usan el formulario completo de HU-19.
+const VIGENCIA_VISITA_RAPIDA_HORAS = 4;
+
+// Atajo para "el QR de mi credencial sirve para invitados": crea la visita y
+// su QR en un solo paso, sin pasar por el formulario de fecha/horario. Queda
+// igual registrada en "Visitas autorizadas" que una visita creada a mano.
+export async function crearVisitaRapida(condominioId: string, residenteId: string, nombreVisita?: string) {
+  const ahora = new Date();
+  const periodoFin = new Date(ahora.getTime() + VIGENCIA_VISITA_RAPIDA_HORAS * 60 * 60 * 1000);
+
+  const visita = await prisma.visita.create({
+    data: {
+      condominioId,
+      residenteId,
+      nombreVisita: nombreVisita && nombreVisita.length > 0 ? nombreVisita : "Invitado",
+      fecha: ahora,
+      periodoInicio: ahora,
+      periodoFin,
+      soloUnUso: true,
+    },
+  });
+
+  const qr = await generarQrVisita(condominioId, residenteId, visita.id);
+  return { visitaId: visita.id, nombreVisita: visita.nombreVisita, ...qr };
+}
+
 // HU-20: revocar autorizacion de visita.
 export async function revocarVisita(condominioId: string, residenteId: string, visitaId: string) {
   const visita = await prisma.visita.findFirst({ where: { id: visitaId, condominioId, residenteId } });
@@ -158,8 +187,26 @@ export async function validarQr(
     registro = await prisma.qrToken.findUnique({
       where: { id: payload.jti },
       include: {
-        usuario: { select: { id: true, nombre: true, apellido: true, departamento: true } },
-        visita: true,
+        usuario: {
+          select: {
+            id: true,
+            nombre: true,
+            apellido: true,
+            departamento: { include: { torre: true } },
+          },
+        },
+        visita: {
+          include: {
+            residente: {
+              select: {
+                id: true,
+                nombre: true,
+                apellido: true,
+                departamento: { include: { torre: true } },
+              },
+            },
+          },
+        },
       },
     });
   } catch {
@@ -218,7 +265,7 @@ export async function validarQr(
     registro.id,
     ResultadoAcceso.AUTORIZADO,
     "Acceso de visita autorizado.",
-    { visita: { nombreVisita: visita.nombreVisita, residenteId: visita.residenteId } }
+    { visita: { nombreVisita: visita.nombreVisita, residenteId: visita.residenteId, residente: visita.residente } }
   );
 }
 

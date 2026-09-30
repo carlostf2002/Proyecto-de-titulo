@@ -19,6 +19,11 @@ router.post(
   requireRole(Rol.RESIDENTE),
   asyncHandler(controller.generarQrVisitaController)
 );
+router.post(
+  "/visitas/rapida",
+  requireRole(Rol.RESIDENTE),
+  asyncHandler(controller.crearVisitaRapidaController)
+);
 router.patch(
   "/visitas/:id/revocar",
   requireRole(Rol.RESIDENTE),

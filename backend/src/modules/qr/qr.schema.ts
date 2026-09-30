@@ -17,3 +17,7 @@ export const crearVisitaSchema = z
 export const validarQrSchema = z.object({
   token: z.string().min(1, "El token QR es obligatorio."),
 });
+
+export const crearVisitaRapidaSchema = z.object({
+  nombreVisita: z.string().trim().max(120).optional(),
+});
