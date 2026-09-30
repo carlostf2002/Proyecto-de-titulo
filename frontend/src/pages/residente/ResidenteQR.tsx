@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { motion } from "framer-motion";
-import { QrCode } from "@phosphor-icons/react";
+import { IdentificationCard, QrCode } from "@phosphor-icons/react";
 import { qrApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import {
@@ -18,16 +18,20 @@ import {
   staggerFade,
   Textarea,
 } from "../../components/ui";
+import { CredencialResidente } from "../../components/CredencialResidente";
 import { formatFechaHora } from "../../lib/format";
 import { ESTADO_VISITA_LABEL, ESTADO_VISITA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function ResidenteQR() {
   const toast = useToast();
+  const { usuario } = useAuth();
   const [qrResidente, setQrResidente] = useState<{ qrDataUrl: string; expiraEn: string } | null>(null);
   const [generando, setGenerando] = useState(false);
   const [errorQr, setErrorQr] = useState<string | null>(null);
+  const [credencialAbierta, setCredencialAbierta] = useState(false);
 
   const { data: visitas, cargando, error, recargar } = useAsync(() => qrApi.misVisitas(), []);
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -68,6 +72,11 @@ export default function ResidenteQR() {
             <Button onClick={generarQrResidente} loading={generando} className="w-full">
               {qrResidente ? "Regenerar QR" : "Generar mi QR"}
             </Button>
+            {qrResidente && (
+              <Button variant="secondary" className="w-full" onClick={() => setCredencialAbierta(true)}>
+                <IdentificationCard size={16} /> Ver mi credencial
+              </Button>
+            )}
           </div>
         </Card>
 
@@ -147,6 +156,17 @@ export default function ResidenteQR() {
             <p className="text-center text-xs text-slate-400 dark:text-slate-500">
               Comparte este codigo con tu visita. El conserje lo validara al ingreso.
             </p>
+          </div>
+        )}
+      </Modal>
+
+      <Modal open={credencialAbierta} onClose={() => setCredencialAbierta(false)} title="Mi credencial">
+        {usuario && qrResidente && (
+          <div className="space-y-4">
+            <CredencialResidente usuario={usuario} qrDataUrl={qrResidente.qrDataUrl} expiraEn={qrResidente.expiraEn} />
+            <Button variant="secondary" className="w-full" onClick={() => setCredencialAbierta(false)}>
+              Cerrar
+            </Button>
           </div>
         )}
       </Modal>

@@ -26,6 +26,11 @@ export const authApi = {
   me: () => api.get<Usuario>("/auth/me").then((r) => r.data),
   actualizarPerfil: (data: { nombre?: string; apellido?: string; telefono?: string | null }) =>
     api.patch<Usuario>("/auth/me", data).then((r) => r.data),
+  subirFoto: (foto: File) => {
+    const formData = new FormData();
+    formData.append("foto", foto);
+    return api.patch<Usuario>("/auth/me/foto", formData, { headers: { "Content-Type": "multipart/form-data" } }).then((r) => r.data);
+  },
   cambiarPassword: (actual: string, nueva: string) => api.patch("/auth/me/password", { actual, nueva }),
 };
 

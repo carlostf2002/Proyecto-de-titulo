@@ -1,5 +1,5 @@
-import { FormEvent, useState } from "react";
-import { LockKey, UserCircle } from "@phosphor-icons/react";
+import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import { Camera, LockKey, UserCircle } from "@phosphor-icons/react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { authApi } from "../api/endpoints";
@@ -28,7 +28,26 @@ export default function Perfil() {
   const [cambiandoPassword, setCambiandoPassword] = useState(false);
   const [errorPassword, setErrorPassword] = useState<string | null>(null);
 
+  const fotoInputRef = useRef<HTMLInputElement>(null);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
+
   if (!usuario) return null;
+
+  async function handleFotoChange(e: ChangeEvent<HTMLInputElement>) {
+    const archivo = e.target.files?.[0];
+    if (!archivo) return;
+    setSubiendoFoto(true);
+    try {
+      const actualizado = await authApi.subirFoto(archivo);
+      actualizarUsuario(actualizado);
+      toast.success("Foto de perfil actualizada.");
+    } catch (err) {
+      toast.error(mensajeError(err, "No se pudo subir la foto."));
+    } finally {
+      setSubiendoFoto(false);
+      e.target.value = "";
+    }
+  }
 
   async function handleGuardarPerfil(e: FormEvent) {
     e.preventDefault();
@@ -74,6 +93,35 @@ export default function Perfil() {
         <Card className="h-fit">
           <CardHeader title="Datos personales" />
           <form onSubmit={handleGuardarPerfil} className="space-y-4 p-5">
+            <div className="flex items-center gap-4">
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-700">
+                {usuario.fotoUrl ? (
+                  <img src={usuario.fotoUrl} alt="Foto de perfil" className="h-full w-full object-cover" />
+                ) : (
+                  <UserCircle size={40} className="text-slate-400 dark:text-slate-500" />
+                )}
+              </div>
+              <div>
+                <input
+                  ref={fotoInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleFotoChange}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  loading={subiendoFoto}
+                  onClick={() => fotoInputRef.current?.click()}
+                >
+                  <Camera size={16} />
+                  {usuario.fotoUrl ? "Cambiar foto" : "Subir foto"}
+                </Button>
+                <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">JPG, PNG o WEBP. Máx. 8MB.</p>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-slate-500 dark:text-slate-400">Rol</span>
               <Badge tone="blue">{ROL_LABEL[usuario.rol]}</Badge>

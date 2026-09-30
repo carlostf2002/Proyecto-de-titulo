@@ -10,7 +10,9 @@ export interface Usuario {
   departamentoId: string | null;
   telefono?: string | null;
   activo?: boolean;
+  fotoUrl?: string | null;
   departamento?: { id: string; numero: string; torre: { nombre: string } | null } | null;
+  condominio?: { id: string; nombre: string } | null;
 }
 
 export interface Condominio {

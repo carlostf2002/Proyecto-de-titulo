@@ -12,6 +12,7 @@ const PERFIL_SELECT = {
   condominioId: true,
   departamentoId: true,
   telefono: true,
+  fotoUrl: true,
   condominio: { select: { id: true, nombre: true } },
   departamento: { select: { id: true, numero: true, torre: { select: { nombre: true } } } },
 } as const;
@@ -52,6 +53,7 @@ export async function login(email: string, password: string) {
       rol: usuario.rol,
       condominioId: usuario.condominioId,
       departamentoId: usuario.departamentoId,
+      fotoUrl: usuario.fotoUrl,
     },
   };
 }
@@ -66,6 +68,10 @@ export async function actualizarPerfil(
   data: { nombre?: string; apellido?: string; telefono?: string | null }
 ) {
   return prisma.usuario.update({ where: { id: usuarioId }, data, select: PERFIL_SELECT });
+}
+
+export async function actualizarFoto(usuarioId: string, fotoUrl: string) {
+  return prisma.usuario.update({ where: { id: usuarioId }, data: { fotoUrl }, select: PERFIL_SELECT });
 }
 
 export async function cambiarPassword(usuarioId: string, actual: string, nueva: string) {

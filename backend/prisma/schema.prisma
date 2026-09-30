@@ -156,6 +156,7 @@ model Usuario {
   telefono       String?
   departamentoId String?
   activo         Boolean @default(true)
+  fotoUrl        String?
 
   condominio   Condominio    @relation(fields: [condominioId], references: [id], onDelete: Cascade)
   departamento Departamento? @relation(fields: [departamentoId], references: [id], onDelete: SetNull)

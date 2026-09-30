@@ -57,7 +57,25 @@ export default function ConserjeValidarQR() {
       scannerRef.current = scanner;
       await scanner.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 240, height: 240 } },
+        {
+          fps: 10,
+          // Caja de lectura como % del video en vez de un tamaño fijo en px:
+          // con un tamaño fijo chico (240px) el usuario tenia que acercar
+          // demasiado el QR (mas dificil aun si es el QR en la pantalla de
+          // otro celular, con brillo/reflejo). Tambien se pide mayor
+          // resolucion de camara -- con la resolucion por defecto (bastante
+          // baja) la libreria no alcanzaba a leer el detalle del codigo.
+          qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
+            const lado = Math.floor(Math.min(viewfinderWidth, viewfinderHeight) * 0.8);
+            return { width: lado, height: lado };
+          },
+          aspectRatio: 1,
+          videoConstraints: {
+            facingMode: "environment",
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+        },
         async (decodedText) => {
           await validarToken(decodedText);
           await detenerCamara();
@@ -112,7 +130,12 @@ export default function ConserjeValidarQR() {
         <Card>
           <CardHeader title="Escaner de camara" />
           <div className="space-y-3 p-5">
-            <div id={READER_ID} className="mx-auto w-full max-w-xs overflow-hidden rounded-lg bg-slate-900" />
+            <div id={READER_ID} className="mx-auto w-full max-w-sm overflow-hidden rounded-lg bg-slate-900" />
+            {escaneando && (
+              <p className="text-center text-xs text-slate-400 dark:text-slate-500">
+                Si es el QR en la pantalla de otro celular, sube el brillo y acércalo despacio hasta que quede dentro del recuadro.
+              </p>
+            )}
             {errorCamara && <Alert tone="amber">{errorCamara}</Alert>}
             <Button className="w-full" variant={escaneando ? "secondary" : "primary"} onClick={escaneando ? detenerCamara : iniciarCamara}>
               {escaneando ? "Detener escaner" : "Iniciar escaner"}

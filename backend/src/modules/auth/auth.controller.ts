@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { loginSchema, actualizarPerfilSchema, cambiarPasswordSchema } from "./auth.schema";
-import { login, getPerfil, actualizarPerfil, cambiarPassword } from "./auth.service";
+import { login, getPerfil, actualizarPerfil, actualizarFoto, cambiarPassword } from "./auth.service";
+import { archivoUrl } from "../../middleware/upload";
+import { AppError } from "../../lib/errors";
 
 export async function loginController(req: Request, res: Response) {
   const { email, password } = loginSchema.parse(req.body);
@@ -16,6 +18,12 @@ export async function meController(req: Request, res: Response) {
 export async function actualizarPerfilController(req: Request, res: Response) {
   const data = actualizarPerfilSchema.parse(req.body);
   const usuario = await actualizarPerfil(req.auth!.sub, data);
+  res.json(usuario);
+}
+
+export async function actualizarFotoController(req: Request, res: Response) {
+  if (!req.file) throw new AppError("Selecciona una imagen.", 422);
+  const usuario = await actualizarFoto(req.auth!.sub, archivoUrl(req.file.filename));
   res.json(usuario);
 }
 
