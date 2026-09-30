@@ -1,6 +1,6 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { IdentificationCard, QrCode } from "@phosphor-icons/react";
+import { QrCode } from "@phosphor-icons/react";
 import { qrApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import {
@@ -25,13 +25,19 @@ import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
 import { useAuth } from "../../context/AuthContext";
 
+// El QR del residente se renueva solo cada ROTACION_SEGUNDOS: cada vez que
+// se pide uno nuevo, el backend revoca el anterior (ver
+// backend/.../qr.service.ts, generarQrResidente), asi que si alguien le
+// saca una foto/captura al codigo, deja de servir apenas rota -- es la
+// razon de ser del temporizador, no solo estetica.
+const ROTACION_SEGUNDOS = 60;
+
 export default function ResidenteQR() {
   const toast = useToast();
   const { usuario } = useAuth();
   const [qrResidente, setQrResidente] = useState<{ qrDataUrl: string; expiraEn: string } | null>(null);
-  const [generando, setGenerando] = useState(false);
   const [errorQr, setErrorQr] = useState<string | null>(null);
-  const [credencialAbierta, setCredencialAbierta] = useState(false);
+  const [segundosRestantes, setSegundosRestantes] = useState(ROTACION_SEGUNDOS);
 
   const { data: visitas, cargando, error, recargar } = useAsync(() => qrApi.misVisitas(), []);
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -39,16 +45,27 @@ export default function ResidenteQR() {
 
   async function generarQrResidente() {
     setErrorQr(null);
-    setGenerando(true);
     try {
       const res = await qrApi.generarQrResidente();
       setQrResidente(res);
+      setSegundosRestantes(ROTACION_SEGUNDOS);
     } catch (err) {
       setErrorQr(mensajeError(err));
-    } finally {
-      setGenerando(false);
     }
   }
+
+  useEffect(() => {
+    generarQrResidente();
+    const intervaloRotacion = setInterval(generarQrResidente, ROTACION_SEGUNDOS * 1000);
+    const intervaloCuenta = setInterval(() => {
+      setSegundosRestantes((s) => (s > 0 ? s - 1 : 0));
+    }, 1000);
+    return () => {
+      clearInterval(intervaloRotacion);
+      clearInterval(intervaloCuenta);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -56,26 +73,18 @@ export default function ResidenteQR() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="h-fit">
-          <CardHeader title="Mi codigo QR de residente" subtitle="Validalo en conserjeria para tu ingreso" />
+          <CardHeader title="Mi credencial" subtitle="Muéstrala en conserjería para tu ingreso" />
           <div className="flex flex-col items-center gap-3 p-5">
-            {qrResidente ? (
-              <>
-                <img src={qrResidente.qrDataUrl} alt="QR de residente" className="h-48 w-48" />
-                <p className="text-xs text-slate-500 dark:text-slate-400">Vigente hasta {formatFechaHora(qrResidente.expiraEn)}</p>
-              </>
-            ) : (
-              <p className="text-center text-xs text-slate-400 dark:text-slate-500">
-                Genera tu codigo QR personal. Se renueva periodicamente por seguridad (RNF-08).
-              </p>
-            )}
             {errorQr && <Alert tone="red">{errorQr}</Alert>}
-            <Button onClick={generarQrResidente} loading={generando} className="w-full">
-              {qrResidente ? "Regenerar QR" : "Generar mi QR"}
-            </Button>
-            {qrResidente && (
-              <Button variant="secondary" className="w-full" onClick={() => setCredencialAbierta(true)}>
-                <IdentificationCard size={16} /> Ver mi credencial
-              </Button>
+            {usuario && qrResidente ? (
+              <CredencialResidente
+                usuario={usuario}
+                qrDataUrl={qrResidente.qrDataUrl}
+                segundosRestantes={segundosRestantes}
+                rotacionSegundos={ROTACION_SEGUNDOS}
+              />
+            ) : (
+              !errorQr && <Spinner />
             )}
           </div>
         </Card>
@@ -156,17 +165,6 @@ export default function ResidenteQR() {
             <p className="text-center text-xs text-slate-400 dark:text-slate-500">
               Comparte este codigo con tu visita. El conserje lo validara al ingreso.
             </p>
-          </div>
-        )}
-      </Modal>
-
-      <Modal open={credencialAbierta} onClose={() => setCredencialAbierta(false)} title="Mi credencial">
-        {usuario && qrResidente && (
-          <div className="space-y-4">
-            <CredencialResidente usuario={usuario} qrDataUrl={qrResidente.qrDataUrl} expiraEn={qrResidente.expiraEn} />
-            <Button variant="secondary" className="w-full" onClick={() => setCredencialAbierta(false)}>
-              Cerrar
-            </Button>
           </div>
         )}
       </Modal>

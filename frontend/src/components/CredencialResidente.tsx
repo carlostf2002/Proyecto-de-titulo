@@ -1,6 +1,5 @@
 import { Buildings, UserCircle } from "@phosphor-icons/react";
 import type { Usuario } from "../types";
-import { formatFechaHora } from "../lib/format";
 
 const ROL_LABEL: Record<string, string> = {
   ADMIN: "Administrador",
@@ -11,8 +10,22 @@ const ROL_LABEL: Record<string, string> = {
 // Credencial digital del residente (inspirada en carnets tipo estudiantil):
 // foto + datos + el QR real que ya usa conserjeria para autorizar el acceso.
 // Se muestra la foto que el propio usuario subio en su perfil; si no subio
-// ninguna, un placeholder generico en vez de dejar el espacio vacio.
-export function CredencialResidente({ usuario, qrDataUrl, expiraEn }: { usuario: Usuario; qrDataUrl: string; expiraEn: string }) {
+// ninguna, un placeholder generico en vez de dejar el espacio vacio. El QR
+// rota solo cada "rotacionSegundos" (ver ResidenteQR.tsx) -- la barra de
+// progreso es la senal visual de esa vigencia corta, pensada como medida de
+// seguridad (si alguien capturara el QR en una foto, deja de servir apenas
+// rota, no se queda valido por horas).
+export function CredencialResidente({
+  usuario,
+  qrDataUrl,
+  segundosRestantes,
+  rotacionSegundos,
+}: {
+  usuario: Usuario;
+  qrDataUrl: string;
+  segundosRestantes: number;
+  rotacionSegundos: number;
+}) {
   const unidad = usuario.departamento
     ? `${usuario.departamento.torre?.nombre ?? ""} ${usuario.departamento.numero}`.trim()
     : null;
@@ -54,9 +67,17 @@ export function CredencialResidente({ usuario, qrDataUrl, expiraEn }: { usuario:
             <img src={qrDataUrl} alt="Código QR de acceso" className="h-36 w-36" />
           </div>
         </div>
-        <p className="mt-2 text-center text-[11px] text-slate-400 dark:text-slate-500">
-          Válido hasta {formatFechaHora(expiraEn)}
-        </p>
+        <div className="mt-3">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+            <div
+              className="h-full rounded-full bg-brand-600 transition-[width] duration-1000 ease-linear dark:bg-brand-400"
+              style={{ width: `${(segundosRestantes / rotacionSegundos) * 100}%` }}
+            />
+          </div>
+          <p className="mt-1.5 text-center text-[11px] text-slate-400 dark:text-slate-500">
+            Por tu seguridad, se actualiza en {segundosRestantes}s
+          </p>
+        </div>
       </div>
     </div>
   );
