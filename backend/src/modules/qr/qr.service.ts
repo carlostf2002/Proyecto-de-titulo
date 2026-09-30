@@ -1,11 +1,18 @@
 import QRCode from "qrcode";
+import sharp from "sharp";
 import { EstadoVisita, ResultadoAcceso, TipoQrToken } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 import { signQrToken, verifyQrToken } from "../../lib/qrToken";
 import { ConflictError, NotFoundError } from "../../lib/errors";
 import { env } from "../../config/env";
+import { QR_LOGO_SVG } from "../../lib/qrLogo";
 
 const VIGENCIA_QR_RESIDENTE_HORAS = 24;
+const QR_ANCHO = 320;
+// ~22% del ancho del QR: suficiente para que el logo se note, pero dentro
+// del margen que tolera la correccion de errores "H" (hasta ~30% del area
+// puede quedar tapada/dañada y el QR sigue leyendose).
+const LOGO_PROPORCION = 0.22;
 
 // El QR codifica un link real (no solo el token en texto plano) para que
 // cualquier camara de celular lo reconozca como algo abrible, en vez de
@@ -16,8 +23,25 @@ function urlAcceso(token: string): string {
   return `${env.appUrl}/acceso/${encodeURIComponent(token)}`;
 }
 
+// Nivel de correccion "H" (alto) porque se le superpone el logo en el
+// centro -- con "M" (el nivel anterior) tapar el medio con un logo podria
+// dejar el codigo ilegible para algunos lectores.
 async function generarImagenQr(token: string): Promise<string> {
-  return QRCode.toDataURL(urlAcceso(token), { errorCorrectionLevel: "M", margin: 1, width: 320 });
+  const qrBuffer = await QRCode.toBuffer(urlAcceso(token), {
+    errorCorrectionLevel: "H",
+    margin: 1,
+    width: QR_ANCHO,
+  });
+
+  const logoLado = Math.round(QR_ANCHO * LOGO_PROPORCION);
+  const logoBuffer = await sharp(Buffer.from(QR_LOGO_SVG)).resize(logoLado, logoLado).png().toBuffer();
+
+  const compuesto = await sharp(qrBuffer)
+    .composite([{ input: logoBuffer, gravity: "center" }])
+    .png()
+    .toBuffer();
+
+  return `data:image/png;base64,${compuesto.toString("base64")}`;
 }
 
 // HU-17: generar QR de residente. El token es un JWT sin datos personales, con expiracion (RNF-08, RNF-09).
