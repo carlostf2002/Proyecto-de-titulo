@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
-import { Camera, LockKey, UserCircle } from "@phosphor-icons/react";
+import { Camera, LockKey, Pencil, UserCircle } from "@phosphor-icons/react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { authApi } from "../api/endpoints";
@@ -94,12 +94,23 @@ export default function Perfil() {
           <CardHeader title="Datos personales" />
           <form onSubmit={handleGuardarPerfil} className="space-y-4 p-5">
             <div className="flex items-center gap-4">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-700">
-                {usuario.fotoUrl ? (
-                  <img src={usuario.fotoUrl} alt="Foto de perfil" className="h-full w-full object-cover" />
-                ) : (
-                  <UserCircle size={40} className="text-slate-400 dark:text-slate-500" />
-                )}
+              <div className="relative h-20 w-20 shrink-0">
+                <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-700">
+                  {usuario.fotoUrl ? (
+                    <img src={usuario.fotoUrl} alt="Foto de perfil" className="h-full w-full object-cover" />
+                  ) : (
+                    <UserCircle size={40} className="text-slate-400 dark:text-slate-500" />
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => fotoInputRef.current?.click()}
+                  aria-label={usuario.fotoUrl ? "Cambiar foto" : "Subir foto"}
+                  title={usuario.fotoUrl ? "Cambiar foto" : "Subir foto"}
+                  className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-brand-600 text-white shadow-sm transition-colors hover:bg-brand-700 dark:border-slate-800"
+                >
+                  <Pencil size={13} weight="bold" />
+                </button>
               </div>
               <div>
                 <input
