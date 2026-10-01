@@ -14,3 +14,13 @@ export async function marcarTodasLeidasController(req: Request, res: Response) {
   await service.marcarTodasLeidas(req.auth!.sub);
   res.status(204).send();
 }
+
+export async function eliminarController(req: Request, res: Response) {
+  await service.eliminarNotificacion(req.auth!.sub, req.params.id);
+  res.status(204).send();
+}
+
+export async function eliminarTodasController(req: Request, res: Response) {
+  await service.eliminarTodasNotificaciones(req.auth!.sub);
+  res.status(204).send();
+}

@@ -195,6 +195,8 @@ export const notificacionesApi = {
   listar: () => api.get<Notificacion[]>("/notificaciones").then((r) => r.data),
   leerTodas: () => api.patch("/notificaciones/leer-todas"),
   leer: (id: string) => api.patch(`/notificaciones/${id}/leer`),
+  eliminar: (id: string) => api.delete(`/notificaciones/${id}`),
+  eliminarTodas: () => api.delete("/notificaciones"),
 };
 
 // --- SOS ---

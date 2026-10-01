@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
+import sharp from "sharp";
 import { loginSchema, actualizarPerfilSchema, cambiarPasswordSchema } from "./auth.schema";
 import { login, getPerfil, actualizarPerfil, actualizarFoto, cambiarPassword } from "./auth.service";
-import { archivoUrl } from "../../middleware/upload";
 import { AppError } from "../../lib/errors";
+
+const FOTO_PERFIL_LADO = 320;
 
 export async function loginController(req: Request, res: Response) {
   const { email, password } = loginSchema.parse(req.body);
@@ -23,7 +25,12 @@ export async function actualizarPerfilController(req: Request, res: Response) {
 
 export async function actualizarFotoController(req: Request, res: Response) {
   if (!req.file) throw new AppError("Selecciona una imagen.", 422);
-  const usuario = await actualizarFoto(req.auth!.sub, archivoUrl(req.file.filename));
+  const recortada = await sharp(req.file.buffer)
+    .resize(FOTO_PERFIL_LADO, FOTO_PERFIL_LADO, { fit: "cover" })
+    .jpeg({ quality: 82 })
+    .toBuffer();
+  const fotoUrl = `data:image/jpeg;base64,${recortada.toString("base64")}`;
+  const usuario = await actualizarFoto(req.auth!.sub, fotoUrl);
   res.json(usuario);
 }
 

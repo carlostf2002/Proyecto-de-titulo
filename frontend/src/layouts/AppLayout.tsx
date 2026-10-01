@@ -2,9 +2,10 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
-import { Bell, Buildings, List, Moon, SignOut, Sun, UserCircle, X } from "@phosphor-icons/react";
+import { Bell, Buildings, List, Moon, SignOut, Sun, Trash, UserCircle, X } from "@phosphor-icons/react";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useConfirm } from "../context/ConfirmContext";
 import { notificacionesApi } from "../api/endpoints";
 import { NOTIFICACION_SOS_CLASE } from "../lib/badges";
 import { BotonSOS } from "../components/BotonSOS";
@@ -37,6 +38,7 @@ const RUTA_POR_ENTIDAD: Record<string, string> = {
 export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNode }) {
   const { usuario, logout } = useAuth();
   const { tema, setTema } = useTheme();
+  const confirmar = useConfirm();
   const navigate = useNavigate();
   const location = useLocation();
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
@@ -85,6 +87,21 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
     setPanelAbierto(false);
     const ruta = n.entidadTipo ? RUTA_POR_ENTIDAD[n.entidadTipo] : undefined;
     if (ruta) navigate(ruta);
+  }
+
+  function eliminarNotificacion(id: string) {
+    setNotificaciones((prev) => prev.filter((item) => item.id !== id));
+    notificacionesApi.eliminar(id).catch(() => {});
+  }
+
+  async function eliminarTodasNotificaciones() {
+    const ok = await confirmar("¿Borrar todas las notificaciones? Esta accion no se puede deshacer.", {
+      titulo: "Borrar notificaciones",
+      textoConfirmar: "Borrar todas",
+    });
+    if (!ok) return;
+    setNotificaciones([]);
+    notificacionesApi.eliminarTodas().catch(() => {});
   }
 
   return (
@@ -212,6 +229,11 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                             Marcar todas como leidas
                           </button>
                         )}
+                        {notificaciones.length > 0 && (
+                          <button className="text-xs text-slate-500 hover:underline dark:text-slate-400" onClick={eliminarTodasNotificaciones}>
+                            Borrar todas
+                          </button>
+                        )}
                         <button
                           onClick={() => setPanelAbierto(false)}
                           className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
@@ -229,20 +251,38 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                           const clicable = Boolean(n.entidadTipo && RUTA_POR_ENTIDAD[n.entidadTipo]);
                           const sos = NOTIFICACION_SOS_CLASE[n.tipo];
                           return (
-                            <button
+                            <div
                               key={n.id}
-                              type="button"
-                              onClick={() => abrirNotificacion(n)}
-                              disabled={!clicable}
                               className={clsx(
-                                "block w-full border-b border-slate-50 px-4 py-3 text-left text-sm transition-colors dark:border-slate-700/40",
-                                sos ? sos.caja : !n.leida && "bg-brand-50/60 dark:bg-brand-500/10",
-                                clicable && (sos ? "cursor-pointer" : "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40")
+                                "relative border-b border-slate-50 text-sm dark:border-slate-700/40",
+                                sos ? sos.caja : !n.leida && "bg-brand-50/60 dark:bg-brand-500/10"
                               )}
                             >
-                              <p className={clsx("font-medium", sos ? sos.titulo : "text-slate-800 dark:text-slate-100")}>{n.titulo}</p>
-                              <p className={clsx("mt-0.5 text-xs", sos ? sos.mensaje : "text-slate-500 dark:text-slate-400")}>{n.mensaje}</p>
-                            </button>
+                              <button
+                                type="button"
+                                onClick={() => abrirNotificacion(n)}
+                                disabled={!clicable}
+                                className={clsx(
+                                  "block w-full px-4 py-3 pr-10 text-left transition-colors",
+                                  clicable && (sos ? "cursor-pointer" : "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/40")
+                                )}
+                              >
+                                <p className={clsx("font-medium", sos ? sos.titulo : "text-slate-800 dark:text-slate-100")}>{n.titulo}</p>
+                                <p className={clsx("mt-0.5 text-xs", sos ? sos.mensaje : "text-slate-500 dark:text-slate-400")}>{n.mensaje}</p>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => eliminarNotificacion(n.id)}
+                                className={clsx(
+                                  "absolute right-2 top-2.5 rounded-lg p-1.5 transition-colors hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-500/20 dark:hover:text-red-400",
+                                  sos ? sos.titulo : "text-slate-400 dark:text-slate-500"
+                                )}
+                                aria-label="Eliminar notificacion"
+                                title="Eliminar notificacion"
+                              >
+                                <Trash size={14} />
+                              </button>
+                            </div>
                           );
                         })
                       )}
@@ -251,11 +291,20 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                 )}
               </AnimatePresence>
             </div>
-            <Link to="/perfil" className="hidden rounded-lg px-2 py-1 text-right transition-colors hover:bg-slate-50 sm:block dark:hover:bg-slate-800">
-              <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
-                {usuario?.nombre} {usuario?.apellido}
-              </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{usuario && ROL_LABEL[usuario.rol]}</p>
+            <Link to="/perfil" className="hidden items-center gap-2.5 rounded-lg px-2 py-1 transition-colors hover:bg-slate-50 sm:flex dark:hover:bg-slate-800">
+              <div className="text-right">
+                <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                  {usuario?.nombre} {usuario?.apellido}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{usuario && ROL_LABEL[usuario.rol]}</p>
+              </div>
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-700">
+                {usuario?.fotoUrl ? (
+                  <img src={usuario.fotoUrl} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <UserCircle size={20} className="text-slate-400 dark:text-slate-500" />
+                )}
+              </div>
             </Link>
             <button
               onClick={handleLogout}

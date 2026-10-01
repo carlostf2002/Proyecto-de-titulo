@@ -43,3 +43,11 @@ export async function marcarTodasLeidas(usuarioId: string) {
     data: { leida: true },
   });
 }
+
+export async function eliminarNotificacion(usuarioId: string, notificacionId: string) {
+  return prisma.notificacion.deleteMany({ where: { id: notificacionId, usuarioId } });
+}
+
+export async function eliminarTodasNotificaciones(usuarioId: string) {
+  return prisma.notificacion.deleteMany({ where: { usuarioId } });
+}

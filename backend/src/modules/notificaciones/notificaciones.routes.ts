@@ -10,5 +10,7 @@ router.use(requireAuth);
 router.get("/", asyncHandler(controller.listarController));
 router.patch("/leer-todas", asyncHandler(controller.marcarTodasLeidasController));
 router.patch("/:id/leer", asyncHandler(controller.marcarLeidaController));
+router.delete("/", asyncHandler(controller.eliminarTodasController));
+router.delete("/:id", asyncHandler(controller.eliminarController));
 
 export default router;
