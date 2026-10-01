@@ -28,8 +28,10 @@ export async function crearAlerta(condominioId: string, usuarioId: string, tipo:
     select: { id: true },
   });
 
+  // Ojo: no usar .trim() sobre todo el string -- se come el espacio inicial
+  // que separa el apellido del "(Torre X ...)" cuando se concatenan abajo.
   const unidad = usuario?.departamento
-    ? ` (${usuario.departamento.torre?.nombre ?? ""} ${usuario.departamento.numero})`.trim()
+    ? ` (${[usuario.departamento.torre?.nombre, usuario.departamento.numero].filter(Boolean).join(" ")})`
     : "";
 
   await crearNotificacionesMasivas(
