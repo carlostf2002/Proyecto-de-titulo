@@ -18,6 +18,7 @@ import type {
   Usuario,
   Visita,
 } from "../types";
+import type { DetalleAccesoData } from "../components/DetalleAcceso";
 
 // --- Auth ---
 export const authApi = {
@@ -161,13 +162,21 @@ export const qrApi = {
   revocarVisita: (visitaId: string) => api.patch(`/qr/visitas/${visitaId}/revocar`).then((r) => r.data),
   validar: (token: string) =>
     api
-      .post<{ resultado: "AUTORIZADO" | "RECHAZADO"; motivo: string; detalle?: Record<string, unknown> }>(
-        "/qr/validar",
-        { token }
-      )
+      .post<{ resultado: "AUTORIZADO" | "RECHAZADO"; motivo: string; detalle?: DetalleAccesoData }>("/qr/validar", {
+        token,
+      })
       .then((r) => r.data),
-  accesos: () => api.get("/qr/accesos").then((r) => r.data),
+  accesos: () => api.get<AccesoLog[]>("/qr/accesos").then((r) => r.data),
 };
+
+export interface AccesoLog {
+  id: string;
+  resultado: "AUTORIZADO" | "RECHAZADO";
+  motivo: string;
+  createdAt: string;
+  validadoPor: { id: string; nombre: string; apellido: string };
+  detalle?: DetalleAccesoData;
+}
 
 // --- Documentos (HU-22, HU-23) ---
 export const documentosApi = {

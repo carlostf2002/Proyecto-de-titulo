@@ -265,7 +265,7 @@ export async function validarQr(
     registro.id,
     ResultadoAcceso.AUTORIZADO,
     "Acceso de visita autorizado.",
-    { visita: { nombreVisita: visita.nombreVisita, residenteId: visita.residenteId, residente: visita.residente } }
+    { visita: { nombreVisita: visita.nombreVisita, residente: visita.residente } }
   );
 }
 
@@ -283,11 +283,43 @@ async function registrarResultado(
   return { resultado, motivo, detalle };
 }
 
+const PERSONA_SELECT = {
+  id: true,
+  nombre: true,
+  apellido: true,
+  departamento: { include: { torre: true } },
+} as const;
+
+// Igual forma que el "detalle" de validarQr (residente | visita), para que
+// el frontend pueda reusar el mismo componente de render en el resultado en
+// vivo del escaneo y en el historial. Sin esto, el historial solo mostraba
+// el texto fijo "Acceso de residente/visita autorizado" sin decir quien ni
+// a que unidad -- no quedaba trazabilidad util para el conserje/admin.
 export async function listarAccesos(condominioId: string) {
-  return prisma.accesoLog.findMany({
+  const logs = await prisma.accesoLog.findMany({
     where: { condominioId },
-    include: { validadoPor: { select: { id: true, nombre: true, apellido: true } } },
+    include: {
+      validadoPor: { select: { id: true, nombre: true, apellido: true } },
+      // select (no include) en qrToken: evita exponer el JWT (`token`) en la respuesta.
+      qrToken: {
+        select: {
+          tipo: true,
+          usuario: { select: PERSONA_SELECT },
+          visita: { select: { nombreVisita: true, residente: { select: PERSONA_SELECT } } },
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
     take: 100,
+  });
+
+  return logs.map(({ qrToken, ...log }) => {
+    let detalle: Record<string, unknown> | undefined;
+    if (qrToken?.tipo === TipoQrToken.RESIDENTE && qrToken.usuario) {
+      detalle = { residente: qrToken.usuario };
+    } else if (qrToken?.tipo === TipoQrToken.VISITA && qrToken.visita) {
+      detalle = { visita: { nombreVisita: qrToken.visita.nombreVisita, residente: qrToken.visita.residente } };
+    }
+    return { ...log, detalle };
   });
 }

@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { qrApi } from "../api/endpoints";
 import { mensajeError } from "../api/client";
 import { Button, Spinner } from "../components/ui";
+import { DetalleAcceso, DetalleAccesoData } from "../components/DetalleAcceso";
 
 // Pagina publica (fuera de ProtectedRoute) a la que apunta el link codificado
 // en el QR (ver backend/src/modules/qr/qr.service.ts, urlAcceso). Antes el QR
@@ -16,14 +17,7 @@ import { Button, Spinner } from "../components/ui";
 // (mismo endpoint que la pagina "Validar QR"). Para cualquier otra persona
 // (el propio residente revisando su QR, o la visita) muestra un mensaje
 // simple en vez de datos crudos o un error de permisos.
-type DepartamentoInfo = { numero: string; torre: { nombre: string } | null } | null;
-type PersonaInfo = { id: string; nombre: string; apellido: string; departamento: DepartamentoInfo };
-type Resultado = { resultado: "AUTORIZADO" | "RECHAZADO"; motivo: string; detalle?: Record<string, unknown> };
-
-function formatUnidad(departamento: DepartamentoInfo): string | null {
-  if (!departamento) return null;
-  return `${departamento.torre?.nombre ?? ""} ${departamento.numero}`.trim();
-}
+type Resultado = { resultado: "AUTORIZADO" | "RECHAZADO"; motivo: string; detalle?: DetalleAccesoData };
 
 export default function AccesoQR() {
   const { token } = useParams<{ token: string }>();
@@ -88,47 +82,7 @@ export default function AccesoQR() {
                 {resultado.resultado === "AUTORIZADO" ? "✓ Acceso autorizado" : "✗ Acceso rechazado"}
               </p>
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{resultado.motivo}</p>
-              {resultado.detalle && "residente" in resultado.detalle && (
-                <div className="mt-3 rounded-md bg-white/60 p-3 text-left dark:bg-slate-900/30">
-                  {(() => {
-                    const residente = resultado.detalle!.residente as PersonaInfo;
-                    return (
-                      <>
-                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                          {residente.nombre} {residente.apellido}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          {formatUnidad(residente.departamento) || "Sin unidad asignada"}
-                        </p>
-                      </>
-                    );
-                  })()}
-                </div>
-              )}
-              {resultado.detalle && "visita" in resultado.detalle && (
-                <div className="mt-3 rounded-md bg-white/60 p-3 text-left dark:bg-slate-900/30">
-                  {(() => {
-                    const visita = resultado.detalle!.visita as {
-                      nombreVisita: string;
-                      residenteId: string;
-                      residente: PersonaInfo | null;
-                    };
-                    return (
-                      <>
-                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                          Visita: {visita.nombreVisita}
-                        </p>
-                        {visita.residente && (
-                          <p className="text-xs text-slate-500 dark:text-slate-400">
-                            Va a {formatUnidad(visita.residente.departamento) || "unidad no asignada"} · Autoriza{" "}
-                            {visita.residente.nombre} {visita.residente.apellido}
-                          </p>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
-              )}
+              <DetalleAcceso detalle={resultado.detalle} className="mt-3 rounded-md bg-white/60 p-3 text-left dark:bg-slate-900/30" />
             </div>
           ) : null
         ) : (
