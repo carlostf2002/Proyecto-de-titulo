@@ -1,9 +1,10 @@
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
-import { Camera, LockKey, Pencil, UserCircle } from "@phosphor-icons/react";
+import { BellRinging, Camera, LockKey, Pencil, UserCircle } from "@phosphor-icons/react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { authApi } from "../api/endpoints";
 import { mensajeError } from "../api/client";
+import { usePushNotifications } from "../hooks/usePushNotifications";
 import { Alert, Badge, Button, Card, CardHeader, Input, Label, PageHeader } from "../components/ui";
 
 const ROL_LABEL: Record<string, string> = {
@@ -15,6 +16,7 @@ const ROL_LABEL: Record<string, string> = {
 export default function Perfil() {
   const { usuario, actualizarUsuario } = useAuth();
   const toast = useToast();
+  const push = usePushNotifications();
 
   const [nombre, setNombre] = useState(usuario?.nombre ?? "");
   const [apellido, setApellido] = useState(usuario?.apellido ?? "");
@@ -61,6 +63,24 @@ export default function Perfil() {
       setErrorPerfil(mensajeError(err));
     } finally {
       setGuardandoPerfil(false);
+    }
+  }
+
+  async function handleActivarPush() {
+    try {
+      await push.activar();
+      toast.success("Notificaciones push activadas.");
+    } catch (err) {
+      toast.error(mensajeError(err, "No se pudieron activar las notificaciones."));
+    }
+  }
+
+  async function handleDesactivarPush() {
+    try {
+      await push.desactivar();
+      toast.info("Notificaciones push desactivadas.");
+    } catch (err) {
+      toast.error(mensajeError(err, "No se pudieron desactivar las notificaciones."));
     }
   }
 
@@ -204,6 +224,49 @@ export default function Perfil() {
           </form>
         </Card>
       </div>
+
+      <Card className="h-fit">
+        <CardHeader
+          title="Notificaciones"
+          subtitle="Recibelas como notificacion del sistema, aunque no tengas HabitaSmart abierto."
+        />
+        <div className="flex items-center justify-between gap-4 p-5">
+          <div className="flex items-center gap-3">
+            <div
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
+                push.habilitado ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400" : "bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500"
+              }`}
+            >
+              <BellRinging size={20} weight={push.habilitado ? "fill" : "regular"} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
+                {!push.soportado
+                  ? "No disponible en este navegador"
+                  : push.habilitado
+                    ? "Notificaciones push activadas"
+                    : "Notificaciones push desactivadas"}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {push.soportado
+                  ? "Incluye alertas SOS, multas, comunicados y mas."
+                  : "Prueba desde Chrome, Edge o Firefox."}
+              </p>
+            </div>
+          </div>
+          {push.soportado && push.listo && (
+            <Button
+              type="button"
+              variant={push.habilitado ? "secondary" : "primary"}
+              size="sm"
+              loading={push.cargando}
+              onClick={push.habilitado ? handleDesactivarPush : handleActivarPush}
+            >
+              {push.habilitado ? "Desactivar" : "Activar"}
+            </Button>
+          )}
+        </div>
+      </Card>
     </div>
   );
 }

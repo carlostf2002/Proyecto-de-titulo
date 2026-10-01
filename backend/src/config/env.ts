@@ -24,4 +24,12 @@ export const env = {
   // abrirlo, no solo el escaner propio de la app.
   appUrl: process.env.APP_URL ?? `http://localhost:${port}`,
   isProd: process.env.NODE_ENV === "production",
+  // Web Push: si faltan, el modulo push queda deshabilitado en silencio (ver
+  // push.service.ts) en vez de tumbar el servidor -- es una funcionalidad
+  // adicional (notificaciones aunque la app este cerrada), no el nucleo de
+  // la app, asi que no deberia impedir levantar el backend si alguien
+  // todavia no genero sus propias claves VAPID.
+  vapidPublicKey: process.env.VAPID_PUBLIC_KEY,
+  vapidPrivateKey: process.env.VAPID_PRIVATE_KEY,
+  vapidSubject: process.env.VAPID_SUBJECT ?? "mailto:soporte@habitasmart.cl",
 };

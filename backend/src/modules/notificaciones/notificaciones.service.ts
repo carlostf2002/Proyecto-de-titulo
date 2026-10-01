@@ -1,6 +1,11 @@
 import { prisma } from "../../lib/prisma";
+import { enviarPushAUsuarios } from "../push/push.service";
 
 // Soporte transversal para HU-13 (aviso de encomienda) y HU-16 (recibir comunicados).
+// Ademas de guardar la notificacion en la app, intenta un push real (ver
+// push.service.ts) a cada dispositivo suscrito del usuario -- si no hay
+// suscripcion o el modulo no esta configurado, enviarPushAUsuarios no hace
+// nada, asi que esto es seguro de llamar siempre.
 export async function crearNotificacion(data: {
   usuarioId: string;
   tipo: string;
@@ -9,7 +14,9 @@ export async function crearNotificacion(data: {
   entidadTipo?: string;
   entidadId?: string;
 }) {
-  return prisma.notificacion.create({ data });
+  const notificacion = await prisma.notificacion.create({ data });
+  await enviarPushAUsuarios([data.usuarioId], data);
+  return notificacion;
 }
 
 export async function crearNotificacionesMasivas(
@@ -20,6 +27,7 @@ export async function crearNotificacionesMasivas(
   await prisma.notificacion.createMany({
     data: usuarioIds.map((usuarioId) => ({ usuarioId, ...data })),
   });
+  await enviarPushAUsuarios(usuarioIds, data);
 }
 
 export async function listarNotificaciones(usuarioId: string) {

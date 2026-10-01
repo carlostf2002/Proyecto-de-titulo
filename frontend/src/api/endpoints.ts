@@ -204,3 +204,11 @@ export const sosApi = {
   crear: (tipo: TipoEmergenciaSos) => api.post<AlertaSos>("/sos", { tipo }).then((r) => r.data),
   listar: () => api.get<AlertaSos[]>("/sos").then((r) => r.data),
 };
+
+// --- Web Push ---
+export const pushApi = {
+  vapidPublicKey: () => api.get<{ publicKey: string | null }>("/push/vapid-public-key").then((r) => r.data),
+  suscribir: (suscripcion: { endpoint: string; keys: { p256dh: string; auth: string } }) =>
+    api.post("/push/suscribir", suscripcion),
+  eliminar: (endpoint: string) => api.delete("/push/suscribir", { data: { endpoint } }),
+};

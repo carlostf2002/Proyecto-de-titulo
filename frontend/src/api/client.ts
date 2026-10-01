@@ -52,5 +52,9 @@ export function mensajeError(error: unknown, fallback = "Ocurrio un error. Inten
     }
     if (data?.error) return data.error;
   }
+  // Errores que no vienen del backend (ej. permisos del navegador denegados,
+  // notificaciones push no soportadas) -- su .message ya es un texto
+  // pensado para mostrarse, no hace falta esconderlo detras del fallback.
+  if (error instanceof Error && error.message) return error.message;
   return fallback;
 }

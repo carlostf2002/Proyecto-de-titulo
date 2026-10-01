@@ -176,6 +176,7 @@ model Usuario {
   accesosValidados     AccesoLog[]
   notificaciones       Notificacion[]
   alertasSos           AlertaSos[]
+  pushSubscriptions    PushSubscription[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -444,6 +445,28 @@ model Notificacion {
 
   @@index([usuarioId, leida])
   @@map("notificaciones")
+}
+
+// Suscripcion Web Push de un dispositivo/navegador (un usuario puede tener
+// varias: celular + notebook, o dos navegadores distintos). Cuando se crea
+// una Notificacion (ver notificaciones.service.ts) se intenta tambien un
+// push real a cada suscripcion del usuario, para que le llegue como
+// notificacion del sistema operativo aunque no tenga la pestaña abierta --
+// critico para la alerta SOS, que antes dependia de que el conserje
+// tuviera la app abierta y el polling de 30s la alcanzara a mostrar.
+model PushSubscription {
+  id        String   @id @default(uuid())
+  usuarioId String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([usuarioId])
+  @@map("push_subscriptions")
 }
 
 // ------------------------------

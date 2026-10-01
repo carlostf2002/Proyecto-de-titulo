@@ -24,6 +24,17 @@ services:
         sync: false
       - key: APP_URL
         value: https://habitasmart.onrender.com
+      # Web Push (notificaciones del sistema, incluida la alerta SOS, aunque
+      # la app este cerrada). No se pueden generar con generateValue: true
+      # (necesitan ser un par de claves EC validas, no un string random) --
+      # hay que pegarlas a mano en el dashboard de Render despues de crear el
+      # servicio. Generarlas con: node -e "console.log(require('web-push').generateVAPIDKeys())"
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        value: "mailto:torocarlos029@gmail.com"
 
 databases:
   - name: habitasmart-db
