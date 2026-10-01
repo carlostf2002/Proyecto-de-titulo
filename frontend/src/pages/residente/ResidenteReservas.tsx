@@ -8,9 +8,11 @@ import { formatFecha } from "../../lib/format";
 import { ESTADO_RESERVA_LABEL, ESTADO_RESERVA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
+import { useConfirm } from "../../context/ConfirmContext";
 
 export default function ResidenteReservas() {
   const toast = useToast();
+  const confirmar = useConfirm();
   const { data: espacios } = useAsync(() => condominioApi.listarEspacios(true), []);
   const { data: misReservas, cargando: cargandoReservas, recargar: recargarReservas } = useAsync(
     () => reservasApi.mias(),
@@ -133,7 +135,11 @@ export default function ResidenteReservas() {
                       <button
                         className="text-xs text-red-600 dark:text-red-400 hover:underline"
                         onClick={async () => {
-                          if (!window.confirm(`¿Cancelar tu reserva de ${r.espacioComun.nombre}?`)) return;
+                          const ok = await confirmar(`¿Cancelar tu reserva de ${r.espacioComun.nombre}?`, {
+                            titulo: "Cancelar reserva",
+                            textoConfirmar: "Cancelar reserva",
+                          });
+                          if (!ok) return;
                           await reservasApi.cancelar(r.id);
                           toast.info("Reserva cancelada.");
                           recargarReservas();

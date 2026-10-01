@@ -6,12 +6,14 @@ import { useAsync } from "../../hooks/useAsync";
 import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, SearchInput, Select, Spinner, staggerFade } from "../../components/ui";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
+import { useConfirm } from "../../context/ConfirmContext";
 import type { Rol } from "../../types";
 
 const ROL_LABEL: Record<Rol, string> = { ADMIN: "Administrador", RESIDENTE: "Residente", CONSERJE: "Conserje" };
 
 export default function AdminUsuarios() {
   const toast = useToast();
+  const confirmar = useConfirm();
   const { data: usuarios, cargando, error, recargar } = useAsync(() => usuariosApi.listar(), []);
   const { data: departamentos } = useAsync(() => condominioApi.listarDepartamentos(), []);
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -97,7 +99,13 @@ export default function AdminUsuarios() {
                         variant="ghost"
                         size="sm"
                         onClick={async () => {
-                          if (u.activo && !window.confirm(`¿Deshabilitar a ${u.nombre} ${u.apellido}? No podra iniciar sesion hasta que lo vuelvas a habilitar.`)) return;
+                          if (u.activo) {
+                            const ok = await confirmar(
+                              `¿Deshabilitar a ${u.nombre} ${u.apellido}? No podra iniciar sesion hasta que lo vuelvas a habilitar.`,
+                              { titulo: "Deshabilitar usuario", textoConfirmar: "Deshabilitar" }
+                            );
+                            if (!ok) return;
+                          }
                           await usuariosApi.actualizar(u.id, { activo: !u.activo });
                           toast.success(u.activo ? "Usuario deshabilitado." : "Usuario habilitado.");
                           recargar();

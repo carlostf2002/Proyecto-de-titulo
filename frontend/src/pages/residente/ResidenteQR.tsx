@@ -23,6 +23,7 @@ import { formatFechaHora } from "../../lib/format";
 import { ESTADO_VISITA_LABEL, ESTADO_VISITA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
+import { useConfirm } from "../../context/ConfirmContext";
 import { useAuth } from "../../context/AuthContext";
 
 // El QR del residente se renueva solo cada ROTACION_SEGUNDOS: cada vez que
@@ -34,6 +35,7 @@ const ROTACION_SEGUNDOS = 60;
 
 export default function ResidenteQR() {
   const toast = useToast();
+  const confirmar = useConfirm();
   const { usuario } = useAuth();
   const [qrResidente, setQrResidente] = useState<{ qrDataUrl: string; expiraEn: string } | null>(null);
   const [errorQr, setErrorQr] = useState<string | null>(null);
@@ -161,7 +163,11 @@ export default function ResidenteQR() {
                         size="sm"
                         variant="ghost"
                         onClick={async () => {
-                          if (!window.confirm(`¿Revocar la autorizacion de ${v.nombreVisita}? Ya no podra ingresar con ese QR.`)) return;
+                          const ok = await confirmar(
+                            `¿Revocar la autorizacion de ${v.nombreVisita}? Ya no podra ingresar con ese QR.`,
+                            { titulo: "Revocar visita", textoConfirmar: "Revocar" }
+                          );
+                          if (!ok) return;
                           await qrApi.revocarVisita(v.id);
                           toast.info("Autorizacion de visita revocada.");
                           recargar();

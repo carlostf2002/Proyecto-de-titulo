@@ -7,9 +7,11 @@ import { Alert, Badge, Button, Card, EmptyState, PageHeader, SearchInput, Spinne
 import { formatFecha } from "../../lib/format";
 import { ESTADO_RESERVA_LABEL, ESTADO_RESERVA_TONO } from "../../lib/badges";
 import { useToast } from "../../context/ToastContext";
+import { useConfirm } from "../../context/ConfirmContext";
 
 export default function AdminReservas() {
   const toast = useToast();
+  const confirmar = useConfirm();
   const { data, cargando, error, recargar } = useAsync(() => reservasApi.listarTodas(), []);
   const [busqueda, setBusqueda] = useState("");
 
@@ -71,7 +73,11 @@ export default function AdminReservas() {
                           variant="ghost"
                           size="sm"
                           onClick={async () => {
-                            if (!window.confirm(`¿Cancelar la reserva de ${r.espacioComun.nombre}?`)) return;
+                            const ok = await confirmar(`¿Cancelar la reserva de ${r.espacioComun.nombre}?`, {
+                              titulo: "Cancelar reserva",
+                              textoConfirmar: "Cancelar reserva",
+                            });
+                            if (!ok) return;
                             await reservasApi.cancelar(r.id);
                             toast.success("Reserva cancelada.");
                             recargar();
