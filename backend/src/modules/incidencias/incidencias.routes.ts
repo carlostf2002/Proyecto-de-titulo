@@ -2,7 +2,7 @@ import { Router } from "express";
 import { Rol } from "@prisma/client";
 import { asyncHandler } from "../../lib/asyncHandler";
 import { requireAuth, requireRole } from "../../middleware/auth";
-import { upload } from "../../middleware/upload";
+import { uploadImagenMemoria } from "../../middleware/upload";
 import * as controller from "./incidencias.controller";
 
 const router = Router();
@@ -12,7 +12,7 @@ router.use(requireAuth);
 router.post(
   "/",
   requireRole(Rol.RESIDENTE),
-  upload.single("foto"),
+  uploadImagenMemoria.single("foto"),
   asyncHandler(controller.crearIncidenciaController)
 );
 router.get("/mias", requireRole(Rol.RESIDENTE), asyncHandler(controller.misIncidenciasController));

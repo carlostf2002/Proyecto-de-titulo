@@ -56,3 +56,18 @@ export const uploadImagenMemoria = multer({
     cb(null, true);
   },
 });
+
+// Misma idea que uploadImagenMemoria pero acepta tambien PDF (documentos del
+// condominio: actas, reglamentos). Usada por incidencias (foto de evidencia)
+// y documentos.
+export const uploadArchivoMemoria = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (!TIPOS_PERMITIDOS.has(file.mimetype)) {
+      cb(new AppError("Tipo de archivo no permitido. Usa JPG, PNG, WEBP o PDF.", 422));
+      return;
+    }
+    cb(null, true);
+  },
+});

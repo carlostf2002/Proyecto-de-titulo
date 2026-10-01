@@ -1,17 +1,26 @@
 import { Request, Response } from "express";
 import { Rol } from "@prisma/client";
+import sharp from "sharp";
 import {
   crearIncidenciaSchema,
   actualizarIncidenciaSchema,
   listarIncidenciasQuerySchema,
 } from "./incidencias.schema";
 import * as service from "./incidencias.service";
-import { archivoUrl } from "../../middleware/upload";
 import { ForbiddenError } from "../../lib/errors";
+
+const FOTO_EVIDENCIA_LADO = 640;
 
 export async function crearIncidenciaController(req: Request, res: Response) {
   const data = crearIncidenciaSchema.parse(req.body);
-  const fotoUrl = req.file ? archivoUrl(req.file.filename) : undefined;
+  let fotoUrl: string | undefined;
+  if (req.file) {
+    const recortada = await sharp(req.file.buffer)
+      .resize(FOTO_EVIDENCIA_LADO, FOTO_EVIDENCIA_LADO, { fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: 82 })
+      .toBuffer();
+    fotoUrl = `data:image/jpeg;base64,${recortada.toString("base64")}`;
+  }
   const incidencia = await service.crearIncidencia(req.auth!.condominioId, req.auth!.sub, {
     ...data,
     fotoUrl,

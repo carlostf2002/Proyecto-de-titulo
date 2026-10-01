@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import {
   Buildings,
@@ -17,35 +18,46 @@ import {
 import { useAuth } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AppLayout, NavItem } from "./layouts/AppLayout";
+import { Spinner } from "./components/ui";
 import Login from "./pages/Login";
-import AccesoQR from "./pages/AccesoQR";
-import AlertasSos from "./pages/AlertasSos";
 
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminUsuarios from "./pages/admin/AdminUsuarios";
-import AdminCondominio from "./pages/admin/AdminCondominio";
-import AdminReservas from "./pages/admin/AdminReservas";
-import AdminMultas from "./pages/admin/AdminMultas";
-import AdminIncidencias from "./pages/admin/AdminIncidencias";
-import AdminEncomiendas from "./pages/admin/AdminEncomiendas";
-import AdminComunicados from "./pages/admin/AdminComunicados";
-import AdminDocumentos from "./pages/admin/AdminDocumentos";
-import AdminAccesos from "./pages/admin/AdminAccesos";
+// Cada pagina es su propio chunk (code-splitting por ruta) en vez de un solo
+// bundle de ~900kB: nadie necesita el JS de "Condominio" o "Documentos" para
+// ver su dashboard. React.lazy + Suspense cargan el chunk de la ruta recien
+// cuando se navega a ella; el componente se reusa igual si aparece en mas de
+// un rol (AlertasSos, Perfil) porque import() cachea por modulo.
+const AccesoQR = lazy(() => import("./pages/AccesoQR"));
+const AlertasSos = lazy(() => import("./pages/AlertasSos"));
 
-import ResidenteInicio from "./pages/residente/ResidenteInicio";
-import ResidenteReservas from "./pages/residente/ResidenteReservas";
-import ResidenteMultas from "./pages/residente/ResidenteMultas";
-import ResidenteIncidencias from "./pages/residente/ResidenteIncidencias";
-import ResidenteEncomiendas from "./pages/residente/ResidenteEncomiendas";
-import ResidenteComunicados from "./pages/residente/ResidenteComunicados";
-import ResidenteQR from "./pages/residente/ResidenteQR";
-import ResidenteDocumentos from "./pages/residente/ResidenteDocumentos";
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const AdminUsuarios = lazy(() => import("./pages/admin/AdminUsuarios"));
+const AdminCondominio = lazy(() => import("./pages/admin/AdminCondominio"));
+const AdminReservas = lazy(() => import("./pages/admin/AdminReservas"));
+const AdminMultas = lazy(() => import("./pages/admin/AdminMultas"));
+const AdminIncidencias = lazy(() => import("./pages/admin/AdminIncidencias"));
+const AdminEncomiendas = lazy(() => import("./pages/admin/AdminEncomiendas"));
+const AdminComunicados = lazy(() => import("./pages/admin/AdminComunicados"));
+const AdminDocumentos = lazy(() => import("./pages/admin/AdminDocumentos"));
+const AdminAccesos = lazy(() => import("./pages/admin/AdminAccesos"));
 
-import ConserjeEncomiendas from "./pages/conserje/ConserjeEncomiendas";
-import ConserjeValidarQR from "./pages/conserje/ConserjeValidarQR";
-import ConserjeAccesos from "./pages/conserje/ConserjeAccesos";
+const ResidenteInicio = lazy(() => import("./pages/residente/ResidenteInicio"));
+const ResidenteReservas = lazy(() => import("./pages/residente/ResidenteReservas"));
+const ResidenteMultas = lazy(() => import("./pages/residente/ResidenteMultas"));
+const ResidenteIncidencias = lazy(() => import("./pages/residente/ResidenteIncidencias"));
+const ResidenteEncomiendas = lazy(() => import("./pages/residente/ResidenteEncomiendas"));
+const ResidenteComunicados = lazy(() => import("./pages/residente/ResidenteComunicados"));
+const ResidenteQR = lazy(() => import("./pages/residente/ResidenteQR"));
+const ResidenteDocumentos = lazy(() => import("./pages/residente/ResidenteDocumentos"));
 
-import Perfil from "./pages/Perfil";
+const ConserjeEncomiendas = lazy(() => import("./pages/conserje/ConserjeEncomiendas"));
+const ConserjeValidarQR = lazy(() => import("./pages/conserje/ConserjeValidarQR"));
+const ConserjeAccesos = lazy(() => import("./pages/conserje/ConserjeAccesos"));
+
+const Perfil = lazy(() => import("./pages/Perfil"));
+
+function PaginaCargando() {
+  return <Spinner className="min-h-[50vh]" />;
+}
 
 const ICON_SIZE = 20;
 
@@ -84,21 +96,23 @@ const CONSERJE_NAV: NavItem[] = [
 function AdminApp() {
   return (
     <AppLayout nav={ADMIN_NAV}>
-      <Routes>
-        <Route index element={<AdminDashboard />} />
-        <Route path="alertas-sos" element={<AlertasSos />} />
-        <Route path="residentes" element={<AdminUsuarios />} />
-        <Route path="condominio" element={<AdminCondominio />} />
-        <Route path="reservas" element={<AdminReservas />} />
-        <Route path="multas" element={<AdminMultas />} />
-        <Route path="incidencias" element={<AdminIncidencias />} />
-        <Route path="encomiendas" element={<AdminEncomiendas />} />
-        <Route path="comunicados" element={<AdminComunicados />} />
-        <Route path="documentos" element={<AdminDocumentos />} />
-        <Route path="accesos" element={<AdminAccesos />} />
-        <Route path="perfil" element={<Perfil />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<PaginaCargando />}>
+        <Routes>
+          <Route index element={<AdminDashboard />} />
+          <Route path="alertas-sos" element={<AlertasSos />} />
+          <Route path="residentes" element={<AdminUsuarios />} />
+          <Route path="condominio" element={<AdminCondominio />} />
+          <Route path="reservas" element={<AdminReservas />} />
+          <Route path="multas" element={<AdminMultas />} />
+          <Route path="incidencias" element={<AdminIncidencias />} />
+          <Route path="encomiendas" element={<AdminEncomiendas />} />
+          <Route path="comunicados" element={<AdminComunicados />} />
+          <Route path="documentos" element={<AdminDocumentos />} />
+          <Route path="accesos" element={<AdminAccesos />} />
+          <Route path="perfil" element={<Perfil />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </AppLayout>
   );
 }
@@ -106,18 +120,20 @@ function AdminApp() {
 function ResidenteApp() {
   return (
     <AppLayout nav={RESIDENTE_NAV}>
-      <Routes>
-        <Route index element={<ResidenteInicio />} />
-        <Route path="reservas" element={<ResidenteReservas />} />
-        <Route path="multas" element={<ResidenteMultas />} />
-        <Route path="incidencias" element={<ResidenteIncidencias />} />
-        <Route path="encomiendas" element={<ResidenteEncomiendas />} />
-        <Route path="comunicados" element={<ResidenteComunicados />} />
-        <Route path="qr" element={<ResidenteQR />} />
-        <Route path="documentos" element={<ResidenteDocumentos />} />
-        <Route path="perfil" element={<Perfil />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<PaginaCargando />}>
+        <Routes>
+          <Route index element={<ResidenteInicio />} />
+          <Route path="reservas" element={<ResidenteReservas />} />
+          <Route path="multas" element={<ResidenteMultas />} />
+          <Route path="incidencias" element={<ResidenteIncidencias />} />
+          <Route path="encomiendas" element={<ResidenteEncomiendas />} />
+          <Route path="comunicados" element={<ResidenteComunicados />} />
+          <Route path="qr" element={<ResidenteQR />} />
+          <Route path="documentos" element={<ResidenteDocumentos />} />
+          <Route path="perfil" element={<Perfil />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </AppLayout>
   );
 }
@@ -125,14 +141,16 @@ function ResidenteApp() {
 function ConserjeApp() {
   return (
     <AppLayout nav={CONSERJE_NAV}>
-      <Routes>
-        <Route index element={<ConserjeEncomiendas />} />
-        <Route path="alertas-sos" element={<AlertasSos />} />
-        <Route path="validar" element={<ConserjeValidarQR />} />
-        <Route path="accesos" element={<ConserjeAccesos />} />
-        <Route path="perfil" element={<Perfil />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<PaginaCargando />}>
+        <Routes>
+          <Route index element={<ConserjeEncomiendas />} />
+          <Route path="alertas-sos" element={<AlertasSos />} />
+          <Route path="validar" element={<ConserjeValidarQR />} />
+          <Route path="accesos" element={<ConserjeAccesos />} />
+          <Route path="perfil" element={<Perfil />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </AppLayout>
   );
 }
@@ -147,17 +165,19 @@ function RoleRouter() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/acceso/:token" element={<AccesoQR />} />
-      <Route
-        path="/*"
-        element={
-          <ProtectedRoute>
-            <RoleRouter />
-          </ProtectedRoute>
-        }
-      />
-    </Routes>
+    <Suspense fallback={<PaginaCargando />}>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/acceso/:token" element={<AccesoQR />} />
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <RoleRouter />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 }

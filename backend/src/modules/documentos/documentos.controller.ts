@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { crearDocumentoSchema } from "./documentos.schema";
 import * as service from "./documentos.service";
-import { archivoUrl } from "../../middleware/upload";
 import { AppError } from "../../lib/errors";
 
 export async function crearDocumentoController(req: Request, res: Response) {
@@ -9,9 +8,10 @@ export async function crearDocumentoController(req: Request, res: Response) {
   if (!req.file) {
     throw new AppError("Debes adjuntar un archivo.", 422);
   }
+  const archivoUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
   const documento = await service.crearDocumento(req.auth!.condominioId, req.auth!.sub, {
     ...data,
-    archivoUrl: archivoUrl(req.file.filename),
+    archivoUrl,
   });
   res.status(201).json(documento);
 }
