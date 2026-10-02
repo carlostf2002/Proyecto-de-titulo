@@ -228,7 +228,7 @@ export default function Perfil() {
       <Card className="h-fit">
         <CardHeader
           title="Notificaciones"
-          subtitle="Recibelas como notificacion del sistema, aunque no tengas HabitaSmart abierto."
+          subtitle="Recibelas como notificacion del sistema, aunque no tengas HabitaSmart abierto. Se desactivan en este dispositivo al cerrar sesion."
         />
         <div className="flex items-center justify-between gap-4 p-5">
           <div className="flex items-center gap-3">

@@ -10,6 +10,7 @@ import { notificacionesApi } from "../api/endpoints";
 import { NOTIFICACION_SOS_CLASE } from "../lib/badges";
 import { BotonSOS } from "../components/BotonSOS";
 import { ErrorBoundary } from "../components/ErrorBoundary";
+import { desactivarPush } from "../lib/push";
 import type { Notificacion } from "../types";
 
 export interface NavItem {
@@ -75,7 +76,13 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
 
   const noLeidas = notificaciones.filter((n) => !n.leida).length;
 
-  function handleLogout() {
+  async function handleLogout() {
+    // La suscripcion push queda ligada al navegador, no a la sesion: sin esto,
+    // en un equipo compartido (ej. el computador de conserjeria) la siguiente
+    // persona seguiria recibiendo las notificaciones de la cuenta anterior.
+    // Tiene que ir antes de logout(): borrarla en el backend necesita el token.
+    // Con tope de tiempo para que una red lenta nunca bloquee el cierre de sesion.
+    await Promise.race([desactivarPush().catch(() => {}), new Promise((r) => setTimeout(r, 2000))]);
     logout();
     navigate("/login");
   }
