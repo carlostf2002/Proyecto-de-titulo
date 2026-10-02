@@ -400,14 +400,16 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          // pb-28 para residentes: el boton flotante de SOS (bottom-6, 64px)
-          // tapaba lo ultimo de cada pagina (ej. el boton "Activar" en Perfil).
-          className={clsx("flex flex-1 flex-col p-4 lg:p-8", usuario?.rol === "RESIDENTE" && "pb-28 lg:pb-28")}
+          // Residentes: el boton flotante de SOS ocupa los ultimos 88px de la
+          // pantalla (bottom-6 + 64px). Footer (pt-6 + texto) + pb-12/14 suman
+          // >= 88px, asi el ultimo contenido queda siempre por encima del boton.
+          className={clsx("flex-1 p-4 lg:p-8", usuario?.rol === "RESIDENTE" && "pb-12 lg:pb-14")}
         >
           <ErrorBoundary resetKey={location.pathname}>{children}</ErrorBoundary>
-          {/* Dentro de <main> (no despues): asi el pb-28 de residentes tambien lo
-              deja libre del boton SOS. mt-auto lo baja al fondo en paginas cortas. */}
-          <PieDePagina className="mt-auto pt-10" />
+          {/* Pegado al contenido (antes mt-auto lo mandaba al fondo de la pantalla y
+              quedaban cientos de px vacios en paginas cortas). En celular, para
+              residentes, pr-20 lo corre a la izquierda del boton SOS. */}
+          <PieDePagina className={clsx("pt-6", usuario?.rol === "RESIDENTE" && "pr-20 sm:pr-0")} />
         </motion.main>
       </div>
 
