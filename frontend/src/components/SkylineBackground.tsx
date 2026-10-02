@@ -135,12 +135,42 @@ function techo(edificio: Edificio, altoSvg: number) {
 export function SkylineBackground() {
   return (
     <div className="skyline-ambient pointer-events-none absolute inset-0 overflow-hidden bg-[#070b18]" aria-hidden="true">
-      {/* Cielo con profundidad sutil */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0b1330] via-[#0a1024] to-[#05070f]" />
+      {/* Cielo de atardecer con los colores de la marca: azul arriba (donde va el
+          texto, para que el blanco se lea bien) -> violeta -> rosa/naranja en el
+          horizonte, que queda mayormente detras de las siluetas. Antes era casi
+          negro (#0b1330 -> #05070f) y el login se sentia apagado. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, #0b1446 0%, #1e3a8a 20%, #4c1d95 36%, #9d174d 48%, #ea580c 58%, #7c2d12 74%, #2a0a04 100%)",
+        }}
+      />
 
-      {/* Brillo calido de horizonte (luces de ciudad reflejadas en el cielo) */}
-      <div className="absolute bottom-[18%] left-1/2 h-[45vw] max-h-[420px] w-[70vw] max-w-[760px] -translate-x-1/2 animate-horizon-glow rounded-full bg-accent-500/20 blur-[100px]" />
-      <div className="absolute bottom-[30%] right-[10%] h-[28vw] max-h-[260px] w-[28vw] max-w-[260px] animate-horizon-glow rounded-full bg-brand-500/15 blur-[90px] [animation-delay:3s]" />
+      {/* Estrellas tenues en la parte alta del cielo */}
+      <div
+        className="absolute inset-x-0 top-0 h-[40%] opacity-70"
+        style={{
+          backgroundImage: [
+            "radial-gradient(1.5px 1.5px at 12% 18%, white, transparent)",
+            "radial-gradient(1px 1px at 27% 8%, white, transparent)",
+            "radial-gradient(1.5px 1.5px at 44% 26%, white, transparent)",
+            "radial-gradient(1px 1px at 58% 12%, white, transparent)",
+            "radial-gradient(1px 1px at 71% 30%, white, transparent)",
+            "radial-gradient(1.5px 1.5px at 83% 9%, white, transparent)",
+            "radial-gradient(1px 1px at 92% 22%, white, transparent)",
+            "radial-gradient(1px 1px at 6% 34%, white, transparent)",
+            "radial-gradient(1px 1px at 36% 40%, white, transparent)",
+            "radial-gradient(1.5px 1.5px at 65% 44%, white, transparent)",
+          ].join(", "),
+        }}
+      />
+
+      {/* Brillos: sol bajo en el horizonte + reflejos de color en el cielo */}
+      <div className="absolute bottom-[34%] left-1/2 h-[45vw] max-h-[460px] w-[75vw] max-w-[820px] -translate-x-1/2 animate-horizon-glow rounded-full bg-accent-500/45 blur-[110px]" />
+      <div className="absolute bottom-[46%] right-[8%] h-[28vw] max-h-[300px] w-[28vw] max-w-[300px] animate-horizon-glow rounded-full bg-pink-500/30 blur-[90px] [animation-delay:3s]" />
+      <div className="absolute left-[5%] top-[12%] h-[30vw] max-h-[340px] w-[30vw] max-w-[340px] rounded-full bg-brand-500/30 blur-[100px]" />
+      <div className="absolute right-[25%] top-[5%] h-[22vw] max-h-[240px] w-[22vw] max-w-[240px] rounded-full bg-violet-500/25 blur-[90px]" />
 
       {/* Grilla muy sutil solo en el cielo (nod discreto a "smart building") */}
       <div
@@ -156,7 +186,7 @@ export function SkylineBackground() {
       <svg
         viewBox={`0 0 ${ANCHO} 220`}
         preserveAspectRatio="xMidYMax slice"
-        className="absolute bottom-0 left-0 h-[42%] w-full opacity-40"
+        className="absolute bottom-0 left-0 h-[34%] w-full opacity-40"
       >
         {LEJANA.map((e, i) => (
           <rect key={i} x={e.x} y={220 - e.height} width={e.width} height={e.height} className="fill-brand-900" />
@@ -167,7 +197,7 @@ export function SkylineBackground() {
       <svg
         viewBox={`0 0 ${ANCHO} 300`}
         preserveAspectRatio="xMidYMax slice"
-        className="absolute bottom-0 left-0 h-[56%] w-full opacity-75"
+        className="absolute bottom-0 left-0 h-[44%] w-full opacity-75"
       >
         {MEDIA.map((e, i) => (
           <g key={i}>
@@ -181,7 +211,7 @@ export function SkylineBackground() {
       <svg
         viewBox={`0 0 ${ANCHO} 380`}
         preserveAspectRatio="xMidYMax slice"
-        className="absolute bottom-0 left-0 h-[68%] w-full"
+        className="absolute bottom-0 left-0 h-[54%] w-full"
       >
         {CERCANA.map((e, i) => (
           <g key={i}>

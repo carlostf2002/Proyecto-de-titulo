@@ -10,6 +10,7 @@ import { notificacionesApi } from "../api/endpoints";
 import { NOTIFICACION_SOS_CLASE } from "../lib/badges";
 import { BotonSOS } from "../components/BotonSOS";
 import { ErrorBoundary } from "../components/ErrorBoundary";
+import { PieDePagina } from "../components/PieDePagina";
 import { desactivarPush } from "../lib/push";
 import type { Notificacion } from "../types";
 
@@ -46,6 +47,25 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
   const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
   const [panelAbierto, setPanelAbierto] = useState(false);
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
+  // Menu lateral en escritorio: el residente parte con el oculto (su inicio ya
+  // tiene accesos rapidos grandes y ver ~9 opciones de entrada lo abrumaba);
+  // admin y conserje lo usan para todo, asi que parten con el visible.
+  const [sidebarAbierto, setSidebarAbierto] = useState(() => usuario?.rol !== "RESIDENTE");
+  const [esEscritorio, setEsEscritorio] = useState(() => window.matchMedia("(min-width: 1024px)").matches);
+
+  useEffect(() => {
+    const consulta = window.matchMedia("(min-width: 1024px)");
+    const alCambiar = () => setEsEscritorio(consulta.matches);
+    consulta.addEventListener("change", alCambiar);
+    return () => consulta.removeEventListener("change", alCambiar);
+  }, []);
+
+  const menuVisible = esEscritorio ? sidebarAbierto : menuMovilAbierto;
+
+  function alternarMenu() {
+    if (esEscritorio) setSidebarAbierto((v) => !v);
+    else setMenuMovilAbierto(true);
+  }
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -129,10 +149,25 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
         />
       </div>
 
-      {/* Sidebar desktop (fijo: el menu queda a mano aunque la pagina sea larga) */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200/70 bg-white/80 backdrop-blur-xl lg:flex dark:border-white/[0.06] dark:bg-slate-900/80">
-        <SidebarContent nav={nav} usuario={usuario} />
-      </aside>
+      {/* Sidebar desktop (fijo: el menu queda a mano aunque la pagina sea larga).
+          Se anima el ancho del contenedor; el contenido interno mantiene w-64 para
+          no reacomodarse letra por letra durante la animacion. */}
+      <motion.aside
+        initial={false}
+        animate={{ width: sidebarAbierto ? 256 : 0 }}
+        transition={{ type: "tween", duration: 0.25, ease: "easeOut" }}
+        aria-hidden={!sidebarAbierto}
+        className={clsx(
+          "sticky top-0 hidden h-screen shrink-0 overflow-hidden bg-white/80 backdrop-blur-xl lg:block dark:bg-slate-900/80",
+          sidebarAbierto && "border-r border-slate-200/70 dark:border-white/[0.06]"
+        )}
+      >
+        {/* invisible al cerrar (sus links no quedan tabulables); la transicion de
+            visibility hace que se oculte recien al terminar la animacion de ancho. */}
+        <div className={clsx("flex h-full w-64 flex-col transition-[visibility] duration-300", !sidebarAbierto && "invisible")}>
+          <SidebarContent nav={nav} usuario={usuario} />
+        </div>
+      </motion.aside>
 
       {/* Sidebar movil */}
       <AnimatePresence>
@@ -168,14 +203,30 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
 
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200/70 bg-white/80 px-4 py-3 backdrop-blur-xl lg:px-8 dark:border-white/[0.06] dark:bg-slate-900/80">
-          <button
-            className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 lg:hidden dark:text-slate-400 dark:hover:bg-slate-800"
-            onClick={() => setMenuMovilAbierto(true)}
-            aria-label="Abrir menu"
-          >
-            <List size={20} />
-          </button>
-          <div className="hidden lg:block" />
+          <div className="flex items-center gap-2">
+            <button
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              onClick={alternarMenu}
+              aria-label={menuVisible ? "Ocultar menu" : "Mostrar menu"}
+              aria-expanded={menuVisible}
+              title={menuVisible ? "Ocultar menu" : "Mostrar menu"}
+            >
+              <List size={22} weight="bold" />
+            </button>
+            {/* Logo en el header cuando el menu lateral no esta a la vista (celular, o
+                escritorio con el menu oculto) -- si no, la marca desaparece por completo. */}
+            <Link
+              to="/"
+              className={clsx("hidden items-center gap-2 sm:flex", sidebarAbierto && "lg:hidden")}
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-md shadow-brand-600/30">
+                <Buildings size={17} weight="fill" />
+              </span>
+              <span className="font-display text-sm font-bold tracking-tight text-slate-900 dark:text-white">
+                Habita<span className="text-brand-600 dark:text-brand-400">Smart</span>
+              </span>
+            </Link>
+          </div>
           <div className="flex items-center gap-2 sm:gap-4">
             <div className="flex items-center gap-0.5 rounded-full border border-slate-200 bg-slate-100 p-1 dark:border-slate-700 dark:bg-slate-800">
               <button
@@ -351,9 +402,12 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
           transition={{ duration: 0.25, ease: "easeOut" }}
           // pb-28 para residentes: el boton flotante de SOS (bottom-6, 64px)
           // tapaba lo ultimo de cada pagina (ej. el boton "Activar" en Perfil).
-          className={clsx("flex-1 p-4 lg:p-8", usuario?.rol === "RESIDENTE" && "pb-28 lg:pb-28")}
+          className={clsx("flex flex-1 flex-col p-4 lg:p-8", usuario?.rol === "RESIDENTE" && "pb-28 lg:pb-28")}
         >
           <ErrorBoundary resetKey={location.pathname}>{children}</ErrorBoundary>
+          {/* Dentro de <main> (no despues): asi el pb-28 de residentes tambien lo
+              deja libre del boton SOS. mt-auto lo baja al fondo en paginas cortas. */}
+          <PieDePagina className="mt-auto pt-10" />
         </motion.main>
       </div>
 
