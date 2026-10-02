@@ -26,9 +26,10 @@ const ICONS: Record<ToastTipo, typeof CheckCircle> = {
 };
 
 const STYLES: Record<ToastTipo, string> = {
-  success: "border-emerald-200 bg-emerald-50 text-emerald-800",
-  error: "border-red-200 bg-red-50 text-red-800",
-  info: "border-brand-200 bg-brand-50 text-brand-800",
+  success:
+    "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/40 dark:bg-slate-800 dark:text-emerald-300",
+  error: "border-red-200 bg-red-50 text-red-800 dark:border-red-500/40 dark:bg-slate-800 dark:text-red-300",
+  info: "border-brand-200 bg-brand-50 text-brand-800 dark:border-brand-500/40 dark:bg-slate-800 dark:text-brand-300",
 };
 
 const DURACION_MS = 4000;
@@ -65,7 +66,11 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           Notificaciones en Perfil.tsx) -- bottom-X seguia topandose con
           algo dependiendo del scroll. Debajo del header es la unica zona
           libre en todas las paginas. */}
-      <div className="pointer-events-none fixed inset-x-0 top-24 z-[100] flex flex-col items-center gap-2 px-4 sm:items-end sm:right-4 sm:left-auto">
+      <div
+        role="status"
+        aria-live="polite"
+        className="pointer-events-none fixed inset-x-0 top-24 z-[100] flex flex-col items-center gap-2 px-4 sm:items-end sm:right-4 sm:left-auto"
+      >
         <AnimatePresence>
           {toasts.map((t) => {
             const Icon = ICONS[t.tipo];

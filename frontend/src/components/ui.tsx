@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes, InputHTMLAttributes, LabelHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes, useEffect, useState } from "react";
+import { ButtonHTMLAttributes, InputHTMLAttributes, LabelHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes, useEffect, useId, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, animate, motion, useMotionValue, useTransform } from "framer-motion";
 import clsx from "clsx";
@@ -399,6 +399,33 @@ export function Modal({
   title: string;
   children: ReactNode;
 }) {
+  const tituloId = useId();
+  const panelRef = useRef<HTMLDivElement>(null);
+  // Ref (no dependencia del efecto): onClose suele ser una funcion inline que
+  // cambia en cada render; si el efecto dependiera de ella se re-ejecutaria al
+  // escribir en un input del modal y le robaria el foco.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    if (!open) return;
+    const enfocadoAntes = document.activeElement as HTMLElement | null;
+    const overflowAntes = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    // Foco al panel (no al primer input: en celular abriria el teclado sin pedirlo).
+    const frame = requestAnimationFrame(() => panelRef.current?.focus());
+    function alPresionarTecla(e: KeyboardEvent) {
+      if (e.key === "Escape") onCloseRef.current();
+    }
+    document.addEventListener("keydown", alPresionarTecla);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener("keydown", alPresionarTecla);
+      document.body.style.overflow = overflowAntes;
+      enfocadoAntes?.focus?.();
+    };
+  }, [open]);
+
   return (
     <AnimatePresence>
       {open && (
@@ -411,15 +438,20 @@ export function Modal({
           onClick={onClose}
         >
           <motion.div
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={tituloId}
+            tabIndex={-1}
             initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white shadow-2xl dark:bg-slate-800"
+            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white shadow-2xl outline-none dark:bg-slate-800"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-700/60">
-              <h3 className="font-display text-sm font-semibold text-slate-900 dark:text-white">{title}</h3>
+              <h3 id={tituloId} className="font-display text-sm font-semibold text-slate-900 dark:text-white">{title}</h3>
               <button
                 onClick={onClose}
                 className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-300"

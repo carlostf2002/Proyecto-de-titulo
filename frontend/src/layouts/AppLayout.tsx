@@ -328,7 +328,9 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="flex-1 p-4 lg:p-8"
+          // pb-28 para residentes: el boton flotante de SOS (bottom-6, 64px)
+          // tapaba lo ultimo de cada pagina (ej. el boton "Activar" en Perfil).
+          className={clsx("flex-1 p-4 lg:p-8", usuario?.rol === "RESIDENTE" && "pb-28 lg:pb-28")}
         >
           <ErrorBoundary resetKey={location.pathname}>{children}</ErrorBoundary>
         </motion.main>
