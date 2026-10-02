@@ -21,3 +21,8 @@ export async function actualizarMultaController(req: Request, res: Response) {
   const data = actualizarMultaSchema.parse(req.body);
   res.json(await service.actualizarMulta(req.auth!.condominioId, req.params.id, data));
 }
+
+export async function eliminarMultaController(req: Request, res: Response) {
+  await service.eliminarMulta(req.auth!.condominioId, req.params.id);
+  res.status(204).send();
+}

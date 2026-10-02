@@ -1,15 +1,17 @@
 import { FormEvent, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, FileText } from "@phosphor-icons/react";
+import { ArrowRight, FileText, Trash } from "@phosphor-icons/react";
 import { documentosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import { Alert, Button, Card, CardHeader, EmptyState, Input, Label, PageHeader, SearchInput, Spinner, staggerFade } from "../../components/ui";
 import { formatFecha } from "../../lib/format";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
+import { useConfirm } from "../../context/ConfirmContext";
 
 export default function AdminDocumentos() {
   const toast = useToast();
+  const confirmar = useConfirm();
   const { data, cargando, error, recargar } = useAsync(() => documentosApi.listar(), []);
   const [titulo, setTitulo] = useState("");
   const [categoria, setCategoria] = useState("");
@@ -21,6 +23,17 @@ export default function AdminDocumentos() {
   const filtrados = (data ?? []).filter(
     (doc) => !busqueda || `${doc.titulo} ${doc.categoria ?? ""}`.toLowerCase().includes(busqueda.toLowerCase())
   );
+
+  async function handleEliminar(id: string, titulo: string) {
+    const ok = await confirmar(`¿Eliminar el documento "${titulo}"? Ya no estara disponible para los residentes.`, {
+      titulo: "Eliminar documento",
+      textoConfirmar: "Eliminar",
+    });
+    if (!ok) return;
+    await documentosApi.eliminar(id);
+    toast.info("Documento eliminado.");
+    recargar();
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -70,24 +83,37 @@ export default function AdminDocumentos() {
           ) : (
             <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
               {filtrados.map((doc, i) => (
-                <motion.a
+                <motion.div
                   key={doc.id}
                   {...staggerFade(i)}
-                  href={doc.archivoUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group flex items-center justify-between px-5 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/60"
+                  className="group flex items-center justify-between gap-2 px-5 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/60"
                 >
-                  <div>
+                  <a href={doc.archivoUrl} target="_blank" rel="noreferrer" className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{doc.titulo}</p>
                     <p className="text-xs text-slate-400 dark:text-slate-500">
                       {doc.categoria ?? "General"} · {formatFecha(doc.createdAt)}
                     </p>
+                  </a>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <a
+                      href={doc.archivoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 px-2 py-1 text-xs text-brand-600 transition-transform group-hover:translate-x-0.5"
+                    >
+                      Ver <ArrowRight size={14} />
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => handleEliminar(doc.id, doc.titulo)}
+                      className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-100 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-500/20 dark:hover:text-red-400"
+                      aria-label="Eliminar documento"
+                      title="Eliminar documento"
+                    >
+                      <Trash size={16} />
+                    </button>
                   </div>
-                  <span className="flex items-center gap-1 text-xs text-brand-600 transition-transform group-hover:translate-x-0.5">
-                    Ver <ArrowRight size={14} />
-                  </span>
-                </motion.a>
+                </motion.div>
               ))}
             </div>
           )}

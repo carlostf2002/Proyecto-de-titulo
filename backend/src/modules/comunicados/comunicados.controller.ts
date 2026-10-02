@@ -11,3 +11,8 @@ export async function crearComunicadoController(req: Request, res: Response) {
 export async function listarComunicadosController(req: Request, res: Response) {
   res.json(await service.listarComunicados(req.auth!.condominioId));
 }
+
+export async function eliminarComunicadoController(req: Request, res: Response) {
+  await service.eliminarComunicado(req.auth!.condominioId, req.params.id);
+  res.status(204).send();
+}

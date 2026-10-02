@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Warning } from "@phosphor-icons/react";
+import { Plus, Trash, Warning } from "@phosphor-icons/react";
 import { multasApi, usuariosApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
 import { Alert, Badge, Button, Card, CardHeader, EmptyState, Input, Label, Modal, PageHeader, SearchInput, Select, Spinner, Textarea, staggerFade } from "../../components/ui";
@@ -8,12 +8,14 @@ import { formatFecha, formatMonto } from "../../lib/format";
 import { ESTADO_MULTA_LABEL, ESTADO_MULTA_TONO } from "../../lib/badges";
 import { mensajeError } from "../../api/client";
 import { useToast } from "../../context/ToastContext";
+import { useConfirm } from "../../context/ConfirmContext";
 import type { EstadoMulta } from "../../types";
 
 const ESTADOS: EstadoMulta[] = ["PENDIENTE", "PAGADA", "APELADA", "ANULADA"];
 
 export default function AdminMultas() {
   const toast = useToast();
+  const confirmar = useConfirm();
   const { data, cargando, error, recargar } = useAsync(() => multasApi.listarTodas(), []);
   const { data: residentes } = useAsync(() => usuariosApi.listar({ rol: "RESIDENTE" }), []);
   const [modalAbierto, setModalAbierto] = useState(false);
@@ -26,6 +28,17 @@ export default function AdminMultas() {
     const coincideEstado = !filtroEstado || m.estado === filtroEstado;
     return coincideTexto && coincideEstado;
   });
+
+  async function handleEliminar(id: string, motivo: string) {
+    const ok = await confirmar(`¿Eliminar la multa "${motivo}"? Esta accion no se puede deshacer.`, {
+      titulo: "Eliminar multa",
+      textoConfirmar: "Eliminar",
+    });
+    if (!ok) return;
+    await multasApi.eliminar(id);
+    toast.info("Multa eliminada.");
+    recargar();
+  }
 
   return (
     <div className="space-y-6">
@@ -76,6 +89,7 @@ export default function AdminMultas() {
                   <th className="px-5 py-3">Fecha</th>
                   <th className="px-5 py-3">Monto</th>
                   <th className="px-5 py-3">Estado</th>
+                  <th className="px-5 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-700/50">
@@ -103,6 +117,17 @@ export default function AdminMultas() {
                           </option>
                         ))}
                       </Select>
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleEliminar(m.id, m.motivo)}
+                        className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-100 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-500/20 dark:hover:text-red-400"
+                        aria-label="Eliminar multa"
+                        title="Eliminar multa"
+                      >
+                        <Trash size={16} />
+                      </button>
                     </td>
                   </motion.tr>
                 ))}

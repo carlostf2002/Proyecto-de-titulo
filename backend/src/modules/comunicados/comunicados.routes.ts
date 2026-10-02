@@ -10,5 +10,6 @@ router.use(requireAuth);
 
 router.post("/", requireRole(Rol.ADMIN), asyncHandler(controller.crearComunicadoController));
 router.get("/", asyncHandler(controller.listarComunicadosController));
+router.delete("/:id", requireRole(Rol.ADMIN), asyncHandler(controller.eliminarComunicadoController));
 
 export default router;

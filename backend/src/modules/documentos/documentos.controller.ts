@@ -19,3 +19,8 @@ export async function crearDocumentoController(req: Request, res: Response) {
 export async function listarDocumentosController(req: Request, res: Response) {
   res.json(await service.listarDocumentos(req.auth!.condominioId));
 }
+
+export async function eliminarDocumentoController(req: Request, res: Response) {
+  await service.eliminarDocumento(req.auth!.condominioId, req.params.id);
+  res.status(204).send();
+}

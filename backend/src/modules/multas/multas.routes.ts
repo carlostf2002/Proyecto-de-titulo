@@ -12,5 +12,6 @@ router.post("/", requireRole(Rol.ADMIN), asyncHandler(controller.crearMultaContr
 router.get("/mias", requireRole(Rol.RESIDENTE), asyncHandler(controller.misMultasController));
 router.get("/", requireRole(Rol.ADMIN), asyncHandler(controller.listarMultasController));
 router.patch("/:id", requireRole(Rol.ADMIN), asyncHandler(controller.actualizarMultaController));
+router.delete("/:id", requireRole(Rol.ADMIN), asyncHandler(controller.eliminarMultaController));
 
 export default router;

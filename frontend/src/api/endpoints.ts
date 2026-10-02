@@ -100,6 +100,7 @@ export const multasApi = {
     api.get<Multa[]>("/multas", { params }).then((r) => r.data),
   actualizar: (id: string, data: { estado?: string; observaciones?: string }) =>
     api.patch<Multa>(`/multas/${id}`, data).then((r) => r.data),
+  eliminar: (id: string) => api.delete(`/multas/${id}`),
 };
 
 // --- Incidencias (HU-08 a HU-11, HU-25) ---
@@ -137,6 +138,7 @@ export const comunicadosApi = {
   crear: (data: { titulo: string; contenido: string; tipo: string }) =>
     api.post<Comunicado>("/comunicados", data).then((r) => r.data),
   listar: () => api.get<Comunicado[]>("/comunicados").then((r) => r.data),
+  eliminar: (id: string) => api.delete(`/comunicados/${id}`),
 };
 
 // --- QR / Visitas (HU-17 a HU-21) ---
@@ -183,6 +185,7 @@ export const documentosApi = {
   crear: (data: FormData) =>
     api.post<Documento>("/documentos", data, { headers: { "Content-Type": "multipart/form-data" } }).then((r) => r.data),
   listar: () => api.get<Documento[]>("/documentos").then((r) => r.data),
+  eliminar: (id: string) => api.delete(`/documentos/${id}`),
 };
 
 // --- Dashboard (HU-24) ---

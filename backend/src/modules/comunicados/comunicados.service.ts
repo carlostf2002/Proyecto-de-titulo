@@ -1,6 +1,7 @@
 import { Rol, TipoComunicado } from "@prisma/client";
 import { prisma } from "../../lib/prisma";
 import { crearNotificacionesMasivas } from "../notificaciones/notificaciones.service";
+import { NotFoundError } from "../../lib/errors";
 
 // HU-15: publicar comunicado. HU-16: notificar a los residentes.
 export async function crearComunicado(
@@ -37,4 +38,9 @@ export async function listarComunicados(condominioId: string) {
     include: { autor: { select: { id: true, nombre: true, apellido: true } } },
     orderBy: { createdAt: "desc" },
   });
+}
+
+export async function eliminarComunicado(condominioId: string, comunicadoId: string) {
+  const { count } = await prisma.comunicado.deleteMany({ where: { id: comunicadoId, condominioId } });
+  if (count === 0) throw new NotFoundError("Comunicado no encontrado.");
 }

@@ -16,5 +16,6 @@ router.post(
   asyncHandler(controller.crearDocumentoController)
 );
 router.get("/", asyncHandler(controller.listarDocumentosController));
+router.delete("/:id", requireRole(Rol.ADMIN), asyncHandler(controller.eliminarDocumentoController));
 
 export default router;
