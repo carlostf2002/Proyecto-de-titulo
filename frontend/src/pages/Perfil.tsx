@@ -1,10 +1,11 @@
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
-import { BellRinging, Camera, LockKey, Pencil, UserCircle } from "@phosphor-icons/react";
+import { BellRinging, Camera, Export as IconoCompartir, LockKey, Pencil, UserCircle } from "@phosphor-icons/react";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { authApi } from "../api/endpoints";
 import { mensajeError } from "../api/client";
 import { usePushNotifications } from "../hooks/usePushNotifications";
+import { abiertaComoApp, esIOS } from "../lib/push";
 import { Alert, Badge, Button, Card, CardHeader, Input, Label, PageHeader } from "../components/ui";
 
 const ROL_LABEL: Record<string, string> = {
@@ -17,6 +18,7 @@ export default function Perfil() {
   const { usuario, actualizarUsuario } = useAuth();
   const toast = useToast();
   const push = usePushNotifications();
+  const iosSinInstalar = !push.soportado && esIOS() && !abiertaComoApp();
 
   const [nombre, setNombre] = useState(usuario?.nombre ?? "");
   const [apellido, setApellido] = useState(usuario?.apellido ?? "");
@@ -241,16 +243,25 @@ export default function Perfil() {
             </div>
             <div>
               <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
-                {!push.soportado
-                  ? "No disponible en este navegador"
-                  : push.habilitado
-                    ? "Notificaciones push activadas"
-                    : "Notificaciones push desactivadas"}
+                {iosSinInstalar
+                  ? "Primero instala HabitaSmart en tu iPhone"
+                  : !push.soportado
+                    ? "No disponible en este navegador"
+                    : push.habilitado
+                      ? "Notificaciones push activadas"
+                      : "Notificaciones push desactivadas"}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {push.soportado
-                  ? "Incluye alertas SOS, multas, comunicados y mas."
-                  : "Prueba desde Chrome, Edge o Firefox."}
+                {iosSinInstalar ? (
+                  <>
+                    En Safari toca <IconoCompartir size={13} className="inline -mt-0.5" /> <strong>Compartir</strong> →{" "}
+                    <strong>Agregar a inicio</strong>, abre HabitaSmart desde ese icono y vuelve aqui para activarlas.
+                  </>
+                ) : push.soportado ? (
+                  "Incluye alertas SOS, multas, comunicados y mas."
+                ) : (
+                  "Prueba desde Chrome, Edge o Firefox."
+                )}
               </p>
             </div>
           </div>
