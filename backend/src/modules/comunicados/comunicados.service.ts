@@ -18,12 +18,15 @@ export async function crearComunicado(
     select: { id: true },
   });
 
+  // El remitente va como titulo ("Administración") y el comunicado en el cuerpo:
+  // en iPhone la notificacion push se ve como titulo / "from HabitaSmart" (lo agrega
+  // iOS, no se puede quitar) / cuerpo, y asi se lee quien lo manda y que dice.
   await crearNotificacionesMasivas(
     residentes.map((r) => r.id),
     {
       tipo: "COMUNICADO",
-      titulo: comunicado.titulo,
-      mensaje: comunicado.contenido,
+      titulo: "Administración",
+      mensaje: `${comunicado.titulo}: ${comunicado.contenido}`,
       entidadTipo: "Comunicado",
       entidadId: comunicado.id,
     }

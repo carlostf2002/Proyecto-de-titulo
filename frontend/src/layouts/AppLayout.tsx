@@ -161,7 +161,7 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
             <List size={20} />
           </button>
           <div className="hidden lg:block" />
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <div className="flex items-center gap-0.5 rounded-full border border-slate-200 bg-slate-100 p-1 dark:border-slate-700 dark:bg-slate-800">
               <button
                 type="button"
@@ -299,8 +299,14 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
                 )}
               </AnimatePresence>
             </div>
-            <Link to="/perfil" className="hidden items-center gap-2.5 rounded-lg px-2 py-1 transition-colors hover:bg-slate-50 sm:flex dark:hover:bg-slate-800">
-              <div className="text-right">
+            {/* En celular solo se ve el circulo de la foto (el nombre no cabe junto a "Salir"). */}
+            <Link
+              to="/perfil"
+              aria-label="Mi perfil"
+              title="Mi perfil"
+              className="flex items-center gap-2.5 rounded-full p-0.5 transition-colors hover:bg-slate-50 sm:rounded-lg sm:px-2 sm:py-1 dark:hover:bg-slate-800"
+            >
+              <div className="hidden text-right sm:block">
                 <p className="text-sm font-medium text-slate-800 dark:text-slate-100">
                   {usuario?.nombre} {usuario?.apellido}
                 </p>
