@@ -58,17 +58,21 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      {/* bottom-24 (no bottom-4): deja libre la esquina inferior derecha donde
-          vive el boton flotante de SOS (BotonSOS.tsx, bottom-6/right-6,
-          64px) -- con menos margen los toasts le quedaban encima. */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-28 z-[100] flex flex-col items-center gap-2 px-4 sm:items-end sm:right-4 sm:left-auto">
+      {/* Anclados debajo del header (top-24, ~71px de alto + margen), no
+          abajo: esa esquina la ocupa el boton flotante de SOS
+          (BotonSOS.tsx, bottom-6/right-6) y, segun la pagina, tambien puede
+          haber contenido (ej. el boton "Activar" de la card de
+          Notificaciones en Perfil.tsx) -- bottom-X seguia topandose con
+          algo dependiendo del scroll. Debajo del header es la unica zona
+          libre en todas las paginas. */}
+      <div className="pointer-events-none fixed inset-x-0 top-24 z-[100] flex flex-col items-center gap-2 px-4 sm:items-end sm:right-4 sm:left-auto">
         <AnimatePresence>
           {toasts.map((t) => {
             const Icon = ICONS[t.tipo];
             return (
               <motion.div
                 key={t.id}
-                initial={{ opacity: 0, y: 16, scale: 0.95 }}
+                initial={{ opacity: 0, y: -16, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
                 transition={{ duration: 0.25, ease: "easeOut" }}
