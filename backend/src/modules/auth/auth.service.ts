@@ -43,19 +43,10 @@ export async function login(email: string, password: string) {
 
   const token = signAuthToken({ sub: usuario.id, rol: usuario.rol, condominioId: usuario.condominioId });
 
-  return {
-    token,
-    usuario: {
-      id: usuario.id,
-      email: usuario.email,
-      nombre: usuario.nombre,
-      apellido: usuario.apellido,
-      rol: usuario.rol,
-      condominioId: usuario.condominioId,
-      departamentoId: usuario.departamentoId,
-      fotoUrl: usuario.fotoUrl,
-    },
-  };
+  // Mismo perfil que /auth/me: antes se devolvia una version recortada (sin
+  // condominio, departamento/torre ni telefono) y esos datos faltaban en la
+  // credencial, el inicio y Perfil justo despues de entrar, hasta recargar.
+  return { token, usuario: await getPerfil(usuario.id) };
 }
 
 export async function getPerfil(usuarioId: string) {
