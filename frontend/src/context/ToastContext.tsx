@@ -58,7 +58,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="pointer-events-none fixed inset-x-0 bottom-4 z-[100] flex flex-col items-center gap-2 px-4 sm:items-end sm:right-4 sm:left-auto">
+      {/* bottom-24 (no bottom-4): deja libre la esquina inferior derecha donde
+          vive el boton flotante de SOS (BotonSOS.tsx, bottom-6/right-6,
+          64px) -- con menos margen los toasts le quedaban encima. */}
+      <div className="pointer-events-none fixed inset-x-0 bottom-28 z-[100] flex flex-col items-center gap-2 px-4 sm:items-end sm:right-4 sm:left-auto">
         <AnimatePresence>
           {toasts.map((t) => {
             const Icon = ICONS[t.tipo];
