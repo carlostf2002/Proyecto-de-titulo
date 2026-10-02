@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { ChartBar, CheckCircle, Clock, Package, QrCode, Warning } from "@phosphor-icons/react";
+import { Buildings, CheckCircle, Clock, Megaphone, Package, QrCode, Siren, Warning } from "@phosphor-icons/react";
 import { dashboardApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
+import { useAuth } from "../../context/AuthContext";
 import {
   Card,
   CardHeader,
@@ -9,12 +10,12 @@ import {
   Spinner,
   Alert,
   Badge,
-  PageHeader,
   StatCard,
   staggerFade,
   HorizontalBarChart,
   Meter,
 } from "../../components/ui";
+import { BotonHero, HeroBanner, saludoSegunHora } from "../../components/Inicio";
 import { formatFechaHora } from "../../lib/format";
 import { RESULTADO_ACCESO_LABEL } from "../../lib/badges";
 
@@ -51,6 +52,7 @@ const LABEL_INCIDENCIA: Record<string, string> = {
 };
 
 export default function AdminDashboard() {
+  const { usuario } = useAuth();
   const { data, cargando, error } = useAsync(() => dashboardApi.indicadores(), []);
 
   if (cargando) return <Spinner />;
@@ -61,7 +63,27 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <PageHeader icon={ChartBar} title="Panel administrativo" subtitle="Indicadores generales del condominio (HU-24)." />
+      <HeroBanner
+        etiqueta={
+          <>
+            <Buildings size={13} weight="fill" aria-hidden /> {usuario?.condominio?.nombre ?? "Panel administrativo"}
+          </>
+        }
+        titulo={`${saludoSegunHora()}, ${usuario?.nombre ?? ""}`}
+        subtitulo="Así está tu condominio hoy. Indicadores generales (HU-24)."
+      >
+        <div className="flex flex-wrap gap-2">
+          <BotonHero to="/comunicados" icon={Megaphone} principal>
+            Publicar comunicado
+          </BotonHero>
+          <BotonHero to="/multas" icon={Warning}>
+            Registrar multa
+          </BotonHero>
+          <BotonHero to="/alertas-sos" icon={Siren}>
+            Alertas SOS
+          </BotonHero>
+        </div>
+      </HeroBanner>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
         <StatCard icon={Warning} label="Incidencias pendientes" value={data.incidencias.pendientes} tone="amber" index={0} />

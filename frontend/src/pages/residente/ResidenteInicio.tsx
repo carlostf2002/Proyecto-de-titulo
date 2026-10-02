@@ -1,10 +1,22 @@
 import { motion } from "framer-motion";
-import { House, Megaphone, Package, Warning, Wrench } from "@phosphor-icons/react";
+import {
+  CalendarCheck,
+  CheckCircle,
+  FileText,
+  IdentificationBadge,
+  MapPin,
+  Megaphone,
+  Package,
+  Warning,
+  Wrench,
+} from "@phosphor-icons/react";
 import { useAuth } from "../../context/AuthContext";
 import { comunicadosApi, encomiendasApi, incidenciasApi, multasApi } from "../../api/endpoints";
 import { useAsync } from "../../hooks/useAsync";
-import { Card, EmptyState, PageHeader, Spinner, StatCard, staggerFade } from "../../components/ui";
+import { Badge, Card, CardHeader, EmptyState, Spinner, StatCard, staggerFade } from "../../components/ui";
+import { AccesoRapido, ChipHero, HeroBanner, saludoSegunHora } from "../../components/Inicio";
 import { formatFechaHora } from "../../lib/format";
+import { TIPO_COMUNICADO_LABEL } from "../../lib/badges";
 
 export default function ResidenteInicio() {
   const { usuario } = useAuth();
@@ -19,33 +31,78 @@ export default function ResidenteInicio() {
 
   const cargando = cargandoMultas || cargandoIncidencias || cargandoEncomiendas || cargandoComunicados;
 
+  const unidad = usuario?.departamento
+    ? `${usuario.departamento.torre?.nombre ?? ""} ${usuario.departamento.numero}`.trim()
+    : null;
+  const etiqueta = [unidad, usuario?.condominio?.nombre].filter(Boolean).join(" · ");
+  const todoAlDia = encomiendasPorRetirar === 0 && multasPendientes === 0;
+
   return (
     <div className="space-y-6">
-      <PageHeader icon={House} title={`Hola, ${usuario?.nombre ?? ""}`} subtitle="Resumen de tu unidad en HabitaSmart." />
+      <HeroBanner
+        etiqueta={
+          etiqueta ? (
+            <>
+              <MapPin size={13} weight="fill" aria-hidden /> {etiqueta}
+            </>
+          ) : undefined
+        }
+        titulo={`${saludoSegunHora()}, ${usuario?.nombre ?? ""}`}
+        subtitulo="Esto es lo que pasa en tu condominio hoy."
+      >
+        {!cargando && (
+          <div className="flex flex-wrap gap-2">
+            {encomiendasPorRetirar > 0 && (
+              <ChipHero icon={Package} to="/encomiendas">
+                {encomiendasPorRetirar === 1 ? "1 encomienda por retirar" : `${encomiendasPorRetirar} encomiendas por retirar`}
+              </ChipHero>
+            )}
+            {multasPendientes > 0 && (
+              <ChipHero icon={Warning} to="/multas">
+                {multasPendientes === 1 ? "1 multa pendiente" : `${multasPendientes} multas pendientes`}
+              </ChipHero>
+            )}
+            {todoAlDia && <ChipHero icon={CheckCircle}>Todo al día</ChipHero>}
+          </div>
+        )}
+      </HeroBanner>
+
+      <section aria-label="Accesos rapidos" className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <AccesoRapido to="/qr" icon={IdentificationBadge} titulo="Mi credencial" descripcion="QR e invitados" tono="brand" index={0} />
+        <AccesoRapido to="/reservas" icon={CalendarCheck} titulo="Reservar" descripcion="Espacios comunes" tono="green" index={1} />
+        <AccesoRapido to="/incidencias" icon={Wrench} titulo="Reportar" descripcion="Un problema" tono="amber" index={2} />
+        <AccesoRapido to="/documentos" icon={FileText} titulo="Documentos" descripcion="Reglamentos" tono="purple" index={3} />
+      </section>
 
       {cargando ? (
         <Spinner />
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
             <StatCard to="/multas" icon={Warning} label="Multas pendientes" value={multasPendientes} tone="amber" index={0} />
             <StatCard to="/incidencias" icon={Wrench} label="Incidencias abiertas" value={incidenciasAbiertas} tone="brand" index={1} />
             <StatCard to="/encomiendas" icon={Package} label="Encomiendas por retirar" value={encomiendasPorRetirar} tone="purple" index={2} />
           </div>
 
           <Card>
-            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-700/60 px-5 py-4">
-              <Megaphone size={16} className="text-slate-400 dark:text-slate-500" />
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Ultimos comunicados</h3>
-            </div>
+            <CardHeader title="Ultimos comunicados" subtitle="Avisos de la administracion" />
             {!comunicados?.length ? (
               <EmptyState icon={Megaphone} title="Sin comunicados recientes" />
             ) : (
-              <div className="divide-y divide-slate-50 dark:divide-slate-700/50">
+              <div className="divide-y divide-slate-100 dark:divide-white/[0.05]">
                 {comunicados.slice(0, 5).map((c, i) => (
-                  <motion.div key={c.id} {...staggerFade(i)} className="px-5 py-3 transition-colors hover:bg-slate-50/70 dark:hover:bg-slate-700/60">
-                    <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{c.titulo}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{formatFechaHora(c.createdAt)}</p>
+                  <motion.div key={c.id} {...staggerFade(i)} className="flex gap-3 px-5 py-4">
+                    <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">
+                      <Megaphone size={18} weight="duotone" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{c.titulo}</p>
+                        <Badge tone="blue">{TIPO_COMUNICADO_LABEL[c.tipo]}</Badge>
+                      </div>
+                      <p className="mt-0.5 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{c.contenido}</p>
+                      <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">{formatFechaHora(c.createdAt)}</p>
+                    </div>
                   </motion.div>
                 ))}
               </div>

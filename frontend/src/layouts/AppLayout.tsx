@@ -113,9 +113,24 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
-      {/* Sidebar desktop */}
-      <aside className="hidden w-64 flex-col border-r border-slate-200 bg-white lg:flex dark:border-slate-800 dark:bg-slate-900">
+    <div className="relative isolate flex min-h-screen bg-slate-50 dark:bg-slate-950">
+      {/* Fondo ambiental: brillos de marca difusos (mismo lenguaje que la credencial y el
+          login). Estatico a proposito -- animar blur de este tamaño cuesta en celulares. */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -left-40 -top-40 h-[30rem] w-[30rem] rounded-full bg-brand-400/20 blur-3xl dark:bg-brand-600/20" />
+        <div className="absolute -right-40 top-1/4 h-[28rem] w-[28rem] rounded-full bg-accent-400/15 blur-3xl dark:bg-accent-600/10" />
+        <div className="absolute -bottom-40 left-1/3 h-[26rem] w-[26rem] rounded-full bg-violet-400/10 blur-3xl dark:bg-violet-600/10" />
+        <div
+          className="absolute inset-0 opacity-[0.35] dark:opacity-[0.25]"
+          style={{
+            backgroundImage: "radial-gradient(rgba(100,116,139,0.18) 1px, transparent 1px)",
+            backgroundSize: "22px 22px",
+          }}
+        />
+      </div>
+
+      {/* Sidebar desktop (fijo: el menu queda a mano aunque la pagina sea larga) */}
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-slate-200/70 bg-white/80 backdrop-blur-xl lg:flex dark:border-white/[0.06] dark:bg-slate-900/80">
         <SidebarContent nav={nav} usuario={usuario} />
       </aside>
 
@@ -152,7 +167,7 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
       </AnimatePresence>
 
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:px-8 dark:border-slate-800 dark:bg-slate-900">
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200/70 bg-white/80 px-4 py-3 backdrop-blur-xl lg:px-8 dark:border-white/[0.06] dark:bg-slate-900/80">
           <button
             className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 lg:hidden dark:text-slate-400 dark:hover:bg-slate-800"
             onClick={() => setMenuMovilAbierto(true)}
@@ -358,16 +373,20 @@ function SidebarContent({
 }) {
   return (
     <>
-      <div className="flex items-center gap-2.5 border-b border-slate-100 px-5 py-5 dark:border-slate-800">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white shadow-sm shadow-brand-600/30">
-          <Buildings size={18} weight="duotone" />
+      <div className="flex items-center gap-3 border-b border-slate-100 px-5 py-5 dark:border-white/[0.06]">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-600/30 ring-1 ring-white/20">
+          <Buildings size={20} weight="fill" />
         </div>
-        <div>
-          <p className="font-display text-sm font-bold leading-none text-slate-900 dark:text-white">HabitaSmart</p>
-          <p className="text-[11px] text-slate-400 dark:text-slate-500">{usuario?.condominioId ? "Gestion de condominios" : ""}</p>
+        <div className="min-w-0">
+          <p className="font-display text-base font-bold leading-none tracking-tight text-slate-900 dark:text-white">
+            Habita<span className="text-brand-600 dark:text-brand-400">Smart</span>
+          </p>
+          <p className="mt-1 truncate text-[11px] text-slate-400 dark:text-slate-500">
+            {usuario?.condominio?.nombre ?? "Gestion de condominios"}
+          </p>
         </div>
       </div>
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {nav.map((item) => (
           <NavLink
             key={item.to}
@@ -376,17 +395,21 @@ function SidebarContent({
             onClick={onNavigate}
             className={({ isActive }) =>
               clsx(
-                "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                isActive ? "text-brand-700 dark:text-brand-300" : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                "relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                isActive
+                  ? "text-white"
+                  : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/[0.05] dark:hover:text-white"
               )
             }
           >
             {({ isActive }) => (
               <>
                 {isActive && (
+                  // Oscuro a la izquierda (donde va el texto) para que el blanco
+                  // mantenga contraste AA; el degrade aclara hacia la derecha.
                   <motion.div
                     layoutId="nav-active-pill"
-                    className="absolute inset-0 rounded-lg bg-brand-50 dark:bg-brand-500/15"
+                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-brand-700 via-brand-600 to-brand-500 shadow-lg shadow-brand-600/30"
                     transition={{ type: "spring", stiffness: 380, damping: 32 }}
                   />
                 )}
@@ -397,21 +420,32 @@ function SidebarContent({
           </NavLink>
         ))}
       </nav>
-      <div className="border-t border-slate-100 px-3 py-3 dark:border-slate-800">
+      <div className="border-t border-slate-100 p-3 dark:border-white/[0.06]">
         <NavLink
           to="/perfil"
           onClick={onNavigate}
           className={({ isActive }) =>
             clsx(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              "flex items-center gap-3 rounded-xl p-2 transition-colors",
               isActive
-                ? "bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300"
-                : "text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+                ? "bg-brand-50 ring-1 ring-brand-200 dark:bg-brand-500/15 dark:ring-brand-500/30"
+                : "hover:bg-slate-100/80 dark:hover:bg-white/[0.05]"
             )
           }
         >
-          <UserCircle size={20} />
-          Mi perfil
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-100 ring-2 ring-white shadow-sm dark:bg-slate-700 dark:ring-slate-800">
+            {usuario?.fotoUrl ? (
+              <img src={usuario.fotoUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <UserCircle size={22} className="text-slate-400 dark:text-slate-500" />
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
+              {usuario?.nombre} {usuario?.apellido}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Mi perfil</p>
+          </div>
         </NavLink>
       </div>
     </>

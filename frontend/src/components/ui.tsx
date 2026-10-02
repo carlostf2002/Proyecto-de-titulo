@@ -2,7 +2,7 @@ import { ButtonHTMLAttributes, InputHTMLAttributes, LabelHTMLAttributes, ReactNo
 import { Link } from "react-router-dom";
 import { AnimatePresence, animate, motion, useMotionValue, useTransform } from "framer-motion";
 import clsx from "clsx";
-import { CheckCircle, Icon as PhosphorIcon, MagnifyingGlass, Tray, Warning, WarningCircle, X } from "@phosphor-icons/react";
+import { ArrowUpRight, CheckCircle, Icon as PhosphorIcon, MagnifyingGlass, Tray, Warning, WarningCircle, X } from "@phosphor-icons/react";
 
 // Animacion de entrada escalonada para filas de tabla / items de lista.
 // Uso: data.map((item, i) => <motion.tr key={item.id} {...staggerFade(i)}>...</motion.tr>)
@@ -38,7 +38,8 @@ export function Button({
       className={clsx(
         "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all disabled:cursor-not-allowed disabled:opacity-60",
         size === "md" ? "px-4 py-2 text-sm" : "px-3 py-1.5 text-xs",
-        variant === "primary" && "bg-brand-600 text-white shadow-sm shadow-brand-600/20 hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/30",
+        variant === "primary" &&
+          "bg-gradient-to-br from-brand-600 to-brand-700 text-white shadow-md shadow-brand-600/25 hover:shadow-lg hover:shadow-brand-600/40 hover:brightness-110",
         variant === "secondary" && "bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600 dark:hover:bg-slate-700",
         variant === "danger" && "bg-red-600 text-white shadow-sm shadow-red-600/20 hover:bg-red-700",
         variant === "ghost" && "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800",
@@ -63,8 +64,10 @@ export function Card({ className, children }: { className?: string; children: Re
       viewport={{ once: false, amount: 0.2 }}
       whileHover={{ y: -3 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
+      // Levemente translucido + blur: deja ver el brillo de color del fondo
+      // (AppLayout) y da profundidad, sin bajar el contraste del texto.
       className={clsx(
-        "rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-lg dark:border-slate-700 dark:bg-slate-800",
+        "rounded-2xl border border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/50 backdrop-blur-sm transition-shadow hover:shadow-xl hover:shadow-slate-300/40 dark:border-white/[0.06] dark:bg-slate-800/80 dark:shadow-black/20 dark:hover:shadow-black/40",
         className
       )}
     >
@@ -128,12 +131,13 @@ export function PageHeader({
       transition={{ duration: 0.3 }}
       className="flex flex-wrap items-center justify-between gap-4"
     >
-      <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">
-          <Icon size={22} weight="duotone" />
+      <div className="flex items-center gap-3.5">
+        <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-lg shadow-brand-600/30 ring-1 ring-white/20">
+          <Icon size={24} weight="duotone" />
+          <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-slate-50 bg-accent-500 dark:border-slate-950" />
         </div>
         <div>
-          <h1 className="font-display text-xl font-bold text-slate-900 dark:text-white">{title}</h1>
+          <h1 className="font-display text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-white">{title}</h1>
           {subtitle && <p className="text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>}
         </div>
       </div>
@@ -142,13 +146,14 @@ export function PageHeader({
   );
 }
 
-const STAT_TONES: Record<string, { bg: string; text: string }> = {
-  slate: { bg: "bg-slate-100 dark:bg-slate-700", text: "text-slate-600 dark:text-slate-300" },
-  brand: { bg: "bg-brand-50 dark:bg-brand-500/15", text: "text-brand-600 dark:text-brand-300" },
-  green: { bg: "bg-emerald-50 dark:bg-emerald-500/15", text: "text-emerald-600 dark:text-emerald-300" },
-  amber: { bg: "bg-amber-50 dark:bg-amber-500/15", text: "text-amber-600 dark:text-amber-300" },
-  red: { bg: "bg-red-50 dark:bg-red-500/15", text: "text-red-600 dark:text-red-300" },
-  purple: { bg: "bg-purple-50 dark:bg-purple-500/15", text: "text-purple-600 dark:text-purple-300" },
+// icono: degrade solido con icono blanco; brillo: mancha difusa de fondo del mismo tono.
+export const STAT_TONES: Record<string, { icono: string; brillo: string }> = {
+  slate: { icono: "from-slate-500 to-slate-700 shadow-slate-500/30", brillo: "bg-slate-400/20" },
+  brand: { icono: "from-brand-500 to-brand-700 shadow-brand-600/30", brillo: "bg-brand-500/20" },
+  green: { icono: "from-emerald-400 to-emerald-600 shadow-emerald-500/30", brillo: "bg-emerald-500/20" },
+  amber: { icono: "from-amber-400 to-orange-500 shadow-amber-500/30", brillo: "bg-amber-500/20" },
+  red: { icono: "from-red-500 to-rose-600 shadow-red-500/30", brillo: "bg-red-500/20" },
+  purple: { icono: "from-violet-500 to-purple-700 shadow-purple-500/30", brillo: "bg-purple-500/20" },
 };
 
 function AnimatedNumber({ value }: { value: number }) {
@@ -187,20 +192,29 @@ export function StatCard({
   const colors = STAT_TONES[tone];
   const contenido = (
     <>
-      <div className="flex items-center gap-3">
-        <div className={clsx("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", colors.bg, colors.text)}>
-          <Icon size={20} weight="bold" />
+      <div className={clsx("pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-2xl", colors.brillo)} aria-hidden />
+      <div className="relative flex items-start justify-between gap-2">
+        <div className={clsx("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg", colors.icono)}>
+          <Icon size={22} weight="fill" />
         </div>
-        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p>
+        {to && (
+          <ArrowUpRight
+            size={16}
+            weight="bold"
+            className="text-slate-300 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-brand-500 dark:text-slate-600"
+            aria-hidden
+          />
+        )}
       </div>
-      <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">
+      <p className="relative mt-4 font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
         <AnimatedNumber value={value} />
       </p>
+      <p className="relative mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p>
     </>
   );
 
   const className = clsx(
-    "block rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-lg dark:border-slate-700 dark:bg-slate-800",
+    "group relative block overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 p-5 shadow-sm shadow-slate-200/50 backdrop-blur-sm transition-shadow hover:shadow-xl hover:shadow-slate-300/40 dark:border-white/[0.06] dark:bg-slate-800/80 dark:shadow-black/20",
     to && "hover:border-brand-300 dark:hover:border-brand-500/50"
   );
 
@@ -345,8 +359,8 @@ export function EmptyState({
       transition={{ duration: 0.3 }}
       className="flex flex-col items-center justify-center gap-2 py-12 text-center"
     >
-      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500">
-        <Icon size={22} />
+      <div className="relative mb-1 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-50 to-accent-50 text-brand-500 ring-1 ring-brand-100 dark:from-brand-500/15 dark:to-accent-500/10 dark:text-brand-300 dark:ring-white/10">
+        <Icon size={26} weight="duotone" />
       </div>
       <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{title}</p>
       {description && <p className="text-xs text-slate-500 dark:text-slate-400">{description}</p>}
