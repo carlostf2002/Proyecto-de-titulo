@@ -9,6 +9,7 @@ import { useConfirm } from "../context/ConfirmContext";
 import { notificacionesApi } from "../api/endpoints";
 import { NOTIFICACION_SOS_CLASE } from "../lib/badges";
 import { BotonSOS } from "../components/BotonSOS";
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import type { Notificacion } from "../types";
 
 export interface NavItem {
@@ -322,7 +323,7 @@ export function AppLayout({ nav, children }: { nav: NavItem[]; children: ReactNo
           transition={{ duration: 0.25, ease: "easeOut" }}
           className="flex-1 p-4 lg:p-8"
         >
-          {children}
+          <ErrorBoundary resetKey={location.pathname}>{children}</ErrorBoundary>
         </motion.main>
       </div>
 
